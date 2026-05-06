@@ -58,7 +58,6 @@ export const useTasks = (options: FetchTasksOptions) => {
   return useQuery<TaskRead[], Error>({
     queryKey: ["tasks", options],
     queryFn: () => fetchTasks(options),
-    initialData: [],
   });
 };
 

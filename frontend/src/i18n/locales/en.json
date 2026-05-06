@@ -1,0 +1,136 @@
+{
+  "common": {
+    "appName": "Sigecon",
+    "appSubtitle": "Management and Control System",
+    "logout": "Sign out",
+    "close": "Close"
+  },
+  "nav": {
+    "tasks": "Tasks",
+    "administration": "Administration"
+  },
+  "login": {
+    "heading": "Sign in",
+    "username": "Username",
+    "usernamePlaceholder": "Your username",
+    "password": "Password",
+    "rememberMe": "Keep me signed in",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "signupPrompt": "Don't have an account?",
+    "signupLink": "Sign up",
+    "pendingApproval": "Your account is awaiting administrator approval.",
+    "validationError": "Error: {{messages}}",
+    "genericError": "An error occurred while signing in. Please check your credentials."
+  },
+  "signup": {
+    "heading": "Create account",
+    "passwordHint": "Password must be 8+ characters with letters, numbers and symbols.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Your full name",
+    "email": "Email",
+    "username": "Username",
+    "usernamePlaceholder": "your_username",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "submit": "Sign up",
+    "submitting": "Signing up...",
+    "loginPrompt": "Already have an account?",
+    "loginLink": "Sign in",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "success": "Account created successfully! Please wait for an administrator to approve your account.",
+    "validationError": "Validation error: {{messages}}",
+    "genericError": "An error occurred during sign up. Please try again later."
+  },
+  "admin": {
+    "title": "User Management",
+    "backToDashboard": "Back to Dashboard",
+    "filterByStatus": "Filter by status:",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterPending": "Inactive (Pending)",
+    "colName": "Name",
+    "colUsername": "Username",
+    "colEmail": "Email",
+    "colRole": "Role",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "deactivate": "Deactivate",
+    "approve": "Approve",
+    "makeDirector": "Make Director",
+    "makeAdministrator": "Make Admin",
+    "loadingUsers": "Loading users...",
+    "errorLoadingUsers": "Error loading users.",
+    "errorUpdatingUser": "Error updating user",
+    "cannotDeactivateSelf": "You cannot deactivate your own account.",
+    "cannotChangeOwnRole": "You cannot change your own role."
+  },
+  "tasks": {
+    "dashboard": {
+      "title": "Tasks",
+      "newTask": "New Task",
+      "allStatuses": "All statuses",
+      "allPriorities": "All priorities",
+      "clearFilters": "Clear filters",
+      "closeModal": "Close modal"
+    },
+    "list": {
+      "loading": "Loading tasks...",
+      "error": "Error loading tasks: {{message}}",
+      "empty": "No tasks found.",
+      "emptyFiltered": "No tasks match the selected filters."
+    },
+    "card": {
+      "noDescription": "No description"
+    },
+    "form": {
+      "editTitle": "Edit Task",
+      "newTitle": "New Task",
+      "errorSaving": "An error occurred while saving the task.",
+      "titleLabel": "Title *",
+      "titlePlaceholder": "Task title",
+      "titleRequired": "Title is required",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Task description (optional)",
+      "priorityLabel": "Priority",
+      "statusLabel": "Status",
+      "assigneeLabel": "Assigned to",
+      "unassigned": "Unassigned",
+      "assigneeHelper": "User selection will be improved in future versions.",
+      "dueDateLabel": "Due date",
+      "cancel": "Cancel",
+      "submitSaving": "Saving...",
+      "submitEdit": "Update task",
+      "submitCreate": "Create task"
+    },
+    "details": {
+      "description": "Description",
+      "noDescription": "No description provided.",
+      "assignedTo": "Assigned to",
+      "unassigned": "Unassigned",
+      "createdBy": "Created by",
+      "dueDate": "Due date",
+      "notSet": "Not set",
+      "createdAt": "Created at",
+      "updatedAt": "Updated at",
+      "changeStatus": "Change Status",
+      "statusPending": "Pending",
+      "statusInProgress": "In progress",
+      "statusCompleted": "Completed",
+      "statusCanceled": "Canceled",
+      "close": "Close",
+      "edit": "Edit"
+    },
+    "audit": {
+      "title": "Audit timeline",
+      "loading": "Loading history...",
+      "error": "Error loading history.",
+      "empty": "No changes recorded yet.",
+      "none": "None",
+      "emptyValue": "Empty"
+    }
+  }
+}

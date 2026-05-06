@@ -1,34 +1,22 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import type { TaskRead } from "../types";
 import { TaskStatus, TaskPriority } from "../types";
 import TaskCard from "./TaskCard";
-import styles from "./TaskList.module.css";
 
 interface TaskListProps {
-  /** Array of tasks to display. */
   tasks: TaskRead[];
-  /** Whether the tasks are currently being loaded. */
   isLoading: boolean;
-  /** Whether an error occurred while loading tasks. */
   isError: boolean;
-  /** The error object if an error occurred. */
   error: Error | null;
-  /** Active filters for local filtering. */
   filters: {
     status?: TaskStatus | null;
     priority?: TaskPriority | null;
     assigned_to_id?: string | null;
   };
-  /** Callback triggered when a task card is clicked. */
   onTaskClick?: (taskId: string) => void;
 }
 
-/**
- * Component to display a list of task cards with loading and error states.
- *
- * @param props - Component props containing tasks, loading state, and filters.
- * @returns A list of task cards or a status message.
- */
 const TaskList: React.FC<TaskListProps> = ({
   tasks,
   isLoading,
@@ -37,48 +25,53 @@ const TaskList: React.FC<TaskListProps> = ({
   filters,
   onTaskClick,
 }) => {
+  const { t } = useTranslation();
+
   if (isLoading) {
-    return <div className={styles.message}>Loading tasks...</div>;
+    return (
+      <p className="text-center text-muted-foreground py-10">
+        {t("tasks.list.loading")}
+      </p>
+    );
   }
 
   if (isError) {
     return (
-      <div className={styles.message}>
-        Error loading tasks: {error?.message}
-      </div>
+      <p className="text-center text-destructive py-10">
+        {t("tasks.list.error", { message: error?.message })}
+      </p>
     );
   }
 
   if (tasks.length === 0) {
-    return <div className={styles.message}>No tasks found.</div>;
+    return (
+      <p className="text-center text-muted-foreground py-10">
+        {t("tasks.list.empty")}
+      </p>
+    );
   }
 
-  // Filtrar tarefas localmente (embora o backend também filtre, esta é uma camada de segurança e UX)
   const filteredTasks = tasks.filter((task) => {
-    let matches = true;
-    if (filters.status && task.status !== filters.status) {
-      matches = false;
-    }
-    if (filters.priority && task.priority !== filters.priority) {
-      matches = false;
-    }
+    if (filters.status && task.status !== filters.status) return false;
+    if (filters.priority && task.priority !== filters.priority) return false;
     if (
       filters.assigned_to_id &&
       task.assigned_to_id !== filters.assigned_to_id
-    ) {
-      matches = false;
-    }
-    return matches;
+    )
+      return false;
+    return true;
   });
 
   if (filteredTasks.length === 0) {
     return (
-      <div className={styles.message}>No tasks match the current filters.</div>
+      <p className="text-center text-muted-foreground py-10">
+        {t("tasks.list.emptyFiltered")}
+      </p>
     );
   }
 
   return (
-    <div className={styles.taskList}>
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
       {filteredTasks.map((task) => (
         <TaskCard
           key={task.id}

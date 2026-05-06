@@ -1,0 +1,136 @@
+{
+  "common": {
+    "appName": "Sigecon",
+    "appSubtitle": "Sistema de Gestão e Controle",
+    "logout": "Sair",
+    "close": "Fechar"
+  },
+  "nav": {
+    "tasks": "Tarefas",
+    "administration": "Administração"
+  },
+  "login": {
+    "heading": "Entrar",
+    "username": "Usuário",
+    "usernamePlaceholder": "Seu nome de usuário",
+    "password": "Senha",
+    "rememberMe": "Mantenha-me conectado",
+    "submit": "Entrar",
+    "submitting": "Entrando...",
+    "signupPrompt": "Não tem uma conta?",
+    "signupLink": "Cadastre-se",
+    "pendingApproval": "Sua conta está aguardando aprovação de um administrador.",
+    "validationError": "Erro: {{messages}}",
+    "genericError": "Ocorreu um erro ao tentar fazer login. Verifique suas credenciais."
+  },
+  "signup": {
+    "heading": "Criar conta",
+    "passwordHint": "A senha deve ter 8+ caracteres com letras, números e símbolos.",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "Seu nome completo",
+    "email": "E-mail",
+    "username": "Usuário",
+    "usernamePlaceholder": "nome_de_usuario",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "submit": "Cadastrar",
+    "submitting": "Cadastrando...",
+    "loginPrompt": "Já tem uma conta?",
+    "loginLink": "Entre aqui",
+    "passwordMismatch": "As senhas não coincidem.",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
+    "success": "Cadastro realizado com sucesso! Aguarde a aprovação de um administrador para acessar o sistema.",
+    "validationError": "Erro de validação: {{messages}}",
+    "genericError": "Ocorreu um erro ao realizar o cadastro. Tente novamente mais tarde."
+  },
+  "admin": {
+    "title": "Gerenciamento de Usuários",
+    "backToDashboard": "Voltar ao Dashboard",
+    "filterByStatus": "Filtrar por status:",
+    "filterAll": "Todos",
+    "filterActive": "Ativos",
+    "filterPending": "Inativos (Pendentes)",
+    "colName": "Nome",
+    "colUsername": "Usuário",
+    "colEmail": "E-mail",
+    "colRole": "Cargo",
+    "colStatus": "Status",
+    "colActions": "Ações",
+    "statusActive": "Ativo",
+    "statusInactive": "Inativo",
+    "deactivate": "Desativar",
+    "approve": "Aprovar",
+    "makeDirector": "Mudar p/ Diretor",
+    "makeAdministrator": "Mudar p/ Admin",
+    "loadingUsers": "Carregando usuários...",
+    "errorLoadingUsers": "Erro ao carregar usuários.",
+    "errorUpdatingUser": "Erro ao atualizar usuário",
+    "cannotDeactivateSelf": "Você não pode desativar sua própria conta.",
+    "cannotChangeOwnRole": "Você não pode alterar seu próprio cargo."
+  },
+  "tasks": {
+    "dashboard": {
+      "title": "Tarefas",
+      "newTask": "Nova Tarefa",
+      "allStatuses": "Todos os status",
+      "allPriorities": "Todas as prioridades",
+      "clearFilters": "Limpar filtros",
+      "closeModal": "Fechar modal"
+    },
+    "list": {
+      "loading": "Carregando tarefas...",
+      "error": "Erro ao carregar tarefas: {{message}}",
+      "empty": "Nenhuma tarefa encontrada.",
+      "emptyFiltered": "Nenhuma tarefa corresponde aos filtros selecionados."
+    },
+    "card": {
+      "noDescription": "Sem descrição"
+    },
+    "form": {
+      "editTitle": "Editar Tarefa",
+      "newTitle": "Nova Tarefa",
+      "errorSaving": "Ocorreu um erro ao salvar a tarefa.",
+      "titleLabel": "Título *",
+      "titlePlaceholder": "Título da tarefa",
+      "titleRequired": "Título é obrigatório",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Descrição da tarefa (opcional)",
+      "priorityLabel": "Prioridade",
+      "statusLabel": "Status",
+      "assigneeLabel": "Atribuído a",
+      "unassigned": "Não atribuído",
+      "assigneeHelper": "Seleção de usuário será melhorada em versões futuras.",
+      "dueDateLabel": "Data de entrega",
+      "cancel": "Cancelar",
+      "submitSaving": "Salvando...",
+      "submitEdit": "Atualizar tarefa",
+      "submitCreate": "Criar tarefa"
+    },
+    "details": {
+      "description": "Descrição",
+      "noDescription": "Nenhuma descrição fornecida.",
+      "assignedTo": "Atribuído a",
+      "unassigned": "Não atribuído",
+      "createdBy": "Criado por",
+      "dueDate": "Data de entrega",
+      "notSet": "Não definido",
+      "createdAt": "Criado em",
+      "updatedAt": "Atualizado em",
+      "changeStatus": "Alterar Status",
+      "statusPending": "Pendente",
+      "statusInProgress": "Em andamento",
+      "statusCompleted": "Concluída",
+      "statusCanceled": "Cancelada",
+      "close": "Fechar",
+      "edit": "Editar"
+    },
+    "audit": {
+      "title": "Histórico de alterações",
+      "loading": "Carregando histórico...",
+      "error": "Erro ao carregar histórico.",
+      "empty": "Nenhuma alteração registrada ainda.",
+      "none": "Nenhum",
+      "emptyValue": "Vazio"
+    }
+  }
+}
