@@ -1,29 +1,8 @@
 [
   {
-    "id": "architect",
-    "name": "architect",
-    "role": "Expert in designing scalable and secure software architectures.",
-    "instruction": "Bootstrap loaded from filesystem.",
-    "color": "#00c3ff"
-  },
-  {
     "id": "devsecops",
     "name": "devsecops",
     "role": "Expert in security, CI/CD, and infrastructure automation.",
-    "instruction": "Bootstrap loaded from filesystem.",
-    "color": "#00c3ff"
-  },
-  {
-    "id": "em",
-    "name": "em",
-    "role": "Engineering Manager focused on orchestrating project teams.",
-    "instruction": "Bootstrap loaded from filesystem.",
-    "color": "#00c3ff"
-  },
-  {
-    "id": "engineer",
-    "name": "engineer",
-    "role": "Senior engineer for implementation and technical execution.",
     "instruction": "Bootstrap loaded from filesystem.",
     "color": "#00c3ff"
   },
@@ -35,23 +14,9 @@
     "color": "#00c3ff"
   },
   {
-    "id": "pm",
-    "name": "pm",
-    "role": "Product Manager focused on requirements and business value.",
-    "instruction": "Bootstrap loaded from filesystem.",
-    "color": "#00c3ff"
-  },
-  {
     "id": "product-manager",
     "name": "product-manager",
     "role": "Product Manager focused on requirements and business value.",
-    "instruction": "Bootstrap loaded from filesystem.",
-    "color": "#00c3ff"
-  },
-  {
-    "id": "qa",
-    "name": "qa",
-    "role": "Quality Assurance expert for testing and verification.",
     "instruction": "Bootstrap loaded from filesystem.",
     "color": "#00c3ff"
   },
@@ -84,13 +49,6 @@
     "color": "#00c3ff"
   },
   {
-    "id": "sre",
-    "name": "sre",
-    "role": "Site Reliability Engineer focused on availability and performance.",
-    "instruction": "Bootstrap loaded from filesystem.",
-    "color": "#00c3ff"
-  },
-  {
     "id": "staff-engineer",
     "name": "staff-engineer",
     "role": "Technical leader focused on complex cross-cutting problems.",
@@ -108,13 +66,6 @@
     "id": "react-expert",
     "name": "react-expert",
     "role": "Advanced specialist in React and modern frontend development.",
-    "instruction": "Bootstrap loaded from filesystem.",
-    "color": "#00c3ff"
-  },
-  {
-    "id": "sql-expert",
-    "name": "sql-expert",
-    "role": "Expert in SQL database design and query optimization.",
     "instruction": "Bootstrap loaded from filesystem.",
     "color": "#00c3ff"
   }

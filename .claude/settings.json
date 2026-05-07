@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Write",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(ls *)",
+      "Bash(python -m pytest *)",
+      "Bash(pytest *)",
+      "Bash(cd * && python -m pytest *)",
+      "Bash(cd * && pytest *)",
+      "Bash(npm run test *)",
+      "Bash(npm run build)",
+      "Bash(npm run build *)",
+      "Bash(npm run lint *)",
+      "Bash(npm test *)",
+      "Bash(cd * && npm run test *)",
+      "Bash(cd * && npm run build *)",
+      "Bash(cd * && npm run build)",
+      "Bash(cd * && npm run lint *)",
+      "Bash(cd * && npm test *)",
+      "Bash(git merge *)",
+      "Bash(git push *)",
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(git rebase *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(uv run pytest *)"
+    ]
+  }
+}

@@ -1,7 +1,12 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import TaskDashboard from "../TaskDashboard";
-import { useTasks, useCreateTask, useUpdateTask, useTaskHistory } from "../../hooks/useTasks";
+import {
+  useTasks,
+  useCreateTask,
+  useUpdateTask,
+  useTaskHistory,
+} from "../../hooks/useTasks";
 import { TaskStatus, TaskPriority } from "../../types";
 
 // Mock dos hooks
@@ -30,7 +35,7 @@ const mockTasks = [
 describe("TaskDashboard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Default mock implementations
     (useTasks as any).mockReturnValue({
       data: mockTasks,
@@ -38,8 +43,14 @@ describe("TaskDashboard", () => {
       isError: false,
       error: null,
     });
-    (useCreateTask as any).mockReturnValue({ mutate: vi.fn(), isPending: false });
-    (useUpdateTask as any).mockReturnValue({ mutate: vi.fn(), isPending: false });
+    (useCreateTask as any).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    });
+    (useUpdateTask as any).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    });
     (useTaskHistory as any).mockReturnValue({ data: [], isLoading: false });
   });
 
@@ -53,123 +64,130 @@ describe("TaskDashboard", () => {
 
   it("updates filters when selection changes", () => {
     render(<TaskDashboard />);
-    
+
     const statusSelect = screen.getByDisplayValue("All Statuses");
     fireEvent.change(statusSelect, { target: { value: TaskStatus.COMPLETED } });
-    
-    expect(useTasks).toHaveBeenLastCalledWith(expect.objectContaining({ status: TaskStatus.COMPLETED }));
+
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ status: TaskStatus.COMPLETED }),
+    );
 
     const prioritySelect = screen.getByDisplayValue("All Priorities");
     fireEvent.change(prioritySelect, { target: { value: TaskPriority.HIGH } });
-    
-    expect(useTasks).toHaveBeenLastCalledWith(expect.objectContaining({ 
-      status: TaskStatus.COMPLETED, 
-      priority: TaskPriority.HIGH 
-    }));
+
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        status: TaskStatus.COMPLETED,
+        priority: TaskPriority.HIGH,
+      }),
+    );
   });
 
   it("clears filters when clear button is clicked", () => {
     render(<TaskDashboard />);
-    
+
     const statusSelect = screen.getByDisplayValue("All Statuses");
     fireEvent.change(statusSelect, { target: { value: TaskStatus.COMPLETED } });
-    
+
     const clearButton = screen.getByText("Clear Filters");
     fireEvent.click(clearButton);
-    
+
     expect(useTasks).toHaveBeenLastCalledWith({ status: null, priority: null });
   });
 
   it("opens and closes the creation modal", () => {
     render(<TaskDashboard />);
-    
+
     const createButton = screen.getByText("+ New Task");
     fireEvent.click(createButton);
-    
+
     expect(screen.getByText("Create New Task")).toBeInTheDocument();
-    
+
     const cancelButton = screen.getByText("Cancel");
     fireEvent.click(cancelButton);
-    
+
     expect(screen.queryByText("Create New Task")).not.toBeInTheDocument();
   });
 
   it("opens task details when a task is clicked", () => {
     render(<TaskDashboard />);
-    
+
     const taskCard = screen.getByText("Task 1");
     fireEvent.click(taskCard);
-    
+
     // Na TaskDetailsView o título aparece em um H2
     expect(screen.getAllByText("Task 1").length).toBeGreaterThan(1);
     expect(screen.getByText("Edit Task")).toBeInTheDocument();
-    
+
     const closeButton = screen.getByText("Close");
     fireEvent.click(closeButton);
-    
+
     // Verifica se fechou (só deve sobrar o texto no card na lista)
     expect(screen.queryByText("Close")).not.toBeInTheDocument();
   });
 
   it("enters edit mode from details view", () => {
     render(<TaskDashboard />);
-    
+
     fireEvent.click(screen.getByText("Task 1"));
     fireEvent.click(screen.getByText("Edit Task"));
-    
+
     expect(screen.getByText("Edit Task")).toBeInTheDocument();
     // No formulário de edição o botão de submit muda para "Update Task"
     expect(screen.getByText("Update Task")).toBeInTheDocument();
-    
+
     // Clicar em cancelar na edição deve voltar para a view de detalhes
     fireEvent.click(screen.getByText("Cancel"));
     expect(screen.getByText("Close")).toBeInTheDocument();
   });
 
   it("handles successful task creation/update and closes overlay", () => {
-    const mockMutate = vi.fn((data, options) => {
+    const mockMutate = vi.fn((_data, options) => {
       if (options?.onSuccess) options.onSuccess();
     });
-    (useCreateTask as any).mockReturnValue({ mutate: mockMutate, isPending: false });
+    (useCreateTask as any).mockReturnValue({
+      mutate: mockMutate,
+      isPending: false,
+    });
 
     render(<TaskDashboard />);
-    
+
     // Test creation success
     fireEvent.click(screen.getByText("+ New Task"));
-    
+
     const titleInput = screen.getByPlaceholderText(/Enter task title/i);
     fireEvent.change(titleInput, { target: { value: "Success Task" } });
-    
+
     const createBtn = screen.getByRole("button", { name: "Create Task" });
     fireEvent.click(createBtn);
-    
+
     expect(screen.queryByText("Create New Task")).not.toBeInTheDocument();
   });
 
   it("closes overlay when clicking on background", () => {
     render(<TaskDashboard />);
-    
+
     fireEvent.click(screen.getByText("+ New Task"));
-    
-    const modalContent = screen.getByText("Create New Task").closest('div');
+
+    const modalContent = screen.getByText("Create New Task").closest("div");
     const overlay = modalContent?.parentElement?.parentElement;
-    
+
     if (overlay) {
-        fireEvent.click(overlay);
-        expect(screen.queryByText("Create New Task")).not.toBeInTheDocument();
+      fireEvent.click(overlay);
+      expect(screen.queryByText("Create New Task")).not.toBeInTheDocument();
     }
   });
 
   it("closes overlay when Enter or Space is pressed on overlay", () => {
     render(<TaskDashboard />);
-    
+
     fireEvent.click(screen.getByText("+ New Task"));
-    
+
     const overlay = screen.getByLabelText("Close modal");
-    
+
     fireEvent.keyDown(overlay, { key: "Enter" });
     expect(screen.queryByText("Create New Task")).not.toBeInTheDocument();
-    
+
     fireEvent.click(screen.getByText("+ New Task"));
     const overlay2 = screen.getByLabelText("Close modal");
     fireEvent.keyDown(overlay2, { key: " " });
@@ -183,7 +201,7 @@ describe("TaskDashboard", () => {
 
   it("stops propagation on modal content for onClick and onKeyDown in all modal types", () => {
     render(<TaskDashboard />);
-    
+
     // 1. Create Modal
     fireEvent.click(screen.getByText("+ New Task"));
     const createModalContent = screen.getByRole("document");
@@ -209,11 +227,11 @@ describe("TaskDashboard", () => {
 
   it("resets other modes when handleCreateNewTask is called", () => {
     render(<TaskDashboard />);
-    
+
     // Select a task first
     fireEvent.click(screen.getByText("Task 1"));
     expect(screen.getByText("Close")).toBeInTheDocument(); // Details view
-    
+
     // Now click New Task
     fireEvent.click(screen.getByText("+ New Task"));
     expect(screen.getByText("Create New Task")).toBeInTheDocument();
@@ -222,11 +240,11 @@ describe("TaskDashboard", () => {
 
   it("resets other modes when handleTaskClick is called", () => {
     render(<TaskDashboard />);
-    
+
     // Open create modal
     fireEvent.click(screen.getByText("+ New Task"));
     expect(screen.getByText("Create New Task")).toBeInTheDocument();
-    
+
     // Click on a task in the list
     fireEvent.click(screen.getByText("Task 1"));
     expect(screen.getByText("Close")).toBeInTheDocument(); // Details view
@@ -240,7 +258,7 @@ describe("TaskDashboard", () => {
       isError: false,
       error: null,
     });
-    
+
     render(<TaskDashboard />);
     // When tasks is undefined, TaskList shouldn't render
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
@@ -250,38 +268,49 @@ describe("TaskDashboard", () => {
 
   it("allows setting individual filters to null (All)", () => {
     render(<TaskDashboard />);
-    
+
     const statusSelect = screen.getByDisplayValue("All Statuses");
     fireEvent.change(statusSelect, { target: { value: TaskStatus.COMPLETED } });
-    expect(useTasks).toHaveBeenLastCalledWith(expect.objectContaining({ status: TaskStatus.COMPLETED }));
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ status: TaskStatus.COMPLETED }),
+    );
 
     // Change back to All
     fireEvent.change(statusSelect, { target: { value: "" } });
-    expect(useTasks).toHaveBeenLastCalledWith(expect.objectContaining({ status: null }));
-    
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ status: null }),
+    );
+
     const prioritySelect = screen.getByDisplayValue("All Priorities");
     fireEvent.change(prioritySelect, { target: { value: TaskPriority.HIGH } });
-    expect(useTasks).toHaveBeenLastCalledWith(expect.objectContaining({ priority: TaskPriority.HIGH }));
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ priority: TaskPriority.HIGH }),
+    );
 
     // Change back to All
     fireEvent.change(prioritySelect, { target: { value: "" } });
-    expect(useTasks).toHaveBeenLastCalledWith(expect.objectContaining({ priority: null }));
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ priority: null }),
+    );
   });
 
   it("closes overlay after successful update in edit mode", () => {
-    const mockUpdateMutate = vi.fn((data, options) => {
+    const mockUpdateMutate = vi.fn((_data, options) => {
       if (options?.onSuccess) options.onSuccess();
     });
-    (useUpdateTask as any).mockReturnValue({ mutate: mockUpdateMutate, isPending: false });
+    (useUpdateTask as any).mockReturnValue({
+      mutate: mockUpdateMutate,
+      isPending: false,
+    });
 
     render(<TaskDashboard />);
-    
+
     fireEvent.click(screen.getByText("Task 1"));
     fireEvent.click(screen.getByText("Edit Task"));
-    
+
     const updateBtn = screen.getByRole("button", { name: "Update Task" });
     fireEvent.click(updateBtn);
-    
+
     expect(screen.queryByText("Update Task")).not.toBeInTheDocument();
     expect(screen.queryByText("Close")).not.toBeInTheDocument();
   });
@@ -314,6 +343,8 @@ describe("TaskDashboard", () => {
       error: new Error("Fetch error"),
     });
     render(<TaskDashboard />);
-    expect(screen.getByText(/Error loading tasks: Fetch error/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Error loading tasks: Fetch error/i),
+    ).toBeInTheDocument();
   });
 });

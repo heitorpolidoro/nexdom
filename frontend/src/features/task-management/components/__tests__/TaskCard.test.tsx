@@ -20,7 +20,7 @@ const mockTask = {
 describe("TaskCard", () => {
   it("renders task basic details correctly", () => {
     render(<TaskCard task={mockTask} />);
-    
+
     expect(screen.getByText("Test Task")).toBeInTheDocument();
     expect(screen.getByText("Test Description")).toBeInTheDocument();
     expect(screen.getByText("PENDING")).toBeInTheDocument();
@@ -44,15 +44,15 @@ describe("TaskCard", () => {
   it("calls onClick when Enter or Space is pressed", () => {
     const onClick = vi.fn();
     render(<TaskCard task={mockTask} onClick={onClick} />);
-    
+
     const card = screen.getByRole("button");
-    
+
     fireEvent.keyDown(card, { key: "Enter" });
     expect(onClick).toHaveBeenCalledTimes(1);
-    
+
     fireEvent.keyDown(card, { key: " " });
     expect(onClick).toHaveBeenCalledTimes(2);
-    
+
     fireEvent.keyDown(card, { key: "Tab" }); // Should NOT call onClick
     expect(onClick).toHaveBeenCalledTimes(2);
   });
@@ -67,8 +67,10 @@ describe("TaskCard", () => {
     ];
 
     statuses.forEach(({ status, expectedClass }) => {
-      const { rerender } = render(<TaskCard task={{ ...mockTask, status }} />);
-      const statusElement = screen.getByText(status === "UNKNOWN" ? "UNKNOWN" : status);
+      render(<TaskCard task={{ ...mockTask, status }} />);
+      const statusElement = screen.getByText(
+        status === "UNKNOWN" ? "UNKNOWN" : status,
+      );
       expect(statusElement.className).toContain(expectedClass);
       // Clean up for next iteration if necessary, though rerender handles it
     });
@@ -85,7 +87,9 @@ describe("TaskCard", () => {
 
     priorities.forEach(({ priority, expectedClass }) => {
       render(<TaskCard task={{ ...mockTask, priority }} />);
-      const priorityElement = screen.getByText(priority === "UNKNOWN" ? "UNKNOWN" : priority);
+      const priorityElement = screen.getByText(
+        priority === "UNKNOWN" ? "UNKNOWN" : priority,
+      );
       expect(priorityElement.className).toContain(expectedClass);
     });
   });

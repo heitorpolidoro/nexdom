@@ -22,5 +22,5 @@ class TaskPriority(StrEnum):
 class UserRole(StrEnum):
     """Enumeration for user roles."""
 
+    ADMINISTRADOR = "ADMINISTRADOR"
     DIRETOR = "DIRETOR"
-    FUNCIONARIO = "FUNCIONARIO"

@@ -3,9 +3,8 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
-
 from app.models.enums import TaskPriority, TaskStatus
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TaskBase(BaseModel):
@@ -21,8 +20,6 @@ class TaskBase(BaseModel):
 
 class TaskCreate(TaskBase):
     """Schema for creating a new task."""
-
-    pass
 
 
 class TaskUpdate(BaseModel):

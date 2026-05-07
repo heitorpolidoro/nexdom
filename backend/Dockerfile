@@ -16,5 +16,5 @@ COPY . .
 # Expõe a porta do FastAPI
 EXPOSE 8000
 
-# Comando para rodar as migrações e iniciar o servidor com reload
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Comando para rodar as migrações e iniciar o servidor com reload apenas no diretório app
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "app"]

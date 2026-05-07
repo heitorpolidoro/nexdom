@@ -1,17 +1,16 @@
 import uuid
 
-from sqlmodel import Session, create_engine, select
-
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models.enums import UserRole
 from app.models.user import User
+from sqlmodel import Session, create_engine, select
 
 
 def seed_db():
     engine = create_engine(settings.database_url)
     with Session(engine) as session:
-        # 1. Admin / Diretor
+        # 1. Admin / Administrador do Sistema
         statement = select(User).where(User.username == "admin")
         admin = session.exec(statement).first()
         if not admin:
@@ -20,17 +19,18 @@ def seed_db():
                 username="admin",
                 email="admin@sigecon.com",
                 hashed_password=get_password_hash("test_admin_password"),
-                full_name="Diretor Administrativo",
-                role=UserRole.DIRETOR,
+                full_name="Administrador do Sistema",
+                role=UserRole.ADMINISTRADOR,
             )
             session.add(admin)
             print("Admin seed criado.")
         else:
+            admin.role = UserRole.ADMINISTRADOR
             admin.hashed_password = get_password_hash("test_admin_password")
             session.add(admin)
-            print("Senha do Admin atualizada.")
+            print("Admin atualizado.")
 
-        # 2. Funcionário
+        # 2. Diretor Operacional
         statement = select(User).where(User.username == "user1")
         user1 = session.exec(statement).first()
         if not user1:
@@ -39,11 +39,15 @@ def seed_db():
                 username="user1",
                 email="user1@sigecon.com",
                 hashed_password=get_password_hash("test_user_password"),
-                full_name="Funcionário Operacional",
-                role=UserRole.FUNCIONARIO,
+                full_name="Diretor Operacional",
+                role=UserRole.DIRETOR,
             )
             session.add(user1)
-            print("Funcionário seed criado.")
+            print("Diretor operacional seed criado.")
+        else:
+            user1.role = UserRole.DIRETOR
+            session.add(user1)
+            print("Diretor operacional atualizado.")
 
         session.commit()
 

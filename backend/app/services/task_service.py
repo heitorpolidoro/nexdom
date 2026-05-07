@@ -3,12 +3,11 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlmodel import Session, select
-
 from app.core.exceptions import ForbiddenError
 from app.models.enums import UserRole
 from app.models.task import Task, TaskHistory, get_utc_now
 from app.schemas.task import TaskCreate, TaskUpdate
+from sqlmodel import Session, select
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -51,20 +50,17 @@ class TaskService:
             Task: The updated task.
 
         Raises:
-            ForbiddenError: If the user lacks permission to update fields.
+            ForbiddenError: If DIRETOR tries to update non-status fields or a task
+                not assigned to them. ADMINISTRADOR can update any field of any task.
         """
-        # RBAC Validation
-        if current_user.role != UserRole.DIRETOR:
-            if db_task.assigned_to_id != current_user.id:
-                raise ForbiddenError
-
-            # Field restriction for Employee
-            update_data = task_in.model_dump(exclude_unset=True)
-            allowed_fields = {"status"}
-            if not set(update_data.keys()).issubset(allowed_fields):
-                raise ForbiddenError("Employees can only update task status")
-
         update_data = task_in.model_dump(exclude_unset=True)
+
+        if current_user.role == UserRole.DIRETOR:
+            if db_task.assigned_to_id != current_user.id:
+                raise ForbiddenError()
+            non_status_fields = {k for k in update_data if k != "status"}
+            if non_status_fields:
+                raise ForbiddenError()
 
         for key, value in update_data.items():
             old_value = getattr(db_task, key)

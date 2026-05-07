@@ -41,7 +41,7 @@ export interface TaskBase {
   /** The priority level of the task. */
   priority: TaskPriority;
   /** The optional deadline for the task. */
-  due_date?: Date | null;
+  due_date?: Date | string | null;
   /** The UUID of the user assigned to the task. */
   assigned_to_id?: string | null;
 }
@@ -56,7 +56,7 @@ export interface TaskCreate extends Omit<
   title: string;
   description?: string | null;
   priority?: TaskPriority;
-  due_date?: Date | null;
+  due_date?: Date | string | null;
   assigned_to_id?: string | null;
 }
 
@@ -75,9 +75,9 @@ export interface TaskRead extends TaskBase {
   /** Unique identifier for the task. */
   id: string;
   /** When the task was created. */
-  created_at: Date;
+  created_at: Date | string;
   /** When the task was last updated. */
-  updated_at: Date;
+  updated_at: Date | string;
   /** The UUID of the user who created the task. */
   created_by_id: string;
 }
@@ -101,5 +101,5 @@ export interface TaskHistoryRead {
   /** The value after the change. */
   new_value: string | null;
   /** When the change occurred. */
-  timestamp: Date;
+  timestamp: Date | string;
 }

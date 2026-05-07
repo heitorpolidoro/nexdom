@@ -41,8 +41,8 @@ Este documento decompõe o plano de implementação do Track 01 em tarefas granu
 - **Traceability:** Plan Section 5, Spec Audience.
 - **Definition of Done:**
   - Only authenticated users can access task endpoints.
-  - Only `DIRETOR` role can create/delete tasks.
-  - `FUNCIONARIO` can only update tasks assigned to them (restricted to status/progress).
+  - Only `ADMINISTRADOR` role can create/delete tasks.
+  - `DIRETOR` can only update tasks assigned to them (restricted to status/progress).
   - Integration tests for unauthorized/forbidden access.
 - **Estimated Effort:** 1-2 days.
 

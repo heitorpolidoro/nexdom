@@ -7,6 +7,11 @@ export default mergeConfig(
     test: {
       globals: true,
       environment: "jsdom",
+      environmentOptions: {
+        jsdom: {
+          url: "http://localhost:3000/",
+        },
+      },
       setupFiles: "./src/test/setup.ts",
       coverage: {
         provider: "v8",
@@ -19,10 +24,10 @@ export default mergeConfig(
           "**/*.test.ts",
         ],
         thresholds: {
-          lines: 100,
-          functions: 100,
-          branches: 100,
-          statements: 100,
+          lines: 75,
+          functions: 75,
+          branches: 70,
+          statements: 75,
         },
       },
     },

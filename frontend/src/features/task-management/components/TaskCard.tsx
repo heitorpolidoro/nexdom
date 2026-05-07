@@ -62,7 +62,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
    * Handles keyboard events for accessibility.
    */
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
+    if ((e.key === "Enter" || e.key === " ") && onClick) {
       e.preventDefault();
       onClick();
     }

@@ -19,7 +19,7 @@ class User(SQLModel, table=True):
         email: Unique email address.
         hashed_password: The user's hashed password.
         full_name: User's full name.
-        role: User role (DIRETOR, FUNCIONARIO).
+        role: User role (ADMINISTRADOR, DIRETOR).
         is_active: Whether the user account is active.
     """
 
@@ -28,7 +28,7 @@ class User(SQLModel, table=True):
     email: str = Field(index=True, unique=True)
     hashed_password: str
     full_name: str
-    role: UserRole = Field(default=UserRole.FUNCIONARIO)
+    role: UserRole = Field(default=UserRole.DIRETOR)
     is_active: bool = Field(default=True)
 
     # Relationships
