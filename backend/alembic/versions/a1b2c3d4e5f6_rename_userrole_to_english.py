@@ -19,18 +19,28 @@ depends_on: str | Sequence[str] | None = None
 
 def upgrade() -> None:
     # Cast to text to detach from the enum, swap values, recreate enum
-    op.execute("ALTER TABLE \"user\" ALTER COLUMN role TYPE text")
+    op.execute('ALTER TABLE "user" ALTER COLUMN role TYPE text')
     op.execute("DROP TYPE userrole")
     op.execute("CREATE TYPE userrole AS ENUM ('ADMINISTRATOR', 'DIRECTOR')")
-    op.execute("UPDATE \"user\" SET role = 'ADMINISTRATOR' WHERE role = 'ADMINISTRADOR'")
+    op.execute(
+        "UPDATE \"user\" SET role = 'ADMINISTRATOR' WHERE role = 'ADMINISTRADOR'"
+    )
     op.execute("UPDATE \"user\" SET role = 'DIRECTOR' WHERE role = 'DIRETOR'")
-    op.execute("ALTER TABLE \"user\" ALTER COLUMN role TYPE userrole USING role::userrole")
+    op.execute(
+        'ALTER TABLE "user" ALTER COLUMN role TYPE userrole USING role::userrole'
+    )
 
 
 def downgrade() -> None:
-    op.execute("ALTER TABLE \"user\" ALTER COLUMN role TYPE text")
+    op.execute('ALTER TABLE "user" ALTER COLUMN role TYPE text')
     op.execute("DROP TYPE userrole")
-    op.execute("CREATE TYPE userrole AS ENUM ('DIRETOR', 'FUNCIONARIO', 'ADMINISTRADOR')")
-    op.execute("UPDATE \"user\" SET role = 'ADMINISTRADOR' WHERE role = 'ADMINISTRATOR'")
+    op.execute(
+        "CREATE TYPE userrole AS ENUM ('DIRETOR', 'FUNCIONARIO', 'ADMINISTRADOR')"
+    )
+    op.execute(
+        "UPDATE \"user\" SET role = 'ADMINISTRADOR' WHERE role = 'ADMINISTRATOR'"
+    )
     op.execute("UPDATE \"user\" SET role = 'DIRETOR' WHERE role = 'DIRECTOR'")
-    op.execute("ALTER TABLE \"user\" ALTER COLUMN role TYPE userrole USING role::userrole")
+    op.execute(
+        'ALTER TABLE "user" ALTER COLUMN role TYPE userrole USING role::userrole'
+    )
