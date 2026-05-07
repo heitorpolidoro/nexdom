@@ -1,28 +1,28 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { TaskPriority, TaskStatus } from "../types";
 import type { TaskRead, TaskCreate, TaskUpdate } from "../types";
 import { useCreateTask, useUpdateTask } from "../hooks/useTasks";
-import styles from "./TaskForm.module.css";
+import { useUsers } from "../../../hooks/useUsers";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Textarea } from "../../../components/ui/textarea";
+import { Select } from "../../../components/ui/select";
+import { Label } from "../../../components/ui/label";
+import { Alert, AlertDescription } from "../../../components/ui/alert";
 
 interface TaskFormProps {
-  /** Optional task for editing mode. If omitted, the form is in creation mode. */
   task?: TaskRead;
-  /** Callback called after a successful save/update. */
   onSuccess: () => void;
-  /** Callback called when the user cancels the operation. */
   onCancel: () => void;
 }
 
-/**
- * Form component for creating and editing tasks.
- *
- * @param props - Component props.
- * @returns The TaskForm component.
- */
 const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
+  const { t } = useTranslation();
   const isEditing = !!task;
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
+  const { data: users } = useUsers();
 
   const isLoading =
     createTaskMutation.isPending || updateTaskMutation.isPending;
@@ -37,37 +37,30 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     status: TaskStatus.PENDING,
   };
 
-  /**
-   * Transforms task values for form compatibility.
-   */
-  const transforms: Record<string, (value: any) => any> = {
+  const transforms: Record<string, (value: unknown) => unknown> = {
     title: (v) => v,
     description: (v) => v || "",
     priority: (v) => v,
     assigned_to_id: (v) => v || "",
-    due_date: (v) => (v ? new Date(v).toISOString().split("T")[0] : ""),
+    due_date: (v) =>
+      v ? new Date(v as string).toISOString().split("T")[0] : "",
     status: (v) => v,
   };
 
-  /**
-   * Helper to get initial state from task or defaults.
-   */
   const getInitialState = () => {
-    const initial: Record<string, any> = {};
+    const initial: Record<string, unknown> = {};
     (Object.keys(defaultValues) as Array<keyof typeof defaultValues>).forEach(
       (key) => {
         const value = task ? task[key as keyof TaskRead] : defaultValues[key];
         initial[key] = transforms[key](value);
       },
-    );    return initial;
+    );
+    return initial;
   };
 
   const [formData, setFormData] = useState(getInitialState());
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  /**
-   * Handles input changes and clears related errors.
-   */
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -77,35 +70,33 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => {
-        const { [name]: _, ...rest } = prev;
-        return rest;
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
       });
     }
   };
 
-  /**
-   * Validates form data.
-   */
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (!(formData.title as string).trim())
+      newErrors.title = t("tasks.form.titleRequired");
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  /**
-   * Handles form submission.
-   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     const commonData = {
-      title: formData.title,
-      description: formData.description || null,
+      title: formData.title as string,
+      description: (formData.description as string) || null,
       priority: formData.priority as TaskPriority,
-      due_date: formData.due_date ? new Date(formData.due_date) : null,
-      assigned_to_id: formData.assigned_to_id || null,
+      due_date: formData.due_date
+        ? new Date(formData.due_date as string)
+        : null,
+      assigned_to_id: (formData.assigned_to_id as string) || null,
     };
 
     if (isEditing && task) {
@@ -122,155 +113,151 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     }
   };
 
-  const submitButtonText = isLoading
-    ? "Saving..."
+  const submitText = isLoading
+    ? t("tasks.form.submitSaving")
     : isEditing
-      ? "Update Task"
-      : "Create Task";
+      ? t("tasks.form.submitEdit")
+      : t("tasks.form.submitCreate");
+
+  const getStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      PENDING: t("tasks.details.statusPending"),
+      IN_PROGRESS: t("tasks.details.statusInProgress"),
+      COMPLETED: t("tasks.details.statusCompleted"),
+      CANCELED: t("tasks.details.statusCanceled"),
+    };
+    return map[status] || status;
+  };
 
   return (
-    <div className={styles.formContainer}>
-      <h2 className={styles.title}>
-        {isEditing ? "Edit Task" : "Create New Task"}
+    <div className="p-6">
+      <h2 className="text-xl font-semibold text-foreground mb-5">
+        {isEditing ? t("tasks.form.editTitle") : t("tasks.form.newTitle")}
       </h2>
 
       {serverError && (
-        <div className={styles.error} style={{ marginBottom: "1rem" }}>
-          {(serverError as any).response?.data?.detail ||
-            "An error occurred while saving the task."}
-        </div>
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>
+            {(serverError as { response?: { data?: { detail?: string } } })
+              .response?.data?.detail || t("tasks.form.errorSaving")}
+          </AlertDescription>
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="title">
-            Title *
-          </label>
-          <input
-            type="text"
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="title">{t("tasks.form.titleLabel")}</Label>
+          <Input
             id="title"
             name="title"
-            className={styles.input}
-            value={formData.title}
+            value={formData.title as string}
             onChange={handleChange}
             disabled={isLoading}
-            placeholder="Enter task title"
+            placeholder={t("tasks.form.titlePlaceholder")}
+            aria-invalid={!!errors.title}
           />
-          {errors.title && <span className={styles.error}>{errors.title}</span>}
+          {errors.title && (
+            <p className="text-xs text-destructive">{errors.title}</p>
+          )}
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="description">
-            Description
-          </label>
-          <textarea
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="description">
+            {t("tasks.form.descriptionLabel")}
+          </Label>
+          <Textarea
             id="description"
             name="description"
-            className={styles.textarea}
-            value={formData.description}
+            value={formData.description as string}
             onChange={handleChange}
             disabled={isLoading}
-            placeholder="Enter task description (optional)"
+            placeholder={t("tasks.form.descriptionPlaceholder")}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="priority">
-            Priority
-          </label>
-          <select
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="priority">{t("tasks.form.priorityLabel")}</Label>
+          <Select
             id="priority"
             name="priority"
-            className={styles.select}
-            value={formData.priority}
+            value={formData.priority as string}
             onChange={handleChange}
             disabled={isLoading}
           >
             {Object.values(TaskPriority).map((p) => (
               <option key={p} value={p}>
-                {p.toLowerCase()}
+                {p}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {isEditing && (
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="status">
-              Status
-            </label>
-            <select
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="status">{t("tasks.form.statusLabel")}</Label>
+            <Select
               id="status"
               name="status"
-              className={styles.select}
-              value={formData.status}
+              value={formData.status as string}
               onChange={handleChange}
               disabled={isLoading}
             >
               {Object.values(TaskStatus).map((s) => (
                 <option key={s} value={s}>
-                  {s.replace("_", " ").toLowerCase()}
+                  {getStatusLabel(s)}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
 
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="assigned_to_id">
-            Assigned To
-          </label>
-          <select
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="assigned_to_id">
+            {t("tasks.form.assigneeLabel")}
+          </Label>
+          <Select
             id="assigned_to_id"
             name="assigned_to_id"
-            className={styles.select}
-            value={formData.assigned_to_id}
+            value={formData.assigned_to_id as string}
             onChange={handleChange}
             disabled={isLoading}
           >
-            <option value="">Unassigned</option>
-            {formData.assigned_to_id && (
-              <option value={formData.assigned_to_id}>
-                {formData.assigned_to_id}
+            <option value="">{t("tasks.form.unassigned")}</option>
+            {users?.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.full_name || user.username}
               </option>
-            )}
-          </select>
-          <small style={{ color: "#888", fontSize: "0.75rem" }}>
-            User selection will be improved in future updates.
-          </small>
+            ))}
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {t("tasks.form.assigneeHelper")}
+          </p>
         </div>
 
-        <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="due_date">
-            Due Date
-          </label>
-          <input
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="due_date">{t("tasks.form.dueDateLabel")}</Label>
+          <Input
             type="date"
             id="due_date"
             name="due_date"
-            className={styles.input}
-            value={formData.due_date}
+            value={formData.due_date as string}
             onChange={handleChange}
             disabled={isLoading}
           />
         </div>
 
-        <div className={styles.buttonGroup}>
-          <button
+        <div className="flex justify-end gap-3 pt-2 border-t">
+          <Button
             type="button"
+            variant="outline"
             onClick={onCancel}
-            className={styles.cancelButton}
             disabled={isLoading}
           >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className={styles.submitButton}
-            disabled={isLoading}
-          >
-            {submitButtonText}
-          </button>
+            {t("tasks.form.cancel")}
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {submitText}
+          </Button>
         </div>
       </form>
     </div>

@@ -1,158 +1,162 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import type { TaskRead, TaskStatus } from "../types";
 import { useUpdateTask } from "../hooks/useTasks";
+import { useUsers } from "../../../hooks/useUsers";
 import AuditTimeline from "./AuditTimeline";
-import styles from "./TaskDetailsView.module.css";
+import { Badge, type BadgeProps } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
+import { Select } from "../../../components/ui/select";
 
 interface TaskDetailsViewProps {
-  /** The task to display. */
   task: TaskRead;
-  /** Callback to trigger edit mode. */
   onEdit: () => void;
-  /** Callback to close the view. */
   onClose: () => void;
 }
 
-/**
- * Component to display full details of a task.
- *
- * @param props - Component props.
- * @returns The TaskDetailsView component.
- */
+type BadgeVariant = BadgeProps["variant"];
+
+function statusVariant(status: string): BadgeVariant {
+  const map: Record<string, BadgeVariant> = {
+    PENDING: "pending",
+    IN_PROGRESS: "in_progress",
+    COMPLETED: "completed",
+    CANCELED: "canceled",
+  };
+  return map[status] ?? "default";
+}
+
+function priorityVariant(priority: string): BadgeVariant {
+  const map: Record<string, BadgeVariant> = {
+    LOW: "low",
+    MEDIUM: "medium",
+    HIGH: "high",
+    URGENT: "urgent",
+  };
+  return map[priority] ?? "default";
+}
+
 const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
   task,
   onEdit,
   onClose,
 }) => {
+  const { t, i18n } = useTranslation();
   const updateTaskMutation = useUpdateTask();
 
-  /**
-   * Handles status change for the task by mutating its status.
-   *
-   * @param newStatus - The new status to set for the task.
-   */
   const handleStatusChange = (newStatus: TaskStatus) => {
-    updateTaskMutation.mutate({
-      id: task.id,
-      data: { status: newStatus },
-    });
+    updateTaskMutation.mutate({ id: task.id, data: { status: newStatus } });
   };
 
-  /**
-   * Formats a date into a locale string or returns a default string if not set.
-   *
-   * @param date - The date to format, can be Date, string, null, or undefined.
-   * @returns The formatted date string or "Not set" if date is invalid.
-   */
   const formatDate = (date: Date | string | null | undefined) => {
-    if (!date) return "Not set";
-    return new Date(date).toLocaleString();
+    if (!date) return t("tasks.details.notSet");
+    return new Date(date).toLocaleString(
+      i18n.language === "pt" ? "pt-BR" : "en-US",
+    );
   };
 
-  /**
-   * Returns the CSS class for a given status.
-   *
-   * @param status - The status string to derive the CSS class for.
-   * @returns The CSS class name for the status badge.
-   */
-  const getStatusClass = (status: string) =>
-    styles[`status_${status.toLowerCase()}`] || "";
-
-  /**
-   * Returns the CSS class for a given priority.
-   *
-   * @param priority - The priority string to derive the CSS class for.
-   * @returns The CSS class name for the priority badge.
-   */
-  const getPriorityClass = (priority: string) =>
-    styles[`priority_${priority.toLowerCase()}`] || "";
+  const statusLabels: Record<string, string> = {
+    PENDING: t("tasks.details.statusPending"),
+    IN_PROGRESS: t("tasks.details.statusInProgress"),
+    COMPLETED: t("tasks.details.statusCompleted"),
+    CANCELED: t("tasks.details.statusCanceled"),
+  };
 
   return (
-    <div className={styles.detailsContainer}>
-      <header className={styles.header}>
-        <h2 className={styles.title}>{task.title}</h2>
-        <div className={styles.badgeGroup}>
-          <span className={`${styles.badge} ${getStatusClass(task.status)}`}>
-            {task.status.replace("_", " ")}
-          </span>
-          <span
-            className={`${styles.badge} ${getPriorityClass(task.priority)}`}
-          >
+    <div className="p-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3 pb-4 border-b mb-4">
+        <h2 className="text-xl font-semibold text-foreground leading-snug">
+          {task.title}
+        </h2>
+        <div className="flex gap-2 flex-wrap">
+          <Badge variant={statusVariant(task.status)}>
+            {statusLabels[task.status]}
+          </Badge>
+          <Badge variant={priorityVariant(task.priority)}>
             {task.priority}
-          </span>
+          </Badge>
         </div>
-      </header>
+      </div>
 
-      <section className={styles.section}>
-        <span className={styles.sectionTitle}>Description</span>
-        <p className={styles.description}>
-          {task.description || "No description provided."}
+      {/* Description */}
+      <section className="mb-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+          {t("tasks.details.description")}
+        </p>
+        <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+          {task.description || t("tasks.details.noDescription")}
         </p>
       </section>
 
-      <section className={styles.section}>
-        <div className={styles.metadataGrid}>
-          <div className={styles.metaItem}>
-            <span className={styles.metaLabel}>Assignee</span>
-            <span className={styles.metaValue}>
-              {task.assigned_to_id || "Unassigned"}
-            </span>
-          </div>
-          <div className={styles.metaItem}>
-            <span className={styles.metaLabel}>Created By</span>
-            <span className={styles.metaValue}>{task.created_by_id}</span>
-          </div>
-          <div className={styles.metaItem}>
-            <span className={styles.metaLabel}>Due Date</span>
-            <span className={styles.metaValue}>
-              {formatDate(task.due_date)}
-            </span>
-          </div>
-          <div className={styles.metaItem}>
-            <span className={styles.metaLabel}>Created At</span>
-            <span className={styles.metaValue}>
-              {formatDate(task.created_at)}
-            </span>
-          </div>
-          <div className={styles.metaItem}>
-            <span className={styles.metaLabel}>Last Updated</span>
-            <span className={styles.metaValue}>
-              {formatDate(task.updated_at)}
-            </span>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.quickActions}>
-        <span className={styles.sectionTitle}>
-          Quick Actions: Change Status
-        </span>
-        <div className={styles.statusButtons}>
-          {(
-            ["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELED"] as TaskStatus[]
-          ).map((status) => (
-            <button
-              key={status}
-              className={styles.statusButton}
-              onClick={() => handleStatusChange(status)}
-              disabled={task.status === status || updateTaskMutation.isPending}
-            >
-              {status.replace("_", " ").toLowerCase()}
-            </button>
+      {/* Metadata grid */}
+      <section className="mb-4">
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            {
+              label: t("tasks.details.assignedTo"),
+              value: task.assigned_to_id || t("tasks.details.unassigned"),
+            },
+            { label: t("tasks.details.createdBy"), value: task.created_by_id },
+            {
+              label: t("tasks.details.dueDate"),
+              value: formatDate(task.due_date),
+            },
+            {
+              label: t("tasks.details.createdAt"),
+              value: formatDate(task.created_at),
+            },
+            {
+              label: t("tasks.details.updatedAt"),
+              value: formatDate(task.updated_at),
+            },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex flex-col">
+              <span className="text-xs text-muted-foreground mb-0.5">
+                {label}
+              </span>
+              <span className="text-sm font-medium text-foreground">
+                {value}
+              </span>
+            </div>
           ))}
         </div>
       </section>
 
+      {/* Quick status actions */}
+      <section className="rounded-lg bg-muted/40 p-3 mb-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          {t("tasks.details.changeStatus")}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {(
+            ["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELED"] as TaskStatus[]
+          ).map((status) => (
+            <Button
+              key={status}
+              size="sm"
+              variant={task.status === status ? "secondary" : "outline"}
+              onClick={() => handleStatusChange(status)}
+              disabled={task.status === status || updateTaskMutation.isPending}
+            >
+              {statusLabels[status]}
+            </Button>
+          ))}
+        </div>
+      </section>
+
+      {/* Audit timeline */}
       <AuditTimeline taskId={task.id} />
 
-      <footer className={styles.actions}>
-        <button onClick={onEdit} className={styles.editButton}>
-          Edit Task
-        </button>
-        <button onClick={onClose} className={styles.closeButton}>
-          Close
-        </button>
-      </footer>
+      {/* Footer actions */}
+      <div className="flex justify-end gap-3 pt-4 mt-4 border-t">
+        <Button variant="outline" onClick={onClose}>
+          {t("tasks.details.close")}
+        </Button>
+        <Button variant="success" onClick={onEdit}>
+          {t("tasks.details.edit")}
+        </Button>
+      </div>
     </div>
   );
 };

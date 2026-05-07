@@ -12,10 +12,10 @@ def test_user_model_creation():
         email="test@test.com",
         hashed_password="hash",
         full_name="Test User",
-        role=UserRole.DIRETOR,
+        role=UserRole.DIRECTOR,
     )
     assert user.username == "testuser"
-    assert user.role == UserRole.DIRETOR
+    assert user.role == UserRole.DIRECTOR
     assert user.is_active is True
 
 

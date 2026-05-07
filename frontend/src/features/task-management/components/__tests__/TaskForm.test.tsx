@@ -3,11 +3,16 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import TaskForm from "../TaskForm";
 import { TaskPriority, TaskStatus } from "../../types";
 import { useCreateTask, useUpdateTask } from "../../hooks/useTasks";
+import { useUsers } from "../../../../hooks/useUsers";
 
 // Mock the hooks
 vi.mock("../../hooks/useTasks", () => ({
   useCreateTask: vi.fn(),
   useUpdateTask: vi.fn(),
+}));
+
+vi.mock("../../../../hooks/useUsers", () => ({
+  useUsers: vi.fn(),
 }));
 
 describe("TaskForm", () => {
@@ -30,16 +35,24 @@ describe("TaskForm", () => {
       isPending: false,
       error: null,
     } as any);
+
+    vi.mocked(useUsers).mockReturnValue({
+      data: [
+        { id: "user-1", full_name: "User 1", username: "user1" },
+        { id: "user-2", full_name: "User 2", username: "user2" },
+      ],
+      isLoading: false,
+    } as any);
   });
 
   it("renders correctly in creation mode", () => {
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
-    expect(screen.getByText(/Create New Task/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Title \*/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Description/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Priority/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Due Date/i)).toBeInTheDocument();
+    expect(screen.getByText(/Nova Tarefa/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Título \*/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Descrição/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Prioridade/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Data de entrega/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Status/i)).not.toBeInTheDocument();
   });
 
@@ -65,16 +78,16 @@ describe("TaskForm", () => {
       />,
     );
 
-    expect(screen.getByText(/Edit Task/i)).toBeInTheDocument();
+    expect(screen.getByText(/Editar Tarefa/i)).toBeInTheDocument();
     expect(screen.getByDisplayValue("Existing Task")).toBeInTheDocument();
     expect(
       screen.getByDisplayValue("Existing Description"),
     ).toBeInTheDocument();
     expect(screen.getByLabelText(/Status/i)).toBeInTheDocument();
     // Test initial state date formatting
-    expect(screen.getByLabelText(/Due Date/i)).toHaveValue("2023-10-27");
+    expect(screen.getByLabelText(/Data de entrega/i)).toHaveValue("2023-10-27");
     // Test assigned_to_id rendering
-    expect(screen.getByLabelText(/Assigned To/i)).toHaveValue("user-1");
+    expect(screen.getByLabelText(/Atribuído a/i)).toHaveValue("user-1");
   });
 
   it("handles fallback logic for missing fields in edit mode", () => {
@@ -96,32 +109,32 @@ describe("TaskForm", () => {
       />,
     );
 
-    expect(screen.getByLabelText(/Description/i)).toHaveValue("");
-    expect(screen.getByLabelText(/Assigned To/i)).toHaveValue("");
-    expect(screen.getByLabelText(/Due Date/i)).toHaveValue("");
+    expect(screen.getByLabelText(/Descrição/i)).toHaveValue("");
+    expect(screen.getByLabelText(/Atribuído a/i)).toHaveValue("");
+    expect(screen.getByLabelText(/Data de entrega/i)).toHaveValue("");
   });
 
   it("shows validation error when title is empty", () => {
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Create Task/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
 
-    expect(screen.getByText(/Title is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/Título é obrigatório/i)).toBeInTheDocument();
     expect(mockCreateMutate).not.toHaveBeenCalled();
 
     // Clear error on change
-    fireEvent.change(screen.getByLabelText(/Title \*/i), {
+    fireEvent.change(screen.getByLabelText(/Título \*/i), {
       target: { value: "A" },
     });
-    expect(screen.queryByText(/Title is required/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Título é obrigatório/i)).not.toBeInTheDocument();
   });
 
   it("handles null/missing description and assigned_to_id in submission", () => {
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
-    fireEvent.change(screen.getByLabelText(/Title \*/i), {
+    fireEvent.change(screen.getByLabelText(/Título \\*/i), {
       target: { value: "Minimal Task" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Create Task/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
 
     expect(mockCreateMutate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -135,14 +148,14 @@ describe("TaskForm", () => {
   it("submits with due date converted to Date object", () => {
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
-    fireEvent.change(screen.getByLabelText(/Title \*/i), {
+    fireEvent.change(screen.getByLabelText(/Título \\*/i), {
       target: { value: "Task with Date" },
     });
-    fireEvent.change(screen.getByLabelText(/Due Date/i), {
+    fireEvent.change(screen.getByLabelText(/Data de entrega/i), {
       target: { value: "2023-12-25" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Create Task/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
 
     expect(mockCreateMutate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -158,8 +171,8 @@ describe("TaskForm", () => {
   it("handles changes in textarea and select elements", () => {
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
-    const description = screen.getByLabelText(/Description/i);
-    const priority = screen.getByLabelText(/Priority/i);
+    const description = screen.getByLabelText(/Descrição/i);
+    const priority = screen.getByLabelText(/Prioridade/i);
 
     fireEvent.change(description, {
       target: { name: "description", value: "New Desc" },
@@ -175,17 +188,17 @@ describe("TaskForm", () => {
   it("calls useCreateTask mutate with correct data on submission", () => {
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
-    fireEvent.change(screen.getByLabelText(/Title \*/i), {
+    fireEvent.change(screen.getByLabelText(/Título \\*/i), {
       target: { value: "New Task" },
     });
-    fireEvent.change(screen.getByLabelText(/Description/i), {
+    fireEvent.change(screen.getByLabelText(/Descrição/i), {
       target: { value: "New Description" },
     });
-    fireEvent.change(screen.getByLabelText(/Priority/i), {
+    fireEvent.change(screen.getByLabelText(/Prioridade/i), {
       target: { value: TaskPriority.HIGH },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Create Task/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
 
     expect(mockCreateMutate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -216,14 +229,14 @@ describe("TaskForm", () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText(/Title \*/i), {
+    fireEvent.change(screen.getByLabelText(/Título \\*/i), {
       target: { value: "Updated Title" },
     });
     fireEvent.change(screen.getByLabelText(/Status/i), {
       target: { value: TaskStatus.COMPLETED },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Update Task/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Atualizar tarefa/i }));
 
     expect(mockUpdateMutate).toHaveBeenCalledWith(
       {
@@ -246,9 +259,9 @@ describe("TaskForm", () => {
 
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
-    expect(screen.getByRole("button", { name: /Saving.../i })).toBeDisabled();
-    expect(screen.getByLabelText(/Title \*/i)).toBeDisabled();
-    expect(screen.getByLabelText(/Description/i)).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Salvando.../i })).toBeDisabled();
+    expect(screen.getByLabelText(/Título \\*/i)).toBeDisabled();
+    expect(screen.getByLabelText(/Descrição/i)).toBeDisabled();
     expect(screen.getByRole("button", { name: /Cancel/i })).toBeDisabled();
   });
 
@@ -273,8 +286,8 @@ describe("TaskForm", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /Saving.../i })).toBeDisabled();
-    expect(screen.getByLabelText(/Title \*/i)).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Salvando.../i })).toBeDisabled();
+    expect(screen.getByLabelText(/Título \\*/i)).toBeDisabled();
     expect(screen.getByLabelText(/Status/i)).toBeDisabled();
   });
 
@@ -328,7 +341,7 @@ describe("TaskForm", () => {
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
     expect(
-      screen.getByText("An error occurred while saving the task."),
+      screen.getByText("Ocorreu um erro ao salvar a tarefa."),
     ).toBeInTheDocument();
   });
 });

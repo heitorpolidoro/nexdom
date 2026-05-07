@@ -4,11 +4,9 @@ import LoginPage from "./features/user-administration/pages/LoginPage";
 import SignupPage from "./features/user-administration/pages/SignupPage";
 import AdminUserDashboard from "./features/user-administration/pages/AdminUserDashboard";
 import ProtectedRoute from "./features/user-administration/components/ProtectedRoute";
+import { AuthProvider } from "./features/user-administration/context/AuthContext";
 import Navbar from "./features/user-administration/components/Navbar";
-import {
-  AuthProvider,
-  UserRole,
-} from "./features/user-administration/context/AuthContext";
+import { UserRole } from "./types/auth";
 import "./App.css";
 
 function App() {
@@ -33,7 +31,7 @@ function App() {
             <Route
               path="/admin/users"
               element={
-                <ProtectedRoute requiredRole={UserRole.ADMINISTRADOR}>
+                <ProtectedRoute requiredRole={UserRole.ADMINISTRATOR}>
                   <AdminUserDashboard />
                 </ProtectedRoute>
               }

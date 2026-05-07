@@ -24,7 +24,7 @@ def setup_data_fixture(session: Session):
         email="admin_cov@test.com",
         full_name="Admin Cov",
         hashed_password=get_password_hash("pass"),
-        role=UserRole.ADMINISTRADOR,
+        role=UserRole.ADMINISTRATOR,
     )
     director1 = User(
         id=uuid.uuid4(),
@@ -32,7 +32,7 @@ def setup_data_fixture(session: Session):
         email="dir1_cov@test.com",
         full_name="Director 1",
         hashed_password=get_password_hash("pass"),
-        role=UserRole.DIRETOR,
+        role=UserRole.DIRECTOR,
     )
     director2 = User(
         id=uuid.uuid4(),
@@ -40,7 +40,7 @@ def setup_data_fixture(session: Session):
         email="dir2_cov@test.com",
         full_name="Director 2",
         hashed_password=get_password_hash("pass"),
-        role=UserRole.DIRETOR,
+        role=UserRole.DIRECTOR,
     )
     session.add_all([admin, director1, director2])
     session.commit()
@@ -84,7 +84,7 @@ def test_list_tasks_filters(client: TestClient, session: Session, setup_data):
 
 
 def test_list_tasks_visibility(client: TestClient, session: Session, setup_data):
-    # ADMINISTRADOR sees all tasks
+    # ADMINISTRATOR sees all tasks
     admin_token = get_token(client, "admin_cov", "pass")
     response = client.get(
         "/api/v1/tasks/", headers={"Authorization": f"Bearer {admin_token}"}
@@ -92,7 +92,7 @@ def test_list_tasks_visibility(client: TestClient, session: Session, setup_data)
     assert response.status_code == 200
     assert len(response.json()) == 2
 
-    # DIRETOR only sees tasks assigned to them (dir1 is assigned task1 only)
+    # DIRECTOR only sees tasks assigned to them (dir1 is assigned task1 only)
     dir_token = get_token(client, "dir1_cov", "pass")
     response = client.get(
         "/api/v1/tasks/", headers={"Authorization": f"Bearer {dir_token}"}

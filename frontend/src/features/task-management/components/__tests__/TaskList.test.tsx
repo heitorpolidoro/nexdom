@@ -45,9 +45,9 @@ describe("TaskList", () => {
         isError={false}
         error={null}
         filters={defaultFilters}
-      />
+      />,
     );
-    expect(screen.getByText("Loading tasks...")).toBeInTheDocument();
+    expect(screen.getByText("Carregando tarefas...")).toBeInTheDocument();
   });
 
   it("renders error state correctly", () => {
@@ -59,12 +59,14 @@ describe("TaskList", () => {
         isError={true}
         error={new Error(errorMessage)}
         filters={defaultFilters}
-      />
+      />,
     );
-    expect(screen.getByText(`Error loading tasks: ${errorMessage}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Erro ao carregar tarefas: ${errorMessage}`),
+    ).toBeInTheDocument();
   });
 
-  it("renders 'No tasks found' when list is empty", () => {
+  it("renders 'Nenhuma tarefa encontrada' when list is empty", () => {
     render(
       <TaskList
         tasks={[]}
@@ -72,9 +74,9 @@ describe("TaskList", () => {
         isError={false}
         error={null}
         filters={defaultFilters}
-      />
+      />,
     );
-    expect(screen.getByText("No tasks found.")).toBeInTheDocument();
+    expect(screen.getByText("Nenhuma tarefa encontrada.")).toBeInTheDocument();
   });
 
   it("renders filtered tasks correctly", () => {
@@ -85,7 +87,7 @@ describe("TaskList", () => {
         isError={false}
         error={null}
         filters={defaultFilters}
-      />
+      />,
     );
     expect(screen.getByText("Task 1")).toBeInTheDocument();
     expect(screen.getByText("Task 2")).toBeInTheDocument();
@@ -99,7 +101,7 @@ describe("TaskList", () => {
         isError={false}
         error={null}
         filters={{ ...defaultFilters, status: TaskStatus.PENDING }}
-      />
+      />,
     );
     expect(screen.getByText("Task 1")).toBeInTheDocument();
     expect(screen.queryByText("Task 2")).not.toBeInTheDocument();
@@ -113,7 +115,7 @@ describe("TaskList", () => {
         isError={false}
         error={null}
         filters={{ ...defaultFilters, priority: TaskPriority.HIGH }}
-      />
+      />,
     );
     expect(screen.queryByText("Task 1")).not.toBeInTheDocument();
     expect(screen.getByText("Task 2")).toBeInTheDocument();
@@ -127,13 +129,13 @@ describe("TaskList", () => {
         isError={false}
         error={null}
         filters={{ ...defaultFilters, assigned_to_id: "user-1" }}
-      />
+      />,
     );
     expect(screen.getByText("Task 1")).toBeInTheDocument();
     expect(screen.queryByText("Task 2")).not.toBeInTheDocument();
   });
 
-  it("renders 'No tasks match' when filters exclude all tasks", () => {
+  it("renders 'no match' message when filters exclude all tasks", () => {
     render(
       <TaskList
         tasks={mockTasks}
@@ -141,9 +143,11 @@ describe("TaskList", () => {
         isError={false}
         error={null}
         filters={{ ...defaultFilters, status: TaskStatus.CANCELED }}
-      />
+      />,
     );
-    expect(screen.getByText("No tasks match the current filters.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Nenhuma tarefa corresponde aos filtros selecionados."),
+    ).toBeInTheDocument();
   });
 
   it("calls onTaskClick when a task card is clicked", () => {
@@ -156,9 +160,9 @@ describe("TaskList", () => {
         error={null}
         filters={defaultFilters}
         onTaskClick={onTaskClick}
-      />
+      />,
     );
-    
+
     fireEvent.click(screen.getByText("Task 1"));
     expect(onTaskClick).toHaveBeenCalledWith("1");
   });

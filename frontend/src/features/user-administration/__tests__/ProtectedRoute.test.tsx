@@ -42,7 +42,7 @@ describe("ProtectedRoute", () => {
       user: {
         id: 1,
         username: "test",
-        role: UserRole.DIRETOR,
+        role: UserRole.DIRECTOR,
         is_active: true,
       } as any,
       login: vi.fn() as any,
@@ -74,7 +74,7 @@ describe("ProtectedRoute", () => {
       user: {
         id: 1,
         username: "test",
-        role: UserRole.DIRETOR,
+        role: UserRole.DIRECTOR,
         is_active: true,
       } as any,
       login: vi.fn() as any,
@@ -88,7 +88,7 @@ describe("ProtectedRoute", () => {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute requiredRole={UserRole.ADMINISTRADOR}>
+              <ProtectedRoute requiredRole={UserRole.ADMINISTRATOR}>
                 <div>Admin Content</div>
               </ProtectedRoute>
             }

@@ -23,7 +23,7 @@ def read_users(
 ) -> Any:
     """Retrieve users.
 
-    Restricted to ADMINISTRADOR.
+    Restricted to ADMINISTRATOR.
     """
     statement = select(User)
     if is_active is not None:
@@ -41,8 +41,8 @@ def update_user(
 ) -> Any:
     """Update a user.
 
-    Restricted to ADMINISTRADOR.
-    Safety check: ADMINISTRADOR cannot deactivate themselves or remove their own role.
+    Restricted to ADMINISTRATOR.
+    Safety check: ADMINISTRATOR cannot deactivate themselves or remove their own role.
     """
     db_user = session.get(User, user_id)
     if not db_user:

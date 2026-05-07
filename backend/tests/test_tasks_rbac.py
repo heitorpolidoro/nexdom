@@ -16,7 +16,7 @@ def test_users_fixture(session: Session):
         email="admin_rbac@test.com",
         full_name="Admin Test",
         hashed_password=get_password_hash("pass"),
-        role=UserRole.ADMINISTRADOR,
+        role=UserRole.ADMINISTRATOR,
     )
     director = User(
         id=uuid.uuid4(),
@@ -24,7 +24,7 @@ def test_users_fixture(session: Session):
         email="dir_rbac@test.com",
         full_name="Director Test",
         hashed_password=get_password_hash("pass"),
-        role=UserRole.DIRETOR,
+        role=UserRole.DIRECTOR,
     )
     session.add(admin)
     session.add(director)

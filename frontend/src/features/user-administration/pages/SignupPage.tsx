@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import apiClient from "../../../api/client";
-import "./LoginPage.css"; // Reusing styles
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
+import { Alert, AlertDescription } from "../../../components/ui/alert";
 
 const SignupPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +18,7 @@ const SignupPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,12 +31,12 @@ const SignupPage: React.FC = () => {
     setError(null);
 
     if (formData.password !== formData.confirm_password) {
-      setError("As senhas não coincidem.");
+      setError(t("signup.passwordMismatch"));
       return;
     }
 
     if (formData.password.length < 8) {
-      setError("A senha deve ter pelo menos 8 caracteres.");
+      setError(t("signup.passwordTooShort"));
       return;
     }
 
@@ -46,10 +51,7 @@ const SignupPage: React.FC = () => {
       });
 
       navigate("/login", {
-        state: {
-          message:
-            "Cadastro realizado com sucesso! Aguarde a aprovação de um administrador para acessar o sistema.",
-        },
+        state: { message: t("signup.success") },
       });
     } catch (err) {
       const apiError = err as { response?: { data?: { detail?: unknown } } };
@@ -57,16 +59,17 @@ const SignupPage: React.FC = () => {
       if (typeof detail === "string") {
         setError(detail);
       } else if (Array.isArray(detail)) {
-        const messages = (detail as { msg: string }[])
-          .map((d) => d.msg)
-          .join(", ");
-        setError(`Erro de validação: ${messages}`);
+        setError(
+          t("signup.validationError", {
+            messages: (detail as { msg: string }[])
+              .map((d) => d.msg)
+              .join(", "),
+          }),
+        );
       } else if (detail) {
         setError(JSON.stringify(detail));
       } else {
-        setError(
-          "Ocorreu um erro ao realizar o cadastro. Tente novamente mais tarde.",
-        );
+        setError(t("signup.genericError"));
       }
     } finally {
       setIsLoading(false);
@@ -74,89 +77,116 @@ const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Sigecon - Cadastro</h2>
-
-        {error && <div className="error-message">{error}</div>}
-        <div
-          style={{ fontSize: "0.8rem", color: "#666", marginBottom: "1rem" }}
-        >
-          Dica: A senha deve ter 8+ caracteres, incluindo letras, números e
-          símbolos.
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 py-8">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-primary tracking-tight">
+            {t("common.appName")}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t("common.appSubtitle")}
+          </p>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="full_name">Nome Completo</label>
-            <input
-              id="full_name"
-              name="full_name"
-              type="text"
-              value={formData.full_name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <div className="rounded-xl border bg-card shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-1">
+            {t("signup.heading")}
+          </h2>
+          <p className="text-xs text-muted-foreground mb-5">
+            {t("signup.passwordHint")}
+          </p>
 
-          <div className="form-group">
-            <label htmlFor="email">E-mail</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-          <div className="form-group">
-            <label htmlFor="username">Usuário</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              autoComplete="username"
-            />
-          </div>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="full_name">{t("signup.fullName")}</Label>
+              <Input
+                id="full_name"
+                name="full_name"
+                type="text"
+                value={formData.full_name}
+                onChange={handleChange}
+                required
+                placeholder={t("signup.fullNamePlaceholder")}
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Senha</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              autoComplete="new-password"
-            />
-          </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email">{t("signup.email")}</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="your@email.com"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="confirm_password">Confirmar Senha</label>
-            <input
-              id="confirm_password"
-              name="confirm_password"
-              type="password"
-              value={formData.confirm_password}
-              onChange={handleChange}
-              required
-              autoComplete="new-password"
-            />
-          </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="username">{t("signup.username")}</Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                autoComplete="username"
+                placeholder={t("signup.usernamePlaceholder")}
+              />
+            </div>
 
-          <button type="submit" className="auth-button" disabled={isLoading}>
-            {isLoading ? "Cadastrando..." : "Cadastrar"}
-          </button>
-        </form>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password">{t("signup.password")}</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+                placeholder="••••••••"
+              />
+            </div>
 
-        <div className="auth-footer">
-          Já tem uma conta? <Link to="/login">Entre aqui</Link>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="confirm_password">
+                {t("signup.confirmPassword")}
+              </Label>
+              <Input
+                id="confirm_password"
+                name="confirm_password"
+                type="password"
+                value={formData.confirm_password}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <Button type="submit" disabled={isLoading} className="w-full mt-1">
+              {isLoading ? t("signup.submitting") : t("signup.submit")}
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-muted-foreground mt-5">
+            {t("signup.loginPrompt")}{" "}
+            <Link
+              to="/login"
+              className="text-primary font-medium hover:underline"
+            >
+              {t("signup.loginLink")}
+            </Link>
+          </p>
         </div>
       </div>
     </div>

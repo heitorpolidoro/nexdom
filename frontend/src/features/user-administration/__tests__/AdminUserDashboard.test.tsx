@@ -24,7 +24,7 @@ const mockCurrentUser = {
   username: "admin",
   email: "admin@example.com",
   full_name: "Admin User",
-  role: UserRole.ADMINISTRADOR,
+  role: UserRole.ADMINISTRATOR,
   is_active: true,
 };
 
@@ -34,7 +34,7 @@ const mockUsers = [
     username: "user1",
     email: "user1@example.com",
     full_name: "User One",
-    role: UserRole.DIRETOR,
+    role: UserRole.DIRECTOR,
     is_active: true,
   },
   {
@@ -42,7 +42,7 @@ const mockUsers = [
     username: "user2",
     email: "user2@example.com",
     full_name: "User Two",
-    role: UserRole.ADMINISTRADOR,
+    role: UserRole.ADMINISTRATOR,
     is_active: false,
   },
 ];
@@ -188,7 +188,7 @@ describe("AdminUserDashboard", () => {
   it("changes user role", async () => {
     (apiClient.get as any).mockResolvedValue({ data: mockUsers });
     (apiClient.patch as any).mockResolvedValue({
-      data: { ...mockUsers[0], role: UserRole.ADMINISTRADOR },
+      data: { ...mockUsers[0], role: UserRole.ADMINISTRATOR },
     });
 
     render(<AdminUserDashboard />, { wrapper: createWrapper() });
@@ -197,20 +197,20 @@ describe("AdminUserDashboard", () => {
       expect(screen.getByText("User One")).toBeDefined();
     });
 
-    const administradorButton = screen.getByText("Mudar p/ Administrador");
+    const administradorButton = screen.getByText("Mudar p/ Admin");
     fireEvent.click(administradorButton);
 
     await waitFor(() => {
       expect(apiClient.patch).toHaveBeenCalledWith("/users/user-1", {
-        role: UserRole.ADMINISTRADOR,
+        role: UserRole.ADMINISTRATOR,
       });
     });
   });
 
-  it("changes ADMINISTRADOR user role to DIRETOR", async () => {
+  it("changes ADMINISTRATOR user role to DIRECTOR", async () => {
     (apiClient.get as any).mockResolvedValue({ data: mockUsers });
     (apiClient.patch as any).mockResolvedValue({
-      data: { ...mockUsers[1], role: UserRole.DIRETOR },
+      data: { ...mockUsers[1], role: UserRole.DIRECTOR },
     });
 
     render(<AdminUserDashboard />, { wrapper: createWrapper() });
@@ -224,7 +224,7 @@ describe("AdminUserDashboard", () => {
 
     await waitFor(() => {
       expect(apiClient.patch).toHaveBeenCalledWith("/users/user-2", {
-        role: UserRole.DIRETOR,
+        role: UserRole.DIRECTOR,
       });
     });
   });

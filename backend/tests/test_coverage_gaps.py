@@ -61,7 +61,7 @@ def test_get_current_user_inactive(client, session):
         email="inactive@example.com",
         full_name="Inactive User",
         hashed_password="...",
-        role=UserRole.DIRETOR,
+        role=UserRole.DIRECTOR,
         is_active=False,
     )
     session.add(inactive_user)
@@ -83,7 +83,7 @@ def test_login_inactive_user(client, session):
         email="inactive_login@example.com",
         full_name="Inactive Login",
         hashed_password=security.get_password_hash(password),
-        role=UserRole.DIRETOR,
+        role=UserRole.DIRECTOR,
         is_active=False,
     )
     session.add(inactive_user)

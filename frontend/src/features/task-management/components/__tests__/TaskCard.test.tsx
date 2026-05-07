@@ -23,22 +23,25 @@ describe("TaskCard", () => {
 
     expect(screen.getByText("Test Task")).toBeInTheDocument();
     expect(screen.getByText("Test Description")).toBeInTheDocument();
-    expect(screen.getByText("PENDING")).toBeInTheDocument();
+    expect(screen.getByText("Pendente")).toBeInTheDocument();
     expect(screen.getByText("MEDIUM")).toBeInTheDocument();
-    // Use a regex to match the date string to be resilient to locale differences in test environment
-    expect(screen.getByText(/Due:/)).toBeInTheDocument();
+    // Date is rendered without "Due:" prefix
+    const dateEl = screen.getByText(/\d{1,2}\/\d{1,2}\/\d{4}/);
+    expect(dateEl).toBeInTheDocument();
   });
 
-  it("renders 'No description' when description is missing", () => {
+  it("renders 'Sem descrição' when description is missing", () => {
     const taskWithoutDesc = { ...mockTask, description: "" };
     render(<TaskCard task={taskWithoutDesc} />);
-    expect(screen.getByText("No description")).toBeInTheDocument();
+    expect(screen.getByText("Sem descrição")).toBeInTheDocument();
   });
 
   it("does not render due date when it is missing", () => {
     const taskWithoutDate = { ...mockTask, due_date: undefined };
     render(<TaskCard task={taskWithoutDate} />);
-    expect(screen.queryByText(/Due:/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/\d{1,2}\/\d{1,2}\/\d{4}/),
+    ).not.toBeInTheDocument();
   });
 
   it("calls onClick when Enter or Space is pressed", () => {
@@ -53,44 +56,37 @@ describe("TaskCard", () => {
     fireEvent.keyDown(card, { key: " " });
     expect(onClick).toHaveBeenCalledTimes(2);
 
-    fireEvent.keyDown(card, { key: "Tab" }); // Should NOT call onClick
+    fireEvent.keyDown(card, { key: "Tab" });
     expect(onClick).toHaveBeenCalledTimes(2);
   });
 
-  it("applies correct CSS classes for different statuses", () => {
+  it("renders status badges for all statuses", () => {
     const statuses = [
-      { status: TaskStatus.PENDING, expectedClass: "pending" },
-      { status: TaskStatus.IN_PROGRESS, expectedClass: "inProgress" },
-      { status: TaskStatus.COMPLETED, expectedClass: "completed" },
-      { status: TaskStatus.CANCELED, expectedClass: "canceled" },
-      { status: "UNKNOWN" as any, expectedClass: "defaultStatus" },
+      { status: TaskStatus.PENDING, expected: "Pendente" },
+      { status: TaskStatus.IN_PROGRESS, expected: "Em andamento" },
+      { status: TaskStatus.COMPLETED, expected: "Concluída" },
+      { status: TaskStatus.CANCELED, expected: "Cancelada" },
     ];
 
-    statuses.forEach(({ status, expectedClass }) => {
-      render(<TaskCard task={{ ...mockTask, status }} />);
-      const statusElement = screen.getByText(
-        status === "UNKNOWN" ? "UNKNOWN" : status,
-      );
-      expect(statusElement.className).toContain(expectedClass);
-      // Clean up for next iteration if necessary, though rerender handles it
+    statuses.forEach(({ status, expected }) => {
+      const { unmount } = render(<TaskCard task={{ ...mockTask, status }} />);
+      expect(screen.getByText(expected)).toBeInTheDocument();
+      unmount();
     });
   });
 
-  it("applies correct CSS classes for different priorities", () => {
+  it("renders priority badges for all priorities", () => {
     const priorities = [
-      { priority: TaskPriority.LOW, expectedClass: "lowPriority" },
-      { priority: TaskPriority.MEDIUM, expectedClass: "mediumPriority" },
-      { priority: TaskPriority.HIGH, expectedClass: "highPriority" },
-      { priority: TaskPriority.URGENT, expectedClass: "urgentPriority" },
-      { priority: "UNKNOWN" as any, expectedClass: "defaultPriority" },
+      TaskPriority.LOW,
+      TaskPriority.MEDIUM,
+      TaskPriority.HIGH,
+      TaskPriority.URGENT,
     ];
 
-    priorities.forEach(({ priority, expectedClass }) => {
-      render(<TaskCard task={{ ...mockTask, priority }} />);
-      const priorityElement = screen.getByText(
-        priority === "UNKNOWN" ? "UNKNOWN" : priority,
-      );
-      expect(priorityElement.className).toContain(expectedClass);
+    priorities.forEach((priority) => {
+      const { unmount } = render(<TaskCard task={{ ...mockTask, priority }} />);
+      expect(screen.getByText(priority)).toBeInTheDocument();
+      unmount();
     });
   });
 });

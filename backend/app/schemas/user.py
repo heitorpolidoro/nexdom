@@ -13,7 +13,7 @@ class UserBase(BaseModel):
     username: str
     email: EmailStr
     full_name: str
-    role: UserRole = UserRole.DIRETOR
+    role: UserRole = UserRole.DIRECTOR
 
 
 class UserCreate(UserBase):

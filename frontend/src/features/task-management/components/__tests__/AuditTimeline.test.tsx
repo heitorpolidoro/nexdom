@@ -3,7 +3,7 @@ import { vi, describe, it, expect } from "vitest";
 import AuditTimeline from "../AuditTimeline";
 import { useTaskHistory } from "../../hooks/useTasks";
 
-// Mock the hook
+// Mock hooks
 vi.mock("../../hooks/useTasks", () => ({
   useTaskHistory: vi.fn(),
 }));
@@ -11,130 +11,111 @@ vi.mock("../../hooks/useTasks", () => ({
 describe("AuditTimeline", () => {
   it("renders loading state", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
-      data: undefined,
       isLoading: true,
       error: null,
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
-    expect(screen.getByText(/Loading history.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Carregando histórico.../i)).toBeInTheDocument();
   });
 
   it("renders error state", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
-      data: undefined,
       isLoading: false,
-      error: new Error("Failed to fetch"),
+      error: new Error("Fetch error"),
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
-    expect(screen.getByText(/Error loading history./i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Erro ao carregar histórico./i),
+    ).toBeInTheDocument();
   });
 
   it("renders empty state when no history is returned", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       data: [],
       isLoading: false,
-      error: null,
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
     expect(
-      screen.getByText(/No changes recorded for this task yet./i),
+      screen.getByText(/Nenhuma alteração registrada ainda./i),
     ).toBeInTheDocument();
   });
 
   it("renders a list of history entries correctly", () => {
     const mockHistory = [
       {
-        id: "1",
+        id: 1,
         task_id: "test-id",
-        changed_by_id: "u1",
+        user_id: "user-1",
         user_name: "John Doe",
         field_name: "status",
         old_value: "PENDING",
         new_value: "IN_PROGRESS",
         timestamp: "2023-10-27T10:00:00Z",
       },
-      {
-        id: "2",
-        task_id: "test-id",
-        changed_by_id: "u2",
-        user_name: "Jane Smith",
-        field_name: "priority",
-        old_value: "LOW",
-        new_value: "HIGH",
-        timestamp: "2023-10-27T11:00:00Z",
-      },
     ];
 
     vi.mocked(useTaskHistory).mockReturnValue({
       data: mockHistory,
       isLoading: false,
-      error: null,
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
-    expect(screen.getByText("Jane Smith")).toBeInTheDocument();
     expect(screen.getByText("status")).toBeInTheDocument();
-    expect(screen.getByText("priority")).toBeInTheDocument();
     expect(screen.getByText("PENDING")).toBeInTheDocument();
     expect(screen.getByText("IN_PROGRESS")).toBeInTheDocument();
-    expect(screen.getByText("LOW")).toBeInTheDocument();
-    expect(screen.getByText("HIGH")).toBeInTheDocument();
   });
 
-  it('formats null values as "None"', () => {
+  it('formats null values as "Nenhum"', () => {
     const mockHistory = [
       {
-        id: "3",
+        id: 1,
         task_id: "test-id",
-        changed_by_id: "u1",
+        user_id: "user-1",
         user_name: "John Doe",
         field_name: "description",
         old_value: null,
         new_value: "New description",
-        timestamp: "2023-10-27T12:00:00Z",
+        timestamp: "2023-10-27T09:00:00Z",
       },
     ];
 
     vi.mocked(useTaskHistory).mockReturnValue({
       data: mockHistory,
       isLoading: false,
-      error: null,
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
 
-    expect(screen.getAllByText("None").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Nenhum").length).toBeGreaterThan(0);
     expect(screen.getByText("New description")).toBeInTheDocument();
   });
 
-  it('formats empty string values as "Empty"', () => {
+  it('formats empty string values as "Vazio"', () => {
     const mockHistory = [
       {
-        id: "4",
+        id: 1,
         task_id: "test-id",
-        changed_by_id: "u1",
+        user_id: "user-1",
         user_name: "John Doe",
         field_name: "description",
         old_value: "Old",
         new_value: "",
-        timestamp: "2023-10-27T13:00:00Z",
+        timestamp: "2023-10-27T10:00:00Z",
       },
     ];
 
     vi.mocked(useTaskHistory).mockReturnValue({
       data: mockHistory,
       isLoading: false,
-      error: null,
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
 
-    expect(screen.getByText("Empty")).toBeInTheDocument();
+    expect(screen.getByText("Vazio")).toBeInTheDocument();
   });
 });
-

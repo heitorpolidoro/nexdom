@@ -20,12 +20,12 @@ def seed_db():
                 email="admin@sigecon.com",
                 hashed_password=get_password_hash("test_admin_password"),
                 full_name="Administrador do Sistema",
-                role=UserRole.ADMINISTRADOR,
+                role=UserRole.ADMINISTRATOR,
             )
             session.add(admin)
             print("Admin seed criado.")
         else:
-            admin.role = UserRole.ADMINISTRADOR
+            admin.role = UserRole.ADMINISTRATOR
             admin.hashed_password = get_password_hash("test_admin_password")
             session.add(admin)
             print("Admin atualizado.")
@@ -40,12 +40,12 @@ def seed_db():
                 email="user1@sigecon.com",
                 hashed_password=get_password_hash("test_user_password"),
                 full_name="Diretor Operacional",
-                role=UserRole.DIRETOR,
+                role=UserRole.DIRECTOR,
             )
             session.add(user1)
             print("Diretor operacional seed criado.")
         else:
-            user1.role = UserRole.DIRETOR
+            user1.role = UserRole.DIRECTOR
             session.add(user1)
             print("Diretor operacional atualizado.")
 

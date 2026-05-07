@@ -1,44 +1,71 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth, UserRole } from "../context/AuthContext";
-import "./Navbar.css";
+import { cn } from "../../../lib/utils";
 
 const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   if (!isAuthenticated) return null;
 
   return (
-    <nav className="navbar">
-      <Link to="/" className="navbar-brand">
-        Sigecon
+    <nav className="flex items-center justify-between px-8 py-4 border-b border-border/40 bg-background/80 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+      <Link
+        to="/"
+        className="text-xl font-black text-primary tracking-tight flex items-center gap-2 hover:opacity-80 transition-opacity"
+      >
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="w-4 h-4 rounded-full bg-primary" />
+        </div>
+        {t("common.appName")}
       </Link>
 
-      <div className="navbar-links">
+      <div className="flex items-center gap-8">
         <Link
           to="/dashboard"
-          className={`nav-link ${location.pathname === "/dashboard" ? "active" : ""}`}
+          className={cn(
+            "text-sm font-semibold transition-all hover:text-primary relative py-1",
+            location.pathname === "/dashboard"
+              ? "text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded-t-md"
+              : "text-muted-foreground",
+          )}
         >
-          Tarefas
+          {t("nav.tasks")}
         </Link>
 
-        {user?.role === UserRole.ADMINISTRADOR && (
+        {user?.role === UserRole.ADMINISTRATOR && (
           <Link
             to="/admin/users"
-            className={`nav-link ${location.pathname === "/admin/users" ? "active" : ""}`}
+            className={cn(
+              "text-sm font-semibold transition-all hover:text-primary relative py-1",
+              location.pathname === "/admin/users"
+                ? "text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded-t-md"
+                : "text-muted-foreground",
+            )}
           >
-            Administração
+            {t("nav.administration")}
           </Link>
         )}
       </div>
 
-      <div className="user-info">
-        <span className="user-name">
-          {user?.full_name} ({user?.role})
-        </span>
-        <button onClick={logout} className="logout-btn">
-          Sair
+      <div className="flex items-center gap-5">
+        <div className="hidden sm:flex flex-col items-end">
+          <span className="text-sm font-semibold text-foreground leading-tight">
+            {user?.full_name}
+          </span>
+          <span className="text-xs text-primary/80 font-medium leading-tight">
+            {user?.role}
+          </span>
+        </div>
+        <div className="h-8 w-[1px] bg-border/50 hidden sm:block" />
+        <button
+          onClick={logout}
+          className="text-sm font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-all"
+        >
+          {t("common.logout")}
         </button>
       </div>
     </nav>

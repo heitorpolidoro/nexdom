@@ -81,7 +81,7 @@ def get_current_active_admin(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
     """
-    Verify the current user has the ADMINISTRADOR role.
+    Verify the current user has the ADMINISTRATOR role.
 
     Args:
         current_user: The authenticated user.
@@ -90,9 +90,9 @@ def get_current_active_admin(
         User: The user if they have the administrator role.
 
     Raises:
-        HTTPException: If the user role is not ADMINISTRADOR.
+        HTTPException: If the user role is not ADMINISTRATOR.
     """
-    if current_user.role != UserRole.ADMINISTRADOR:
+    if current_user.role != UserRole.ADMINISTRATOR:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="The user doesn't have enough privileges",

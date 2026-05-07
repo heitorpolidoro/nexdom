@@ -40,8 +40,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# lib/
+/lib/
+/backend/lib/
+/backend/lib64/
 parts/
 sdist/
 var/

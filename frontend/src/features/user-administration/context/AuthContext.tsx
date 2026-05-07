@@ -6,22 +6,8 @@ import React, {
   useCallback,
 } from "react";
 import apiClient from "../../../api/client";
-
-export const UserRole = {
-  ADMINISTRADOR: "ADMINISTRADOR",
-  DIRETOR: "DIRETOR",
-} as const;
-
-export type UserRole = (typeof UserRole)[keyof typeof UserRole];
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  full_name: string;
-  role: UserRole;
-  is_active: boolean;
-}
+import { type User, UserRole } from "../../../types/auth";
+export { UserRole };
 
 interface AuthContextType {
   user: User | null;

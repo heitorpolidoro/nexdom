@@ -41,14 +41,14 @@ def client_fixture(session: Session):
 
 @pytest.fixture(name="admin_user")
 def admin_user_fixture(session: Session):
-    """Create and persist an ADMINISTRADOR user for tests."""
+    """Create and persist an ADMINISTRATOR user for tests."""
     user = User(
         id=uuid.uuid4(),
         username="admin",
         email="admin@test.com",
         full_name="Admin User",
         hashed_password=get_password_hash("test_admin_password"),
-        role=UserRole.ADMINISTRADOR,
+        role=UserRole.ADMINISTRATOR,
     )
     session.add(user)
     session.commit()
@@ -57,14 +57,14 @@ def admin_user_fixture(session: Session):
 
 @pytest.fixture(name="normal_user")
 def normal_user_fixture(session: Session):
-    """Create and persist a DIRETOR user for tests."""
+    """Create and persist a DIRECTOR user for tests."""
     user = User(
         id=uuid.uuid4(),
         username="user1",
         email="user1@test.com",
         full_name="Normal User",
         hashed_password=get_password_hash("test_user_password"),
-        role=UserRole.DIRETOR,
+        role=UserRole.DIRECTOR,
     )
     session.add(user)
     session.commit()
