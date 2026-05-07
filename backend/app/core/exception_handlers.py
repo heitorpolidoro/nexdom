@@ -1,16 +1,18 @@
+"""Global exception handlers."""
+
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 
 from app.core.exceptions import DomainError, ForbiddenError, TaskNotFoundError
 
 
-async def domain_exception_handler(request: Request, exc: DomainError):  # noqa: ARG001
+async def domain_exception_handler(_: Request, exc: DomainError) -> JSONResponse:
     """
     Global handler for domain-specific exceptions.
     Converts DomainError subclasses to appropriate HTTP responses.
 
     Args:
-        request: The incoming FastAPI request.
+        _: The incoming FastAPI request (unused).
         exc: The raised DomainError.
 
     Returns:

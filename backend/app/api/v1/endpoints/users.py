@@ -1,14 +1,15 @@
 """User management API endpoints."""
 
-from typing import Annotated, Any
+from typing import Annotated
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel import Session, select
 
 from app.api import deps as api_deps
 from app.db import get_session
 from app.models.user import User
 from app.schemas.user import UserRead, UserUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session, select
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ def read_users(
         User, Depends(api_deps.get_current_active_admin)
     ],
     is_active: bool | None = None,
-) -> Any:
+) -> list[User]:
     """Retrieve users.
 
     Restricted to ADMINISTRATOR.
@@ -38,7 +39,7 @@ def update_user(
     current_user: Annotated[User, Depends(api_deps.get_current_active_admin)],
     user_id: UUID,
     user_in: UserUpdate,
-) -> Any:
+) -> User:
     """Update a user.
 
     Restricted to ADMINISTRATOR.

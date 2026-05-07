@@ -3,11 +3,12 @@
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from sqlmodel import Session, select
+
 from app.core.exceptions import ForbiddenError
 from app.models.enums import UserRole
 from app.models.task import Task, TaskHistory, get_utc_now
 from app.schemas.task import TaskCreate, TaskUpdate
-from sqlmodel import Session, select
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -57,10 +58,10 @@ class TaskService:
 
         if current_user.role == UserRole.DIRECTOR:
             if db_task.assigned_to_id != current_user.id:
-                raise ForbiddenError()
+                raise ForbiddenError
             non_status_fields = {k for k in update_data if k != "status"}
             if non_status_fields:
-                raise ForbiddenError()
+                raise ForbiddenError
 
         for key, value in update_data.items():
             old_value = getattr(db_task, key)
@@ -83,8 +84,10 @@ class TaskService:
         session.refresh(db_task)
         return db_task
 
+    from typing import Any
+
     @staticmethod
-    def get_history(session: Session, task_id: UUID) -> list[dict]:
+    def get_history(session: Session, task_id: UUID) -> list[dict[str, Any]]:
         """Retrieve the audit history for a task.
 
         Args:

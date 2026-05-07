@@ -6,7 +6,6 @@ import {
   useCreateTask,
   useUpdateTask,
   useTaskHistory,
-  useDeleteTask,
 } from "../../hooks/useTasks";
 import { TaskStatus, TaskPriority } from "../../types";
 import * as useUsersHook from "../../../../hooks/useUsers";
@@ -17,7 +16,6 @@ vi.mock("../../hooks/useTasks", () => ({
   useCreateTask: vi.fn(),
   useUpdateTask: vi.fn(),
   useTaskHistory: vi.fn(),
-  useDeleteTask: vi.fn(),
 }));
 
 vi.mock("../../../../hooks/useUsers", () => ({
@@ -55,10 +53,6 @@ describe("TaskDashboard", () => {
       isPending: false,
     } as any);
     vi.mocked(useUpdateTask).mockReturnValue({
-      mutate: vi.fn(),
-      isPending: false,
-    } as any);
-    vi.mocked(useDeleteTask).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     } as any);
@@ -201,17 +195,12 @@ describe("TaskDashboard", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Nova Tarefa/i }));
 
-    const modalContent = screen
-      .getByRole("heading", { name: "Nova Tarefa" })
-      .closest("div");
-    const overlay = modalContent?.parentElement?.parentElement;
+    const overlay = screen.getByLabelText("Fechar modal");
 
-    if (overlay) {
-      fireEvent.click(overlay);
-      expect(
-        screen.queryByRole("heading", { name: "Nova Tarefa" }),
-      ).not.toBeInTheDocument();
-    }
+    fireEvent.click(overlay);
+    expect(
+      screen.queryByRole("heading", { name: "Nova Tarefa" }),
+    ).not.toBeInTheDocument();
   });
 
   it("closes overlay when Enter or Space is pressed on overlay", () => {
@@ -239,7 +228,7 @@ describe("TaskDashboard", () => {
 
     // 1. Create Modal
     fireEvent.click(screen.getByRole("button", { name: /Nova Tarefa/i }));
-    const createModalContent = screen.getByRole("document");
+    const createModalContent = screen.getByRole("dialog");
     fireEvent.click(createModalContent);
     fireEvent.keyDown(createModalContent, { key: "Enter" });
     expect(
@@ -249,14 +238,14 @@ describe("TaskDashboard", () => {
 
     // 2. Details Modal
     fireEvent.click(screen.getByText("Task 1"));
-    const detailsModalContent = screen.getByRole("document");
+    const detailsModalContent = screen.getByRole("dialog");
     fireEvent.click(detailsModalContent);
     fireEvent.keyDown(detailsModalContent, { key: "Enter" });
     expect(screen.getByText("Fechar")).toBeInTheDocument();
 
     // 3. Edit Modal
     fireEvent.click(screen.getByText("Editar"));
-    const editModalContent = screen.getByRole("document");
+    const editModalContent = screen.getByRole("dialog");
     fireEvent.click(editModalContent);
     fireEvent.keyDown(editModalContent, { key: "Enter" });
     expect(screen.getByText("Atualizar tarefa")).toBeInTheDocument();

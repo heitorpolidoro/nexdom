@@ -3,16 +3,17 @@
 from typing import Annotated
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, Query, status
+from sqlmodel import Session, select
+
 from app.api import deps as api_deps
 from app.core.exceptions import ForbiddenError, TaskNotFoundError
 from app.db import get_session
 from app.models.enums import TaskPriority, TaskStatus, UserRole
-from app.models.task import Task
+from app.models.task import Task, TaskHistory
 from app.models.user import User
 from app.schemas.task import TaskCreate, TaskHistoryRead, TaskRead, TaskUpdate
 from app.services.task_service import TaskService
-from fastapi import APIRouter, Depends, Query, status
-from sqlmodel import Session, select
 
 router = APIRouter()
 
@@ -22,7 +23,7 @@ def create_task(
     task_in: TaskCreate,
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(api_deps.get_current_user)],
-):
+) -> Task:
     """Create a new task. Both ADMINISTRATOR and DIRECTOR can create tasks.
 
     Args:
@@ -45,7 +46,7 @@ def list_tasks(
     status: Annotated[TaskStatus | None, Query()] = None,
     priority: Annotated[TaskPriority | None, Query()] = None,
     assigned_to_id: Annotated[UUID | None, Query()] = None,
-):
+) -> list[Task]:
     """List tasks with optional filters.
 
     ADMINISTRATOR sees all tasks. DIRECTOR sees only tasks assigned to them.
@@ -82,7 +83,7 @@ def update_task(
     task_in: TaskUpdate,
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(api_deps.get_current_user)],
-):
+) -> Task:
     """Update an existing task.
 
     ADMINISTRATOR can update any field of any task.
@@ -111,12 +112,14 @@ def update_task(
     )
 
 
+
+
 @router.get("/{task_id}/history", response_model=list[TaskHistoryRead])
 def get_task_history(
     task_id: UUID,
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(api_deps.get_current_user)],
-):
+) -> list[TaskHistory]:
     """Get the audit history for a specific task.
 
     ADMINISTRATOR can see history of any task. DIRECTOR can only see history of
@@ -143,7 +146,7 @@ def get_task_history(
         current_user.role == UserRole.DIRECTOR
         and db_task.assigned_to_id != current_user.id
     ):
-        raise ForbiddenError()
+        raise ForbiddenError
 
     return TaskService.get_history(session=session, task_id=task_id)
 
@@ -153,7 +156,7 @@ def delete_task(
     task_id: UUID,
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(api_deps.get_current_active_admin)],
-):
+) -> None:
     """Delete a task (Soft Delete). Only ADMINISTRATOR can delete tasks.
 
     Args:

@@ -1,12 +1,14 @@
 import uuid
 
 import pytest
+from fastapi import status
+from jose import jwt
+
 from app.core import security
 from app.core.config import settings
 from app.models.enums import UserRole
+from app.models.task import Task
 from app.models.user import User
-from fastapi import status
-from jose import jwt
 
 
 @pytest.fixture
@@ -122,8 +124,6 @@ def test_update_task_not_found(client, director_token):
 
 def test_update_deleted_task(client, session, director_token):
     """Test updating a task that is soft-deleted."""
-    from app.models.task import Task
-
     task = Task(
         title="Deleted Task",
         description="...",
@@ -145,8 +145,6 @@ def test_update_deleted_task(client, session, director_token):
 
 def test_delete_already_deleted_task(client, session, director_token):
     """Test deleting a task that is already soft-deleted."""
-    from app.models.task import Task
-
     task = Task(
         title="Already Deleted",
         description="...",

@@ -1,12 +1,13 @@
 import uuid
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlmodel import Session
+
 from app.core.security import get_password_hash
 from app.models.enums import TaskPriority, TaskStatus, UserRole
 from app.models.task import Task
 from app.models.user import User
-from fastapi.testclient import TestClient
-from sqlmodel import Session
 
 
 def get_token(client, username, password):

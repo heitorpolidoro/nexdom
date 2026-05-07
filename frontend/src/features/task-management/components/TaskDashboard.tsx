@@ -136,20 +136,17 @@ const TaskDashboard: React.FC = () => {
 
       {/* Modal overlay */}
       {showModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-          onClick={handleCloseOverlay}
-          onKeyDown={handleOverlayKeyDown}
-          tabIndex={0}
-          role="button"
-          aria-label={t("tasks.dashboard.closeModal")}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-default"
+            onClick={handleCloseOverlay}
+            onKeyDown={handleOverlayKeyDown}
+            aria-label={t("tasks.dashboard.closeModal")}
+          />
           <div
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-card shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
-            role="document"
-            tabIndex={-1}
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-card shadow-2xl z-10"
+            role="dialog"
+            aria-modal="true"
           >
             {isCreating && (
               <TaskForm

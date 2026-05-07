@@ -57,7 +57,7 @@
 .user-table th {
   background-color: #f8f9fa;
   font-weight: 600;
-  color: #555;
+  color: #495057;
 }
 
 .status-badge {
@@ -107,8 +107,8 @@
 }
 
 .action-btn.approve {
-  border-color: #28a745;
-  color: #28a745;
+  border-color: #1e7e34;
+  color: #1e7e34;
 }
 
 .action-btn.approve:hover {
@@ -117,8 +117,8 @@
 }
 
 .action-btn.deactivate {
-  border-color: #dc3545;
-  color: #dc3545;
+  border-color: #bd2130;
+  color: #bd2130;
 }
 
 .action-btn.deactivate:hover {

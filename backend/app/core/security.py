@@ -1,3 +1,5 @@
+"""Security utilities for password hashing and JWT tokens."""
+
 from datetime import UTC, datetime, timedelta
 from typing import Any
 

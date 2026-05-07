@@ -52,15 +52,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
   };
 
   return (
-    <div
+    <button
       className={cn(
-        "rounded-xl border border-border/40 bg-card text-card-foreground shadow-sm p-5 transition-all duration-200 cursor-pointer",
+        "w-full text-left rounded-xl border border-border/40 bg-card text-card-foreground shadow-sm p-5 transition-all duration-200 cursor-pointer",
         "hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       )}
       onClick={onClick}
       onKeyDown={handleKeyDown}
-      tabIndex={0}
-      role="button"
     >
       <h3 className="font-semibold text-base mb-1 text-foreground leading-snug">
         {task.title}
@@ -85,7 +83,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
           </span>
         )}
       </div>
-    </div>
+    </button>
   );
 };
 

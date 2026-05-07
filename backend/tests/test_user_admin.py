@@ -1,7 +1,8 @@
-from app.models.enums import UserRole
-from app.models.user import User
 from fastapi.testclient import TestClient
 from sqlmodel import Session, select
+
+from app.models.enums import UserRole
+from app.models.user import User
 
 
 def get_token(client, username, password):

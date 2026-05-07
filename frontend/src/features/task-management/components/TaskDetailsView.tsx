@@ -2,11 +2,9 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import type { TaskRead, TaskStatus } from "../types";
 import { useUpdateTask } from "../hooks/useTasks";
-import { useUsers } from "../../../hooks/useUsers";
 import AuditTimeline from "./AuditTimeline";
 import { Badge, type BadgeProps } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
-import { Select } from "../../../components/ui/select";
 
 interface TaskDetailsViewProps {
   task: TaskRead;

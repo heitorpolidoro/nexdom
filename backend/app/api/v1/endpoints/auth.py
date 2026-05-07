@@ -1,7 +1,11 @@
 """Authentication API endpoints."""
 
 from datetime import timedelta
-from typing import Annotated, Any
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import Session, select
 
 from app.api import deps as api_deps
 from app.core import security
@@ -12,9 +16,6 @@ from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.token import Token
 from app.schemas.user import UserCreate, UserRead
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlmodel import Session, select
 
 router = APIRouter()
 
@@ -23,7 +24,7 @@ router = APIRouter()
 def signup(
     session: Annotated[Session, Depends(get_session)],
     user_in: UserCreate,
-) -> Any:
+) -> User:
     """Create new user.
 
     New users are created as inactive and with DIRECTOR role.
@@ -50,7 +51,8 @@ def signup(
         full_name=user_in.full_name,
         hashed_password=security.get_password_hash(user_in.password),
         role=UserRole.DIRECTOR,  # Force role
-        is_active=False,  # Wait for approval
+        # Wait for approval
+        is_active=False,
     )
     session.add(db_obj)
     session.commit()
@@ -61,7 +63,7 @@ def signup(
 @router.get("/me", response_model=UserRead)
 def read_user_me(
     current_user: Annotated[User, Depends(api_deps.get_current_user)],
-) -> Any:
+) -> User:
     """Get current user."""
     return current_user
 
@@ -73,7 +75,7 @@ def login_access_token(
     session: Annotated[Session, Depends(get_session)],
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     remember_me: bool = False,
-) -> Any:
+) -> dict[str, str]:
     """OAuth2 compatible token login, get an access token for future requests.
 
     Args:

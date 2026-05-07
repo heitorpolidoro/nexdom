@@ -113,11 +113,12 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     }
   };
 
-  const submitText = isLoading
-    ? t("tasks.form.submitSaving")
-    : isEditing
-      ? t("tasks.form.submitEdit")
-      : t("tasks.form.submitCreate");
+  let submitText = t("tasks.form.submitCreate");
+  if (isLoading) {
+    submitText = t("tasks.form.submitSaving");
+  } else if (isEditing) {
+    submitText = t("tasks.form.submitEdit");
+  }
 
   const getStatusLabel = (status: string) => {
     const map: Record<string, string> = {

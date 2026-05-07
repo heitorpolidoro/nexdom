@@ -1,15 +1,19 @@
-from app.api.v1.api import api_router
-from app.core.config import settings
-from app.core.exception_handlers import domain_exception_handler
-from app.core.exceptions import DomainError
-from app.core.limiter import limiter
+"""FastAPI application entry point."""
+
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
+from app.api.v1.api import api_router
+from app.core.config import settings
+from app.core.exception_handlers import domain_exception_handler
+from app.core.exceptions import DomainError
+from app.core.limiter import limiter
+
 
 def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:  # noqa: ARG001
+    """Handle rate limit exceeded errors."""
     return JSONResponse(
         status_code=status.HTTP_429_TOO_MANY_REQUESTS,
         content={"error": "Rate limit exceeded", "detail": exc.detail},
@@ -51,10 +55,12 @@ app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/")
-def read_root():
+def read_root() -> dict[str, str]:
+    """Root endpoint."""
     return {"message": "Welcome to SIGECON API"}
 
 
 @app.get("/health")
-def health_check():
+def health_check() -> dict[str, str]:
+    """Health check endpoint."""
     return {"status": "healthy"}

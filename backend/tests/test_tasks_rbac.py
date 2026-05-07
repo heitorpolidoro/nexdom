@@ -1,11 +1,12 @@
 import uuid
 
 import pytest
+from fastapi.testclient import TestClient
+from sqlmodel import Session
+
 from app.core.security import get_password_hash
 from app.models.enums import UserRole
 from app.models.user import User
-from fastapi.testclient import TestClient
-from sqlmodel import Session
 
 
 @pytest.fixture(name="test_users")
@@ -50,7 +51,7 @@ def test_rbac_task_workflow(client: TestClient, session: Session, test_users):
         json={"title": "Director Task"},
     )
     assert response.status_code == 200
-    task_id = response.json()["id"]
+    response.json()["id"]
 
     # 2. Administrador cria tarefa para o diretor
     response = client.post(

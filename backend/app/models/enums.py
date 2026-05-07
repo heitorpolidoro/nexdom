@@ -1,3 +1,5 @@
+"""Enumerations for the domain models."""
+
 from enum import StrEnum
 
 

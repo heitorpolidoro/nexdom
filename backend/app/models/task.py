@@ -1,5 +1,7 @@
+"""Database models for Task and TaskHistory."""
+
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import Column, ForeignKey
@@ -11,7 +13,7 @@ if TYPE_CHECKING:
     from .user import User
 
 
-def get_utc_now():
+def get_utc_now() -> datetime:
     """
     Get the current UTC time.
 
@@ -49,9 +51,13 @@ class Task(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=get_utc_now)
     is_deleted: bool = Field(default=False, index=True)
 
+    USER_ID_FK: ClassVar[str] = "user.id"
+
     # Foreign Keys
-    created_by_id: UUID = Field(foreign_key="user.id", index=True)
-    assigned_to_id: UUID | None = Field(default=None, foreign_key="user.id", index=True)
+    created_by_id: UUID = Field(foreign_key=USER_ID_FK, index=True)
+    assigned_to_id: UUID | None = Field(
+        default=None, foreign_key=USER_ID_FK, index=True
+    )
 
     # Relationships
     creator: "User" = Relationship(
@@ -87,7 +93,7 @@ class TaskHistory(SQLModel, table=True):
             "task_id", ForeignKey("task.id", ondelete="CASCADE"), nullable=False
         )
     )
-    changed_by_id: UUID = Field(foreign_key="user.id")
+    changed_by_id: UUID = Field(foreign_key=Task.USER_ID_FK)
     field_name: str
     old_value: str | None = None
     new_value: str | None = None
