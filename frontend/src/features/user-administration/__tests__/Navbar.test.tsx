@@ -24,7 +24,7 @@ describe("Navbar", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders navbar with brand and basic links when authenticated as DIRETOR", () => {
+  it("renders navbar with brand and basic links when authenticated as DIRECTOR", () => {
     vi.spyOn(AuthHook, "useAuth").mockReturnValue({
       isAuthenticated: true,
       isLoading: false,
@@ -33,7 +33,7 @@ describe("Navbar", () => {
         username: "testuser",
         email: "test@example.com",
         full_name: "Test User",
-        role: UserRole.DIRETOR,
+        role: UserRole.DIRECTOR,
         is_active: true,
       },
       login: vi.fn() as any,
@@ -53,7 +53,7 @@ describe("Navbar", () => {
     expect(screen.queryByText("Administração")).toBeNull();
   });
 
-  it("renders admin link when user is ADMINISTRADOR", () => {
+  it("renders admin link when user is ADMINISTRATOR", () => {
     vi.spyOn(AuthHook, "useAuth").mockReturnValue({
       isAuthenticated: true,
       isLoading: false,
@@ -62,7 +62,7 @@ describe("Navbar", () => {
         username: "adminuser",
         email: "admin@example.com",
         full_name: "Admin User",
-        role: UserRole.ADMINISTRADOR,
+        role: UserRole.ADMINISTRATOR,
         is_active: true,
       },
       login: vi.fn() as any,
@@ -87,7 +87,7 @@ describe("Navbar", () => {
         username: "testuser",
         email: "test@example.com",
         full_name: "Test User",
-        role: UserRole.DIRETOR,
+        role: UserRole.DIRECTOR,
         is_active: true,
       },
       login: vi.fn() as any,
@@ -101,7 +101,7 @@ describe("Navbar", () => {
     );
 
     const tarefasLink = screen.getByText("Tarefas");
-    expect(tarefasLink.className).toContain("active");
+    expect(tarefasLink.className).toContain("text-primary");
   });
 
   it("applies active class to admin link when on /admin/users", () => {
@@ -113,7 +113,7 @@ describe("Navbar", () => {
         username: "adminuser",
         email: "admin@example.com",
         full_name: "Admin User",
-        role: UserRole.ADMINISTRADOR,
+        role: UserRole.ADMINISTRATOR,
         is_active: true,
       },
       login: vi.fn() as any,
@@ -127,7 +127,7 @@ describe("Navbar", () => {
     );
 
     const adminLink = screen.getByText("Administração");
-    expect(adminLink.className).toContain("active");
+    expect(adminLink.className).toContain("text-primary");
   });
 
   it("calls logout when Sair button is clicked", () => {
@@ -140,7 +140,7 @@ describe("Navbar", () => {
         username: "testuser",
         email: "test@example.com",
         full_name: "Test User",
-        role: UserRole.DIRETOR,
+        role: UserRole.DIRECTOR,
         is_active: true,
       },
       login: vi.fn() as any,

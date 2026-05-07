@@ -35,4 +35,4 @@ def test_signup_creates_inactive_funcionario(client: TestClient, session: Sessio
     assert response.status_code == 200
     data = response.json()
     assert data["is_active"] is False
-    assert data["role"] == UserRole.DIRETOR
+    assert data["role"] == UserRole.DIRECTOR

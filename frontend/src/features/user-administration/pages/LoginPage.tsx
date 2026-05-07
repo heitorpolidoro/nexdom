@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import apiClient from "../../../api/client";
-import "./LoginPage.css";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
+import { Alert, AlertDescription } from "../../../components/ui/alert";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -11,6 +15,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,11 +36,7 @@ const LoginPage: React.FC = () => {
       const response = await apiClient.post(
         `/auth/login?remember_me=${rememberMe}`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       await login(response.data.access_token);
@@ -44,20 +45,21 @@ const LoginPage: React.FC = () => {
       const apiError = err as { response?: { data?: { detail?: unknown } } };
       const detail = apiError.response?.data?.detail;
       if (detail === "Inactive user") {
-        setError("Sua conta está aguardando aprovação de um administrador.");
+        setError(t("login.pendingApproval"));
       } else if (typeof detail === "string") {
         setError(detail);
       } else if (Array.isArray(detail)) {
-        const messages = (detail as { msg: string }[])
-          .map((d) => d.msg)
-          .join(", ");
-        setError(`Erro: ${messages}`);
+        setError(
+          t("login.validationError", {
+            messages: (detail as { msg: string }[])
+              .map((d) => d.msg)
+              .join(", "),
+          }),
+        );
       } else if (detail) {
         setError(JSON.stringify(detail));
       } else {
-        setError(
-          "Ocorreu um erro ao tentar fazer login. Verifique suas credenciais.",
-        );
+        setError(t("login.genericError"));
       }
     } finally {
       setIsLoading(false);
@@ -65,58 +67,87 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Sigecon - Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-primary tracking-tight">
+            {t("common.appName")}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t("common.appSubtitle")}
+          </p>
+        </div>
 
-        {successMessage && (
-          <div className="success-message">{successMessage}</div>
-        )}
-        {error && <div className="error-message">{error}</div>}
+        <div className="rounded-xl border bg-card shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-5">
+            {t("login.heading")}
+          </h2>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">Usuário</label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              autoComplete="username"
-            />
-          </div>
+          {successMessage && (
+            <Alert variant="success" className="mb-4">
+              <AlertDescription>{successMessage}</AlertDescription>
+            </Alert>
+          )}
 
-          <div className="form-group">
-            <label htmlFor="password">Senha</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </div>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-          <div className="form-group remember-me">
-            <label className="checkbox-label">
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="username">{t("login.username")}</Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoComplete="username"
+                placeholder={t("login.usernamePlaceholder")}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password">{t("login.password")}</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
+                className="rounded border-input"
               />
-              Mantenha-me conectado
+              <span className="text-sm text-muted-foreground">
+                {t("login.rememberMe")}
+              </span>
             </label>
-          </div>
 
-          <button type="submit" className="auth-button" disabled={isLoading}>
-            {isLoading ? "Entrando..." : "Entrar"}
-          </button>
-        </form>
+            <Button type="submit" disabled={isLoading} className="w-full mt-1">
+              {isLoading ? t("login.submitting") : t("login.submit")}
+            </Button>
+          </form>
 
-        <div className="auth-footer">
-          Não tem uma conta? <Link to="/signup">Cadastre-se</Link>
+          <p className="text-center text-sm text-muted-foreground mt-5">
+            {t("login.signupPrompt")}{" "}
+            <Link
+              to="/signup"
+              className="text-primary font-medium hover:underline"
+            >
+              {t("login.signupLink")}
+            </Link>
+          </p>
         </div>
       </div>
     </div>

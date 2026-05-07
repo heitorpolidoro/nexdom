@@ -23,7 +23,7 @@ def test_signup(client: TestClient, session: Session):
     data = response.json()
     assert data["username"] == "newuser"
     assert data["is_active"] is False
-    assert data["role"] == UserRole.DIRETOR
+    assert data["role"] == UserRole.DIRECTOR
 
     # Verify in DB
     user = session.exec(select(User).where(User.username == "newuser")).first()
@@ -78,7 +78,7 @@ def test_update_user_status_and_role(client: TestClient, admin_user, session: Se
         full_name="Pending User",
         hashed_password="...",
         is_active=False,
-        role=UserRole.DIRETOR,
+        role=UserRole.DIRECTOR,
     )
     session.add(new_user)
     session.commit()
@@ -99,10 +99,10 @@ def test_update_user_status_and_role(client: TestClient, admin_user, session: Se
     response = client.patch(
         f"/api/v1/users/{new_user.id}",
         headers={"Authorization": f"Bearer {admin_token}"},
-        json={"role": UserRole.ADMINISTRADOR},
+        json={"role": UserRole.ADMINISTRATOR},
     )
     assert response.status_code == 200
-    assert response.json()["role"] == UserRole.ADMINISTRADOR
+    assert response.json()["role"] == UserRole.ADMINISTRATOR
 
 
 def test_admin_cannot_deactivate_self(client: TestClient, admin_user):
@@ -123,7 +123,7 @@ def test_admin_cannot_change_own_role(client: TestClient, admin_user):
     response = client.patch(
         f"/api/v1/users/{admin_user.id}",
         headers={"Authorization": f"Bearer {admin_token}"},
-        json={"role": UserRole.DIRETOR},
+        json={"role": UserRole.DIRECTOR},
     )
     assert response.status_code == 400
     assert "Administrators cannot change their own role" in response.json()["detail"]
