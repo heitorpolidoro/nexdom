@@ -122,7 +122,7 @@ describe("TaskDetailsView", () => {
       expect.objectContaining({
         id: "1",
         data: { status: TaskStatus.IN_PROGRESS },
-      })
+      }),
     );
   });
 
