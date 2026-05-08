@@ -32,6 +32,7 @@ describe("AuthContext", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   it("initially shows as not authenticated if no token exists", async () => {
@@ -72,7 +73,7 @@ describe("AuthContext", () => {
     expect(apiClient.get).toHaveBeenCalledWith("/auth/me");
   });
 
-  it("logs out and clears localStorage", async () => {
+  it("logs out and clears both storages", async () => {
     const mockUser = {
       id: 1,
       username: "testuser",
@@ -80,6 +81,7 @@ describe("AuthContext", () => {
       is_active: true,
     };
     localStorage.setItem("accessToken", "fake-token");
+    sessionStorage.setItem("accessToken", "fake-token");
     (apiClient.get as any).mockResolvedValue({ data: mockUser });
 
     render(
@@ -102,5 +104,6 @@ describe("AuthContext", () => {
       ),
     );
     expect(localStorage.getItem("accessToken")).toBeNull();
+    expect(sessionStorage.getItem("accessToken")).toBeNull();
   });
 });

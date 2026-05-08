@@ -12,7 +12,7 @@ from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.token import Token
 from app.schemas.user import UserCreate, UserRead
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 
@@ -73,7 +73,7 @@ def login_access_token(
     request: Request,  # noqa: ARG001
     session: Annotated[Session, Depends(get_session)],
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    remember_me: bool = False,
+    remember_me: Annotated[bool, Query()] = False,
 ) -> dict[str, str]:
     """OAuth2 compatible token login, get an access token for future requests.
 
@@ -104,10 +104,63 @@ def login_access_token(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
         )
 
-    if remember_me:
-        access_token_expires = timedelta(days=7)
-    else:
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = security.get_token_expiration(remember_me=remember_me)
+
+    return {
+        "access_token": security.create_access_token(
+            user.id, expires_delta=access_token_expires
+        ),
+        "token_type": "bearer",
+    }
+
+
+@router.get("/dev-users", response_model=list[UserRead])
+def get_dev_users(
+    session: Annotated[Session, Depends(get_session)],
+) -> Any:
+    """Get all active users for development login bypass.
+
+    Only available when ENVIRONMENT is 'development'.
+    """
+    if settings.ENVIRONMENT != "development":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Not found",
+        )
+    statement = select(User).where(User.is_active)
+    return session.exec(statement).all()
+
+
+@router.post("/dev-login", response_model=Token)
+def dev_login(
+    session: Annotated[Session, Depends(get_session)],
+    username: str,
+    remember_me: Annotated[bool, Query()] = False,
+) -> Any:
+    """Login without password for development purposes.
+
+    Only available when ENVIRONMENT is 'development'.
+    """
+    if settings.ENVIRONMENT != "development":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Not found",
+        )
+
+    statement = select(User).where(User.username == username)
+    user = session.exec(statement).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+        )
+
+    access_token_expires = security.get_token_expiration(remember_me=remember_me)
 
     return {
         "access_token": security.create_access_token(

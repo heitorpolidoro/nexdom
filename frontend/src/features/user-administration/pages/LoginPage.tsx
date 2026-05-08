@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
@@ -7,6 +7,7 @@ import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
+import type { User } from "../../../types/auth";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -14,14 +15,44 @@ const LoginPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [devUsers, setDevUsers] = useState<User[]>([]);
 
   const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    // Only fetch dev users in development
+    if (import.meta.env.DEV) {
+      apiClient
+        .get<User[]>("/auth/dev-users")
+        .then((res) => setDevUsers(res.data))
+        .catch(() => setDevUsers([])); // Silently fail if not dev or endpoint not available
+    }
+  }, []);
+
   const from = location.state?.from?.pathname || "/dashboard";
   const successMessage = location.state?.message;
+
+  /**
+   * Handle quick login for development environment
+   */
+  const handleDevLogin = async (selectedUsername: string) => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const response = await apiClient.post("/auth/dev-login", null, {
+        params: { username: selectedUsername, remember_me: rememberMe },
+      });
+      await login(response.data.access_token, rememberMe);
+      navigate(from, { replace: true });
+    } catch {
+      setError("Dev login failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +70,7 @@ const LoginPage: React.FC = () => {
         { headers: { "Content-Type": "multipart/form-data" } },
       );
 
-      await login(response.data.access_token);
+      await login(response.data.access_token, rememberMe);
       navigate(from, { replace: true });
     } catch (err) {
       const apiError = err as { response?: { data?: { detail?: unknown } } };
@@ -138,6 +169,26 @@ const LoginPage: React.FC = () => {
               {isLoading ? t("login.submitting") : t("login.submit")}
             </Button>
           </form>
+
+          {devUsers.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-dashed">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+                Quick Login (Dev Mode)
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {devUsers.map((u) => (
+                  <button
+                    key={u.id}
+                    onClick={() => handleDevLogin(u.username)}
+                    disabled={isLoading}
+                    className="text-xs px-2.5 py-1.5 rounded-md bg-primary/5 hover:bg-primary/10 text-primary border border-primary/20 transition-colors"
+                  >
+                    {u.username}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <p className="text-center text-sm text-muted-foreground mt-5">
             {t("login.signupPrompt")}{" "}

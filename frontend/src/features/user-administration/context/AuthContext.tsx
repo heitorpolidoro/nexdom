@@ -13,7 +13,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (token: string) => Promise<void>;
+  login: (token: string, remember: boolean) => Promise<void>;
   logout: () => void;
 }
 
@@ -31,6 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(response.data);
     } catch {
       localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -38,7 +39,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token =
+      sessionStorage.getItem("accessToken") ||
+      localStorage.getItem("accessToken");
     if (token) {
       fetchUser();
     } else {
@@ -47,8 +50,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [fetchUser]);
 
   const login = useCallback(
-    async (token: string) => {
-      localStorage.setItem("accessToken", token);
+    async (token: string, remember: boolean) => {
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
+      if (remember) {
+        localStorage.setItem("accessToken", token);
+      } else {
+        sessionStorage.setItem("accessToken", token);
+      }
       setIsLoading(true);
       await fetchUser();
     },
@@ -57,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = useCallback(() => {
     localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
     setUser(null);
   }, []);
 

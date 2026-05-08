@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     PROJECT_NAME: str = "SIGECON"
+    ENVIRONMENT: str = "production"
 
     # Database
     DB_HOST: str
