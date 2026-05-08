@@ -3,9 +3,8 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
-
 from app.models.enums import TaskPriority, TaskStatus
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TaskBase(BaseModel):

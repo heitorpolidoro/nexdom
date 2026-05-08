@@ -1,13 +1,12 @@
 import uuid
 
 import pytest
-from fastapi import status
-from jose import jwt
-
 from app.core import security
 from app.core.config import settings
 from app.models.enums import UserRole
 from app.models.user import User
+from fastapi import status
+from jose import jwt
 
 
 @pytest.fixture

@@ -1,7 +1,6 @@
+from app.models.enums import UserRole
 from fastapi.testclient import TestClient
 from sqlmodel import Session
-
-from app.models.enums import UserRole
 
 
 def test_inactive_user_login_fails(client: TestClient, session: Session):

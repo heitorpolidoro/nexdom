@@ -3,13 +3,12 @@
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session, select
-
 from app.api import deps as api_deps
 from app.db import get_session
 from app.models.user import User
 from app.schemas.user import UserRead, UserUpdate
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlmodel import Session, select
 
 router = APIRouter()
 

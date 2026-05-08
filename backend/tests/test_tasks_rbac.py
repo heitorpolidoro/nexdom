@@ -1,12 +1,11 @@
 import uuid
 
 import pytest
-from fastapi.testclient import TestClient
-from sqlmodel import Session
-
 from app.core.security import get_password_hash
 from app.models.enums import UserRole
 from app.models.user import User
+from fastapi.testclient import TestClient
+from sqlmodel import Session
 
 
 @pytest.fixture(name="test_users")

@@ -3,10 +3,6 @@
 from datetime import timedelta
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlmodel import Session, select
-
 from app.api import deps as api_deps
 from app.core import security
 from app.core.config import settings
@@ -16,6 +12,9 @@ from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.token import Token
 from app.schemas.user import UserCreate, UserRead
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import Session, select
 
 router = APIRouter()
 

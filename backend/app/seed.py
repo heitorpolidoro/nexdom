@@ -1,11 +1,10 @@
 import uuid
 
-from sqlmodel import Session, create_engine, select
-
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models.enums import UserRole
 from app.models.user import User
+from sqlmodel import Session, create_engine, select
 
 
 def seed_db():
