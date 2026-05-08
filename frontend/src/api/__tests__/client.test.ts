@@ -15,9 +15,14 @@ describe("apiClient", () => {
     // O axios-mock-adapter seria o ideal aqui, mas podemos testar o interceptor diretamente
     // acessando a lista de interceptores do axios ou simulando uma requisição.
 
-    // @ts-ignore - acessando interceptores internos para teste
-    const requestInterceptor = (apiClient.interceptors.request as any)
-      .handlers[0];
+    const requestInterceptor = (
+      apiClient.interceptors.request as unknown as {
+        handlers: {
+          fulfilled: (...args: unknown[]) => unknown;
+          rejected: (...args: unknown[]) => unknown;
+        }[];
+      }
+    ).handlers[0];
 
     const config = { headers: {} };
     const updatedConfig = await requestInterceptor.fulfilled(config);
@@ -29,9 +34,14 @@ describe("apiClient", () => {
     const token = "session-test-token";
     sessionStorage.setItem("accessToken", token);
 
-    // @ts-ignore
-    const requestInterceptor = (apiClient.interceptors.request as any)
-      .handlers[0];
+    const requestInterceptor = (
+      apiClient.interceptors.request as unknown as {
+        handlers: {
+          fulfilled: (...args: unknown[]) => unknown;
+          rejected: (...args: unknown[]) => unknown;
+        }[];
+      }
+    ).handlers[0];
 
     const config = { headers: {} };
     const updatedConfig = await requestInterceptor.fulfilled(config);
@@ -40,9 +50,14 @@ describe("apiClient", () => {
   });
 
   it("does not add Authorization header if token is missing", async () => {
-    // @ts-ignore
-    const requestInterceptor = (apiClient.interceptors.request as any)
-      .handlers[0];
+    const requestInterceptor = (
+      apiClient.interceptors.request as unknown as {
+        handlers: {
+          fulfilled: (...args: unknown[]) => unknown;
+          rejected: (...args: unknown[]) => unknown;
+        }[];
+      }
+    ).handlers[0];
 
     const config = { headers: {} };
     const updatedConfig = await requestInterceptor.fulfilled(config);
@@ -51,9 +66,14 @@ describe("apiClient", () => {
   });
 
   it("rejects the promise if request interceptor fails", async () => {
-    // @ts-ignore
-    const requestInterceptor = (apiClient.interceptors.request as any)
-      .handlers[0];
+    const requestInterceptor = (
+      apiClient.interceptors.request as unknown as {
+        handlers: {
+          fulfilled: (...args: unknown[]) => unknown;
+          rejected: (...args: unknown[]) => unknown;
+        }[];
+      }
+    ).handlers[0];
     const error = new Error("Request failed");
 
     await expect(requestInterceptor.rejected(error)).rejects.toThrow(

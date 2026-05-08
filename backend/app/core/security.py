@@ -10,6 +10,21 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+def get_token_expiration(remember_me: bool = False) -> timedelta:
+    """
+    Get the expiration timedelta based on remember_me flag.
+
+    Args:
+        remember_me: If True, returns 7 days, otherwise uses default from settings.
+
+    Returns:
+        timedelta: The expiration time delta.
+    """
+    if remember_me:
+        return timedelta(days=7)
+    return timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+
 def create_access_token(
     subject: str | Any, expires_delta: timedelta | None = None
 ) -> str:

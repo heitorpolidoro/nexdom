@@ -35,16 +35,19 @@ const LoginPage: React.FC = () => {
   const from = location.state?.from?.pathname || "/dashboard";
   const successMessage = location.state?.message;
 
+  /**
+   * Handle quick login for development environment
+   */
   const handleDevLogin = async (selectedUsername: string) => {
     setError(null);
     setIsLoading(true);
     try {
-      const response = await apiClient.post(
-        `/auth/dev-login?username=${selectedUsername}&remember_me=${rememberMe}`,
-      );
+      const response = await apiClient.post("/auth/dev-login", null, {
+        params: { username: selectedUsername, remember_me: rememberMe },
+      });
       await login(response.data.access_token, rememberMe);
       navigate(from, { replace: true });
-    } catch (err) {
+    } catch {
       setError("Dev login failed");
     } finally {
       setIsLoading(false);

@@ -42,9 +42,11 @@ frontend_dev = "http://localhost:5175"
 if frontend_dev not in [o.strip("/") for o in origins]:
     origins.append(frontend_dev)
 
-# In development, allow everything
+# In development, ensure we have a working list of origins
 if settings.ENVIRONMENT == "development":
-    origins = ["*"]
+    # allow_origins cannot be ["*"] when allow_credentials is True.
+    # The necessary development origins are already included in the 'origins' list.
+    pass
 
 app.add_middleware(
     CORSMiddleware,

@@ -50,7 +50,6 @@ def test_rbac_task_workflow(client: TestClient, session: Session, test_users):
         json={"title": "Director Task"},
     )
     assert response.status_code == 200
-    response.json()["id"]
 
     # 2. Administrador cria tarefa para o diretor
     response = client.post(

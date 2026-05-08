@@ -104,10 +104,7 @@ def login_access_token(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
         )
 
-    if remember_me:
-        access_token_expires = timedelta(days=7)
-    else:
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = security.get_token_expiration(remember_me=remember_me)
 
     return {
         "access_token": security.create_access_token(
@@ -163,10 +160,7 @@ def dev_login(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
         )
 
-    if remember_me:
-        access_token_expires = timedelta(days=7)
-    else:
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = security.get_token_expiration(remember_me=remember_me)
 
     return {
         "access_token": security.create_access_token(

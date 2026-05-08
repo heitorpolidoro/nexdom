@@ -40,8 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const token =
-      localStorage.getItem("accessToken") ||
-      sessionStorage.getItem("accessToken");
+      sessionStorage.getItem("accessToken") ||
+      localStorage.getItem("accessToken");
     if (token) {
       fetchUser();
     } else {
@@ -51,6 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = useCallback(
     async (token: string, remember: boolean) => {
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
       if (remember) {
         localStorage.setItem("accessToken", token);
       } else {
