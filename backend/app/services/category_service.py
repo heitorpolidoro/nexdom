@@ -1,12 +1,10 @@
 """Category service layer for business logic."""
 
-from uuid import UUID
 
-from app.core.exceptions import ForbiddenError
-from app.models.category import Category
-from app.models.enums import UserRole
-from app.schemas.category import CategoryCreate, CategoryUpdate
 from sqlmodel import Session, select
+
+from app.models.category import Category
+from app.schemas.category import CategoryCreate, CategoryUpdate
 
 
 class CategoryService:
@@ -42,7 +40,7 @@ class CategoryService:
         """
         statement = select(Category)
         if only_active:
-            statement = statement.where(Category.is_active == True)
+            statement = statement.where(Category.is_active.is_(True))
         return session.exec(statement).all()
 
     @staticmethod
@@ -62,7 +60,7 @@ class CategoryService:
         update_data = category_in.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_category, key, value)
-        
+
         session.add(db_category)
         session.commit()
         session.refresh(db_category)
