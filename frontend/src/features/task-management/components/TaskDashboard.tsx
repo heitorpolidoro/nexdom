@@ -6,6 +6,7 @@ import TaskBoard from "./TaskBoard";
 import TaskForm from "./TaskForm";
 import TaskDetailsView from "./TaskDetailsView";
 import { useTasks } from "../hooks/useTasks";
+import { useCategories } from "../hooks/useCategories";
 import { Button } from "../../../components/ui/button";
 import { Select } from "../../../components/ui/select";
 import { Plus, LayoutGrid, List } from "lucide-react";
@@ -16,24 +17,26 @@ const TaskDashboard: React.FC = () => {
   const [filters, setFilters] = useState<{
     status: TaskStatus | null;
     priority: TaskPriority | null;
-  }>({ status: null, priority: null });
+    category_id: string | null;
+  }>({ status: null, priority: null, category_id: null });
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const { data: tasks, isLoading, isError, error } = useTasks(filters);
+  const { data: categories } = useCategories();
 
   const selectedTask = tasks?.find((t) => t.id === selectedTaskId);
 
   const handleFilterChange = (
-    filterType: "status" | "priority",
-    value: TaskStatus | TaskPriority | null,
+    filterType: "status" | "priority" | "category_id",
+    value: TaskStatus | TaskPriority | string | null,
   ) => {
     setFilters((prev) => ({ ...prev, [filterType]: value }));
   };
 
-  const clearFilters = () => setFilters({ status: null, priority: null });
+  const clearFilters = () => setFilters({ status: null, priority: null, category_id: null });
 
   const handleTaskClick = (taskId: string) => {
     setSelectedTaskId(taskId);
@@ -123,7 +126,22 @@ const TaskDashboard: React.FC = () => {
             ))}
           </Select>
 
-          {(filters.status || filters.priority) && (
+          <Select
+            value={filters.category_id ?? ""}
+            onChange={(e) =>
+              handleFilterChange("category_id", e.target.value || null)
+            }
+            className="w-40"
+          >
+            <option value="">{t("tasks.dashboard.allCategories")}</option>
+            {categories?.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </Select>
+
+          {(filters.status || filters.priority || filters.category_id) && (
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               {t("tasks.dashboard.clearFilters")}
             </Button>

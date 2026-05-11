@@ -6,6 +6,7 @@ from app.db import get_session
 from app.main import app
 from app.models.enums import UserRole
 from app.models.user import User
+from app.models.category import Category
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, StaticPool, create_engine
 
@@ -69,3 +70,15 @@ def normal_user_fixture(session: Session):
     session.add(user)
     session.commit()
     return user
+
+
+@pytest.fixture(name="default_category")
+def default_category_fixture(session: Session):
+    """Create and persist a default category for tests."""
+    category = Category(
+        name="General",
+        color="#808080",
+    )
+    session.add(category)
+    session.commit()
+    return category

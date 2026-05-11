@@ -34,6 +34,9 @@ describe("TaskDetailsView", () => {
     due_date: "2023-12-31T23:59:59Z",
     created_at: "2023-01-01T10:00:00Z",
     updated_at: "2023-01-01T10:00:00Z",
+    category_id: "cat-1",
+    category_name: "General",
+    category_color: "#808080",
   };
 
   beforeEach(() => {

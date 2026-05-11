@@ -2,14 +2,15 @@ import uuid
 
 import pytest
 from app.core.security import get_password_hash
+from app.models.category import Category
 from app.models.enums import UserRole
 from app.models.user import User
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 
-@pytest.fixture(name="test_users")
-def test_users_fixture(session: Session):
+@pytest.fixture(name="test_data")
+def test_data_fixture(session: Session):
     admin = User(
         id=uuid.uuid4(),
         username="admin_rbac",
@@ -26,10 +27,16 @@ def test_users_fixture(session: Session):
         hashed_password=get_password_hash("pass"),
         role=UserRole.DIRECTOR,
     )
+    category = Category(
+        id=uuid.uuid4(),
+        name="Test Category",
+        color="#FFFFFF"
+    )
     session.add(admin)
     session.add(director)
+    session.add(category)
     session.commit()
-    return {"admin": admin, "director": director}
+    return {"admin": admin, "director": director, "category": category}
 
 
 def get_token(client, username, password):
@@ -39,15 +46,16 @@ def get_token(client, username, password):
     return response.json()["access_token"]
 
 
-def test_rbac_task_workflow(client: TestClient, session: Session, test_users):
+def test_rbac_task_workflow(client: TestClient, session: Session, test_data):
     admin_token = get_token(client, "admin_rbac", "pass")
     dir_token = get_token(client, "director_rbac", "pass")
+    category_id = str(test_data["category"].id)
 
     # 1. Diretor PODE criar tarefas (novo privilégio na hierarquia Admin/Diretor)
     response = client.post(
         "/api/v1/tasks/",
         headers={"Authorization": f"Bearer {dir_token}"},
-        json={"title": "Director Task"},
+        json={"title": "Director Task", "category_id": category_id},
     )
     assert response.status_code == 200
 
@@ -55,7 +63,11 @@ def test_rbac_task_workflow(client: TestClient, session: Session, test_users):
     response = client.post(
         "/api/v1/tasks/",
         headers={"Authorization": f"Bearer {admin_token}"},
-        json={"title": "Admin Task", "assigned_to_id": str(test_users["director"].id)},
+        json={
+            "title": "Admin Task",
+            "assigned_to_id": str(test_data["director"].id),
+            "category_id": category_id
+        },
     )
     assert response.status_code == 200
     admin_task_id = response.json()["id"]

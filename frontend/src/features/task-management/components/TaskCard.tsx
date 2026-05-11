@@ -64,6 +64,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
       <h3 className="font-semibold text-base mb-1 text-foreground leading-snug">
         {task.title}
       </h3>
+      {task.category_name && (
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground mb-1">
+          <span
+            className="size-2 rounded-full shrink-0"
+            style={{ backgroundColor: task.category_color ?? "#808080" }}
+          />
+          {task.category_name}
+        </span>
+      )}
       <div className="flex items-center gap-2 mb-3">
         <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed flex-1">
           {task.description || t("tasks.card.noDescription")}

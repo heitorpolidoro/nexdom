@@ -20,6 +20,9 @@ const mockTask = {
   assigned_to_id: "user-2",
   due_date: "2023-12-31T23:59:59Z",
   is_deleted: false,
+  category_id: "cat-1",
+  category_name: "General",
+  category_color: "#808080",
 };
 
 describe("TaskCard", () => {
@@ -149,5 +152,20 @@ describe("TaskCard", () => {
     // In US format it might be MM/DD/YYYY or M/D/YYYY
     // 12/31/2023
     expect(screen.getByText("12/31/2023")).toBeInTheDocument();
+  });
+
+  it("renders category badge with name and color dot", () => {
+    render(<TaskCard task={mockTask} />);
+
+    expect(screen.getByText("General")).toBeInTheDocument();
+    const dot = document.querySelector('[style*="background-color: rgb(128, 128, 128)"], [style*="background-color:#808080"], [style*="backgroundColor"]');
+    expect(dot).toBeTruthy();
+  });
+
+  it("does not render category badge when category_name is null", () => {
+    const taskWithoutCategory = { ...mockTask, category_name: null };
+    render(<TaskCard task={taskWithoutCategory} />);
+
+    expect(screen.queryByText("General")).not.toBeInTheDocument();
   });
 });

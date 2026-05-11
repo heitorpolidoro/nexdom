@@ -46,6 +46,7 @@ def list_tasks(
     status: Annotated[TaskStatus | None, Query()] = None,
     priority: Annotated[TaskPriority | None, Query()] = None,
     assigned_to_id: Annotated[UUID | None, Query()] = None,
+    category_id: Annotated[UUID | None, Query()] = None,
 ) -> list[TaskRead]:
     """List tasks with optional filters.
 
@@ -57,20 +58,23 @@ def list_tasks(
         status: Filter by task status.
         priority: Filter by task priority.
         assigned_to_id: Filter by the user assigned to the task.
+        category_id: Filter by the category of the task.
 
     Returns:
         list[TaskRead]: List of tasks matching the criteria.
     """
     from sqlalchemy.orm import aliased
+    from app.models.category import Category
 
     creator_alias = aliased(User)
     assignee_alias = aliased(User)
 
     statement = (
-        select(Task, creator_alias.full_name, assignee_alias.full_name)
+        select(Task, creator_alias.full_name, assignee_alias.full_name, Category.name, Category.color)
         .where(Task.is_deleted.is_(False))
         .join(creator_alias, Task.created_by_id == creator_alias.id, isouter=True)
         .join(assignee_alias, Task.assigned_to_id == assignee_alias.id, isouter=True)
+        .join(Category, Task.category_id == Category.id, isouter=True)
     )
 
     if current_user.role == UserRole.DIRECTOR:
@@ -83,13 +87,18 @@ def list_tasks(
 
     if priority:
         statement = statement.where(Task.priority == priority)
+    
+    if category_id:
+        statement = statement.where(Task.category_id == category_id)
 
     results = session.exec(statement).all()
     tasks = []
-    for db_task, creator_name, assignee_name in results:
+    for db_task, creator_name, assignee_name, category_name, category_color in results:
         task_data = db_task.model_dump()
         task_data["created_by_name"] = creator_name
         task_data["assigned_to_name"] = assignee_name
+        task_data["category_name"] = category_name
+        task_data["category_color"] = category_color
         tasks.append(TaskRead.model_validate(task_data))
     return tasks
 

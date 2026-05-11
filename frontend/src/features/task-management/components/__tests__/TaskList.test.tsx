@@ -15,6 +15,9 @@ const mockTasks = [
     updated_at: "2023-01-01T00:00:00Z",
     created_by_id: "admin-1",
     is_deleted: false,
+    category_id: "cat-1",
+    category_name: "General",
+    category_color: "#808080",
   },
   {
     id: "2",
@@ -27,6 +30,9 @@ const mockTasks = [
     updated_at: "2023-01-01T00:00:00Z",
     created_by_id: "admin-1",
     is_deleted: false,
+    category_id: "cat-1",
+    category_name: "General",
+    category_color: "#808080",
   },
 ];
 

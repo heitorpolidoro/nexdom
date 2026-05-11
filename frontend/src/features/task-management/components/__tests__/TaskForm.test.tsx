@@ -4,6 +4,7 @@ import TaskForm from "../TaskForm";
 import { TaskPriority, TaskStatus } from "../../types";
 import { useCreateTask, useUpdateTask } from "../../hooks/useTasks";
 import { useUsers } from "../../../../hooks/useUsers";
+import { useCategories } from "../../hooks/useCategories";
 
 // Mock the hooks
 vi.mock("../../hooks/useTasks", () => ({
@@ -13,6 +14,10 @@ vi.mock("../../hooks/useTasks", () => ({
 
 vi.mock("../../../../hooks/useUsers", () => ({
   useUsers: vi.fn(),
+}));
+
+vi.mock("../../hooks/useCategories", () => ({
+  useCategories: vi.fn(),
 }));
 
 describe("TaskForm", () => {
@@ -43,6 +48,11 @@ describe("TaskForm", () => {
       ],
       isLoading: false,
     } as any);
+
+    vi.mocked(useCategories).mockReturnValue({
+      data: [{ id: "cat-1", name: "Geral", color: "#808080", is_active: true }],
+      isLoading: false,
+    } as any);
   });
 
   it("renders correctly in creation mode", () => {
@@ -68,6 +78,7 @@ describe("TaskForm", () => {
       created_by_id: "admin",
       created_at: new Date(),
       updated_at: new Date(),
+      category_id: "cat-1",
     };
 
     render(
@@ -134,6 +145,9 @@ describe("TaskForm", () => {
     fireEvent.change(screen.getByLabelText(/Título \\*/i), {
       target: { value: "Minimal Task" },
     });
+    fireEvent.change(screen.getByLabelText(/Categoria/i), {
+      target: { name: "category_id", value: "cat-1" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
 
     expect(mockCreateMutate).toHaveBeenCalledWith(
@@ -153,6 +167,9 @@ describe("TaskForm", () => {
     });
     fireEvent.change(screen.getByLabelText(/Data de entrega/i), {
       target: { value: "2023-12-25" },
+    });
+    fireEvent.change(screen.getByLabelText(/Categoria/i), {
+      target: { name: "category_id", value: "cat-1" },
     });
 
     fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
@@ -197,6 +214,9 @@ describe("TaskForm", () => {
     fireEvent.change(screen.getByLabelText(/Prioridade/i), {
       target: { value: TaskPriority.HIGH },
     });
+    fireEvent.change(screen.getByLabelText(/Categoria/i), {
+      target: { name: "category_id", value: "cat-1" },
+    });
 
     fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
 
@@ -219,6 +239,7 @@ describe("TaskForm", () => {
       created_by_id: "admin",
       created_at: new Date(),
       updated_at: new Date(),
+      category_id: "cat-1",
     };
 
     render(
@@ -361,5 +382,34 @@ describe("TaskForm", () => {
 
     expect(options.find((o) => o.textContent === "Full Name")).toBeInTheDocument();
     expect(options.find((o) => o.textContent === "user2_only")).toBeInTheDocument();
+  });
+
+  it("shows validation error when category is not selected", () => {
+    render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
+
+    expect(screen.getByText(/Categoria é obrigatória/i)).toBeInTheDocument();
+    expect(mockCreateMutate).not.toHaveBeenCalled();
+  });
+
+  it("includes category_id in create payload", () => {
+    render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
+
+    fireEvent.change(screen.getByLabelText(/Título \*/i), {
+      target: { value: "Task with Category" },
+    });
+    fireEvent.change(screen.getByLabelText(/Categoria/i), {
+      target: { name: "category_id", value: "cat-1" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Criar tarefa/i }));
+
+    expect(mockCreateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category_id: "cat-1",
+      }),
+      expect.any(Object),
+    );
   });
 });

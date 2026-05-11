@@ -77,7 +77,8 @@
       "clearFilters": "Clear filters",
       "closeModal": "Close modal",
       "viewList": "List",
-      "viewBoard": "Board"
+      "viewBoard": "Board",
+      "allCategories": "All categories"
     },
     "list": {
       "loading": "Loading tasks...",
@@ -106,7 +107,9 @@
       "cancel": "Cancel",
       "submitSaving": "Saving...",
       "submitEdit": "Update task",
-      "submitCreate": "Create task"
+      "submitCreate": "Create task",
+      "categoryLabel": "Category",
+      "categoryRequired": "Category is required"
     },
     "details": {
       "description": "Description",

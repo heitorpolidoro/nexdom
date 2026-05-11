@@ -10,7 +10,7 @@ def get_token(client, username, password):
 
 
 def test_e2e_task_lifecycle(
-    client: TestClient, session: Session, admin_user, normal_user
+    client: TestClient, session: Session, admin_user, normal_user, default_category
 ):
     # 1. Login as Admin
     admin_token = get_token(client, "admin", "test_admin_password")
@@ -24,6 +24,7 @@ def test_e2e_task_lifecycle(
             "description": "Testing full flow",
             "priority": "HIGH",
             "assigned_to_id": str(normal_user.id),
+            "category_id": str(default_category.id),
         },
     )
     assert create_resp.status_code == 200

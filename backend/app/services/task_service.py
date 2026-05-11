@@ -137,7 +137,7 @@ class TaskService:
 
     @staticmethod
     def get_task_with_names(session: Session, db_task: Task) -> Any:
-        """Enrich a task with creator and assignee names for response.
+        """Enrich a task with creator, assignee and category details for response.
 
         Args:
             session: Database session.
@@ -146,6 +146,7 @@ class TaskService:
         Returns:
             TaskRead: The task data with names included.
         """
+        from app.models.category import Category
         from app.models.user import User
         from app.schemas.task import TaskRead
 
@@ -153,9 +154,12 @@ class TaskService:
         assignee = (
             session.get(User, db_task.assigned_to_id) if db_task.assigned_to_id else None
         )
+        category = session.get(Category, db_task.category_id)
 
         task_data = db_task.model_dump()
         task_data["created_by_name"] = creator.full_name if creator else None
         task_data["assigned_to_name"] = assignee.full_name if assignee else None
+        task_data["category_name"] = category.name if category else None
+        task_data["category_color"] = category.color if category else None
 
         return TaskRead.model_validate(task_data)

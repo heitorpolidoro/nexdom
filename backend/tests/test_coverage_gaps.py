@@ -120,7 +120,7 @@ def test_update_task_not_found(client, director_token):
     assert "not found" in response.json()["detail"].lower()
 
 
-def test_update_deleted_task(client, session, director_token):
+def test_update_deleted_task(client, session, director_token, default_category):
     """Test updating a task that is soft-deleted."""
     from app.models.task import Task
 
@@ -128,6 +128,7 @@ def test_update_deleted_task(client, session, director_token):
         title="Deleted Task",
         description="...",
         created_by_id=uuid.uuid4(),
+        category_id=default_category.id,
         is_deleted=True,
     )
     session.add(task)
@@ -143,7 +144,7 @@ def test_update_deleted_task(client, session, director_token):
     assert "not found" in response.json()["detail"].lower()
 
 
-def test_delete_already_deleted_task(client, session, director_token):
+def test_delete_already_deleted_task(client, session, director_token, default_category):
     """Test deleting a task that is already soft-deleted."""
     from app.models.task import Task
 
@@ -151,6 +152,7 @@ def test_delete_already_deleted_task(client, session, director_token):
         title="Already Deleted",
         description="...",
         created_by_id=uuid.uuid4(),
+        category_id=default_category.id,
         is_deleted=True,
     )
     session.add(task)

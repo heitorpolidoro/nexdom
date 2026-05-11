@@ -35,6 +35,16 @@ export const TaskPriority = {
 };
 
 /**
+ * Interface for reading category data from the API.
+ */
+export interface CategoryRead {
+  id: string;
+  name: string;
+  color: string;
+  is_active: boolean;
+}
+
+/**
  * Base interface for task data.
  */
 export interface TaskBase {
@@ -50,6 +60,8 @@ export interface TaskBase {
   due_date?: Date | string | null;
   /** The UUID of the user assigned to the task. */
   assigned_to_id?: string | null;
+  /** The UUID of the category this task belongs to. */
+  category_id: string;
 }
 
 /**
@@ -64,6 +76,7 @@ export interface TaskCreate extends Omit<
   priority?: TaskPriority;
   due_date?: Date | string | null;
   assigned_to_id?: string | null;
+  category_id: string;
 }
 
 /**
@@ -90,6 +103,10 @@ export interface TaskRead extends TaskBase {
   created_by_name?: string | null;
   /** The name of the user assigned to the task. */
   assigned_to_name?: string | null;
+  /** The display name of the category. */
+  category_name?: string | null;
+  /** The hex color of the category. */
+  category_color?: string | null;
 }
 
 /**

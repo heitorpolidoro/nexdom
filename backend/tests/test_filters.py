@@ -10,7 +10,7 @@ def get_token(client, username, password):
 
 
 def test_list_tasks_filters(
-    client: TestClient, session: Session, admin_user, normal_user
+    client: TestClient, session: Session, admin_user, normal_user, default_category
 ):
     token = get_token(client, "admin", "test_admin_password")
 
@@ -18,7 +18,12 @@ def test_list_tasks_filters(
     client.post(
         "/api/v1/tasks/",
         headers={"Authorization": f"Bearer {token}"},
-        json={"title": "Task 1", "status": "IN_PROGRESS", "priority": "HIGH"},
+        json={
+            "title": "Task 1",
+            "status": "IN_PROGRESS",
+            "priority": "HIGH",
+            "category_id": str(default_category.id),
+        },
     )
     client.post(
         "/api/v1/tasks/",
@@ -28,6 +33,7 @@ def test_list_tasks_filters(
             "status": "PENDING",
             "priority": "LOW",
             "assigned_to_id": str(normal_user.id),
+            "category_id": str(default_category.id),
         },
     )
 

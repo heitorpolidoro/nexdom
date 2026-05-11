@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from app.core.security import get_password_hash
+from app.models.category import Category
 from app.models.enums import TaskPriority, TaskStatus, UserRole
 from app.models.task import Task
 from app.models.user import User
@@ -42,7 +43,12 @@ def setup_data_fixture(session: Session):
         hashed_password=get_password_hash("pass"),
         role=UserRole.DIRECTOR,
     )
-    session.add_all([admin, director1, director2])
+    category = Category(
+        id=uuid.uuid4(),
+        name="Category Cov",
+        color="#000000"
+    )
+    session.add_all([admin, director1, director2, category])
     session.commit()
 
     task1 = Task(
@@ -51,6 +57,7 @@ def setup_data_fixture(session: Session):
         priority=TaskPriority.LOW,
         assigned_to_id=director1.id,
         created_by_id=admin.id,
+        category_id=category.id,
     )
     task2 = Task(
         title="Task 2",
@@ -58,6 +65,7 @@ def setup_data_fixture(session: Session):
         priority=TaskPriority.MEDIUM,
         assigned_to_id=director2.id,
         created_by_id=admin.id,
+        category_id=category.id,
     )
     session.add_all([task1, task2])
     session.commit()
@@ -66,6 +74,7 @@ def setup_data_fixture(session: Session):
         "admin": admin,
         "dir1": director1,
         "dir2": director2,
+        "category": category,
         "task1": task1,
         "task2": task2,
     }

@@ -77,7 +77,8 @@
       "clearFilters": "Limpar filtros",
       "closeModal": "Fechar modal",
       "viewList": "Lista",
-      "viewBoard": "Quadro"
+      "viewBoard": "Quadro",
+      "allCategories": "Todas as categorias"
     },
     "list": {
       "loading": "Carregando tarefas...",
@@ -106,7 +107,9 @@
       "cancel": "Cancelar",
       "submitSaving": "Salvando...",
       "submitEdit": "Atualizar tarefa",
-      "submitCreate": "Criar tarefa"
+      "submitCreate": "Criar tarefa",
+      "categoryLabel": "Categoria",
+      "categoryRequired": "Categoria é obrigatória"
     },
     "details": {
       "description": "Descrição",

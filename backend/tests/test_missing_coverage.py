@@ -108,7 +108,7 @@ def test_dev_login_inactive_user(client, session):
         assert "Inactive user" in response.json()["detail"]
 
 
-def test_get_task_history_rbac_failure(client, session, normal_user):
+def test_get_task_history_rbac_failure(client, session, normal_user, default_category):
     """Test DIRECTOR trying to view history of a task not assigned to them."""
     # Create a task assigned to someone else
     other_user_id = uuid.uuid4()
@@ -117,6 +117,7 @@ def test_get_task_history_rbac_failure(client, session, normal_user):
         description="...",
         created_by_id=other_user_id,
         assigned_to_id=other_user_id,
+        category_id=default_category.id,
     )
     session.add(task)
     session.commit()
@@ -177,13 +178,14 @@ def test_update_self_admin_change_role_fail(client, admin_user):
     assert "cannot change their own role" in response.json()["detail"]
 
 
-def test_update_task_service_rbac_failures(session, normal_user):
+def test_update_task_service_rbac_failures(session, normal_user, default_category):
     """Test TaskService.update_task RBAC failures directly."""
     task = Task(
         title="Task",
         description="...",
         created_by_id=uuid.uuid4(),
         assigned_to_id=uuid.uuid4(),  # Not normal_user
+        category_id=default_category.id,
     )
     from app.schemas.task import TaskUpdate
 

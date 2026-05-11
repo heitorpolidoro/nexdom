@@ -18,6 +18,8 @@ interface FetchTasksOptions {
   priority?: TaskPriority | null;
   /** Filter by the UUID of the assigned user. */
   assigned_to_id?: string | null;
+  /** Filter by the UUID of the category. */
+  category_id?: string | null;
 }
 
 /**
@@ -32,6 +34,7 @@ const fetchTasks = async (options: FetchTasksOptions): Promise<TaskRead[]> => {
       status: options.status,
       priority: options.priority,
       assigned_to_id: options.assigned_to_id,
+      category_id: options.category_id,
     },
   });
   return response.data;

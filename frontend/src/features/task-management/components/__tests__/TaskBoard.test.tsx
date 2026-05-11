@@ -15,6 +15,9 @@ const mockTasks = [
     created_by_id: "user-1",
     assigned_to_id: "user-2",
     is_deleted: false,
+    category_id: "cat-1",
+    category_name: "General",
+    category_color: "#808080",
   },
   {
     id: "2",
@@ -27,6 +30,9 @@ const mockTasks = [
     created_by_id: "user-1",
     assigned_to_id: "user-3",
     is_deleted: false,
+    category_id: "cat-1",
+    category_name: "General",
+    category_color: "#808080",
   },
 ];
 

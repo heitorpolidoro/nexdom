@@ -35,14 +35,14 @@ def test_create_task_validation_error(client: TestClient, session: Session, admi
     assert response.status_code == 422
 
 
-def test_update_task_validation_error(client: TestClient, session: Session, admin_user):
+def test_update_task_validation_error(client: TestClient, session: Session, admin_user, default_category):
     token = get_token(client, "admin", "test_admin_password")
 
     # Create a task first
     response = client.post(
         "/api/v1/tasks/",
         headers={"Authorization": f"Bearer {token}"},
-        json={"title": "Valid Task"},
+        json={"title": "Valid Task", "category_id": str(default_category.id)},
     )
     task_id = response.json()["id"]
 

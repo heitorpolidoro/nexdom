@@ -13,6 +13,7 @@ const mockTasks: TaskRead[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     created_by_id: "admin",
+    category_id: "cat-1",
   },
   {
     id: "2",
@@ -23,6 +24,7 @@ const mockTasks: TaskRead[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     created_by_id: "admin",
+    category_id: "cat-1",
   },
   {
     id: "3",
@@ -33,6 +35,7 @@ const mockTasks: TaskRead[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     created_by_id: "admin",
+    category_id: "cat-1",
   },
 ];
 

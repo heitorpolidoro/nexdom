@@ -8,6 +8,7 @@ import {
   useTaskHistory,
   useDeleteTask,
 } from "../../hooks/useTasks";
+import { useCategories } from "../../hooks/useCategories";
 import { TaskStatus, TaskPriority } from "../../types";
 import * as useUsersHook from "../../../../hooks/useUsers";
 
@@ -24,6 +25,10 @@ vi.mock("../../../../hooks/useUsers", () => ({
   useUsers: vi.fn(),
 }));
 
+vi.mock("../../hooks/useCategories", () => ({
+  useCategories: vi.fn(),
+}));
+
 const mockTasks = [
   {
     id: "1",
@@ -36,6 +41,9 @@ const mockTasks = [
     created_by_id: "user-1",
     assigned_to_id: "user-2",
     is_deleted: false,
+    category_id: "cat-1",
+    category_name: "General",
+    category_color: "#808080",
   },
 ];
 
@@ -68,6 +76,11 @@ describe("TaskDashboard", () => {
     } as any);
     vi.mocked(useUsersHook.useUsers).mockReturnValue({
       data: [],
+      isLoading: false,
+    } as any);
+
+    vi.mocked(useCategories).mockReturnValue({
+      data: [{ id: "cat-1", name: "Geral", color: "#808080", is_active: true }],
       isLoading: false,
     } as any);
   });
@@ -116,7 +129,7 @@ describe("TaskDashboard", () => {
     const clearButton = screen.getByText("Limpar filtros");
     fireEvent.click(clearButton);
 
-    expect(useTasks).toHaveBeenLastCalledWith({ status: null, priority: null });
+    expect(useTasks).toHaveBeenLastCalledWith({ status: null, priority: null, category_id: null });
   });
 
   it("opens and closes the creation modal", () => {
@@ -187,6 +200,9 @@ describe("TaskDashboard", () => {
 
     const titleInput = screen.getByPlaceholderText(/Título da tarefa/i);
     fireEvent.change(titleInput, { target: { value: "Success Task" } });
+
+    const categorySelect = screen.getByLabelText(/Categoria/i);
+    fireEvent.change(categorySelect, { target: { name: "category_id", value: "cat-1" } });
 
     const createBtn = screen.getByRole("button", { name: "Criar tarefa" });
     fireEvent.click(createBtn);
@@ -401,6 +417,31 @@ describe("TaskDashboard", () => {
     fireEvent.click(screen.getByTitle("Quadro"));
     expect(screen.getByTitle("Quadro")).toHaveClass(
       "bg-secondary",
+    );
+  });
+
+  it("renders category filter dropdown", () => {
+    render(<TaskDashboard />);
+
+    expect(screen.getByDisplayValue("Todas as categorias")).toBeInTheDocument();
+    const categorySelect = screen.getByDisplayValue("Todas as categorias");
+    const options = Array.from(categorySelect.querySelectorAll("option"));
+    expect(options.find((o) => o.textContent === "Geral")).toBeInTheDocument();
+  });
+
+  it("passes category_id filter to useTasks when category selected", () => {
+    render(<TaskDashboard />);
+
+    const categorySelect = screen.getByDisplayValue("Todas as categorias");
+    fireEvent.change(categorySelect, { target: { value: "cat-1" } });
+
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ category_id: "cat-1" }),
+    );
+
+    fireEvent.change(categorySelect, { target: { value: "" } });
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ category_id: null }),
     );
   });
 

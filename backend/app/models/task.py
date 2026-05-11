@@ -10,6 +10,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from .enums import TaskPriority, TaskStatus
 
 if TYPE_CHECKING:
+    from .category import Category
     from .user import User
 
 
@@ -39,6 +40,7 @@ class Task(SQLModel, table=True):
         is_deleted: Soft delete flag.
         created_by_id: ID of the user who created the task.
         assigned_to_id: ID of the user assigned to the task.
+        category_id: ID of the category for the task.
     """
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
@@ -52,12 +54,14 @@ class Task(SQLModel, table=True):
     is_deleted: bool = Field(default=False, index=True)
 
     USER_ID_FK: ClassVar[str] = "user.id"
+    CATEGORY_ID_FK: ClassVar[str] = "category.id"
 
     # Foreign Keys
     created_by_id: UUID = Field(foreign_key=USER_ID_FK, index=True)
     assigned_to_id: UUID | None = Field(
         default=None, foreign_key=USER_ID_FK, index=True
     )
+    category_id: UUID = Field(foreign_key=CATEGORY_ID_FK, index=True)
 
     # Relationships
     creator: "User" = Relationship(
@@ -68,6 +72,7 @@ class Task(SQLModel, table=True):
         back_populates="assigned_tasks",
         sa_relationship_kwargs={"foreign_keys": "Task.assigned_to_id"},
     )
+    category: "Category" = Relationship(back_populates="tasks")
     history: list["TaskHistory"] = Relationship(
         back_populates="task", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )

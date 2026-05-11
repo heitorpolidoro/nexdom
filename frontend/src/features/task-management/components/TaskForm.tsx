@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { TaskPriority, TaskStatus } from "../types";
 import type { TaskRead, TaskCreate, TaskUpdate } from "../types";
 import { useCreateTask, useUpdateTask } from "../hooks/useTasks";
+import { useCategories } from "../hooks/useCategories";
 import { useUsers } from "../../../hooks/useUsers";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
@@ -23,6 +24,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
   const { data: users } = useUsers();
+  const { data: categories } = useCategories();
 
   const isLoading =
     createTaskMutation.isPending || updateTaskMutation.isPending;
@@ -35,6 +37,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     assigned_to_id: "",
     due_date: "",
     status: TaskStatus.PENDING,
+    category_id: "",
   };
 
   const transforms: Record<string, (value: unknown) => unknown> = {
@@ -45,6 +48,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     due_date: (v) =>
       v ? new Date(v as string).toISOString().split("T")[0] : "",
     status: (v) => v,
+    category_id: (v) => v || "",
   };
 
   const getInitialState = () => {
@@ -81,6 +85,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     const newErrors: Record<string, string> = {};
     if (!(formData.title as string).trim())
       newErrors.title = t("tasks.form.titleRequired");
+    if (!(formData.category_id as string))
+      newErrors.category_id = t("tasks.form.categoryRequired");
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -97,6 +103,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
         ? new Date(formData.due_date as string)
         : null,
       assigned_to_id: (formData.assigned_to_id as string) || null,
+      category_id: formData.category_id as string,
     };
 
     if (isEditing && task) {
@@ -191,6 +198,28 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
               </option>
             ))}
           </Select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="category_id">{t("tasks.form.categoryLabel")}</Label>
+          <Select
+            id="category_id"
+            name="category_id"
+            value={formData.category_id as string}
+            onChange={handleChange}
+            disabled={isLoading}
+            aria-invalid={!!errors.category_id}
+          >
+            <option value=""></option>
+            {categories?.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </Select>
+          {errors.category_id && (
+            <p className="text-xs text-destructive">{errors.category_id}</p>
+          )}
         </div>
 
         {isEditing && (

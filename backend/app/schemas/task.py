@@ -16,6 +16,7 @@ class TaskBase(BaseModel):
     priority: TaskPriority = TaskPriority.MEDIUM
     due_date: datetime | None = None
     assigned_to_id: UUID | None = None
+    category_id: UUID
 
 
 class TaskCreate(TaskBase):
@@ -31,6 +32,7 @@ class TaskUpdate(BaseModel):
     priority: TaskPriority | None = None
     due_date: datetime | None = None
     assigned_to_id: UUID | None = None
+    category_id: UUID | None = None
 
 
 class TaskRead(TaskBase):
@@ -42,6 +44,8 @@ class TaskRead(TaskBase):
     created_by_id: UUID
     created_by_name: str | None = None
     assigned_to_name: str | None = None
+    category_name: str | None = None
+    category_color: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
