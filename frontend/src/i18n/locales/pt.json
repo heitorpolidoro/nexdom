@@ -84,7 +84,15 @@
       "loading": "Carregando tarefas...",
       "error": "Erro ao carregar tarefas: {{message}}",
       "empty": "Nenhuma tarefa encontrada.",
-      "emptyFiltered": "Nenhuma tarefa corresponde aos filtros selecionados."
+      "emptyFiltered": "Nenhuma tarefa corresponde aos filtros selecionados.",
+      "headerTitle": "Título",
+      "headerCategory": "Categoria",
+      "headerStatus": "Status",
+      "headerPriority": "Prioridade",
+      "headerAssignee": "Responsável",
+      "headerDueDate": "Entrega",
+      "noCategory": "Sem categoria",
+      "unassigned": "Não atribuído"
     },
     "card": {
       "noDescription": "Sem descrição"

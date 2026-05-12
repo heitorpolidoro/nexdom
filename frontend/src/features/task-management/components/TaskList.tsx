@@ -1,9 +1,13 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import type { TaskRead } from "../types";
-import { TaskStatus, TaskPriority } from "../types";
-import TaskCard from "./TaskCard";
+import { Badge } from "../../../components/ui/badge";
 import { useTaskFiltering, type TaskFilters } from "../hooks/useTaskFiltering";
+import {
+  getStatusLabel,
+  statusVariant,
+  priorityVariant,
+} from "../utils/taskUtils";
 
 interface TaskListProps {
   tasks: TaskRead[];
@@ -22,7 +26,7 @@ const TaskList: React.FC<TaskListProps> = ({
   filters,
   onTaskClick,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const filteredTasks = useTaskFiltering(tasks, filters);
 
   if (isLoading) {
@@ -58,14 +62,104 @@ const TaskList: React.FC<TaskListProps> = ({
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
-      {filteredTasks.map((task) => (
-        <TaskCard
-          key={task.id}
-          task={task}
-          onClick={() => onTaskClick?.(task.id)}
-        />
-      ))}
+    <div className="mt-4 overflow-x-auto rounded-xl border border-border/40 bg-card shadow-sm">
+      <table className="w-full text-left border-collapse">
+        <thead className="bg-muted/50 border-b border-border/40">
+          <tr>
+            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {t("tasks.list.headerTitle")}
+            </th>
+            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {t("tasks.list.headerCategory")}
+            </th>
+            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {t("tasks.list.headerStatus")}
+            </th>
+            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {t("tasks.list.headerPriority")}
+            </th>
+            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {t("tasks.list.headerAssignee")}
+            </th>
+            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              {t("tasks.list.headerDueDate")}
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border/40">
+          {filteredTasks.map((task) => (
+            <tr
+              key={task.id}
+              onClick={() => onTaskClick?.(task.id)}
+              className="group hover:bg-muted/30 transition-colors cursor-pointer"
+            >
+              <td className="px-6 py-4">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                    {task.title}
+                  </span>
+                  {task.description && (
+                    <span className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                      {task.description}
+                    </span>
+                  )}
+                </div>
+              </td>
+              <td className="px-6 py-4">
+                {task.category_name ? (
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="size-2 rounded-full shrink-0"
+                      style={{ backgroundColor: task.category_color ?? "#808080" }}
+                    />
+                    <span className="text-sm text-foreground">
+                      {task.category_name}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground italic">
+                    {t("tasks.list.noCategory")}
+                  </span>
+                )}
+              </td>
+              <td className="px-6 py-4">
+                <Badge variant={statusVariant(task.status)}>
+                  {getStatusLabel(task.status, t)}
+                </Badge>
+              </td>
+              <td className="px-6 py-4">
+                <Badge variant={priorityVariant(task.priority)}>
+                  {task.priority}
+                </Badge>
+              </td>
+              <td className="px-6 py-4">
+                {task.assigned_to_name ? (
+                  <span className="text-sm text-foreground">
+                    {task.assigned_to_name}
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground italic">
+                    {t("tasks.list.unassigned")}
+                  </span>
+                )}
+              </td>
+              <td className="px-6 py-4">
+                {task.due_date ? (
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">
+                    {new Date(task.due_date).toLocaleDateString(
+                      i18n.language === "pt" ? "pt-BR" : "en-US",
+                    )}
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground italic">
+                    -
+                  </span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

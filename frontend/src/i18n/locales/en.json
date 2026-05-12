@@ -84,7 +84,15 @@
       "loading": "Loading tasks...",
       "error": "Error loading tasks: {{message}}",
       "empty": "No tasks found.",
-      "emptyFiltered": "No tasks match the selected filters."
+      "emptyFiltered": "No tasks match the selected filters.",
+      "headerTitle": "Title",
+      "headerCategory": "Category",
+      "headerStatus": "Status",
+      "headerPriority": "Priority",
+      "headerAssignee": "Assignee",
+      "headerDueDate": "Due Date",
+      "noCategory": "No category",
+      "unassigned": "Unassigned"
     },
     "card": {
       "noDescription": "No description"
