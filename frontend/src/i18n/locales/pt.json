@@ -78,7 +78,8 @@
       "closeModal": "Fechar modal",
       "viewList": "Lista",
       "viewBoard": "Quadro",
-      "allCategories": "Todas as categorias"
+      "allCategories": "Todas as categorias",
+      "connectionError": "Não foi possível conectar ao servidor. Verifique se o backend está rodando."
     },
     "list": {
       "loading": "Carregando tarefas...",

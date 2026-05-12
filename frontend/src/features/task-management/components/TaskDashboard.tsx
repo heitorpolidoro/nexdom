@@ -9,7 +9,8 @@ import { useTasks } from "../hooks/useTasks";
 import { useCategories } from "../hooks/useCategories";
 import { Button } from "../../../components/ui/button";
 import { Select } from "../../../components/ui/select";
-import { Plus, LayoutGrid, List } from "lucide-react";
+import { Alert, AlertDescription } from "../../../components/ui/alert";
+import { Plus, LayoutGrid, List, AlertCircle } from "lucide-react";
 import { getStatusLabel } from "../utils/taskUtils";
 
 const TaskDashboard: React.FC = () => {
@@ -77,6 +78,18 @@ const TaskDashboard: React.FC = () => {
           {t("tasks.dashboard.newTask")}
         </Button>
       </div>
+
+      {/* Error Message */}
+      {isError && (
+        <Alert variant="destructive" className="mb-6">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="size-4" />
+            <AlertDescription className="font-medium">
+              {t("tasks.dashboard.connectionError")}
+            </AlertDescription>
+          </div>
+        </Alert>
+      )}
 
       {/* Filters & View Toggle */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6 p-4 rounded-lg border bg-muted/30">

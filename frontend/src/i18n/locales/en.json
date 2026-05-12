@@ -78,7 +78,8 @@
       "closeModal": "Close modal",
       "viewList": "List",
       "viewBoard": "Board",
-      "allCategories": "All categories"
+      "allCategories": "All categories",
+      "connectionError": "Could not connect to the server. Please check if the backend is running."
     },
     "list": {
       "loading": "Loading tasks...",
