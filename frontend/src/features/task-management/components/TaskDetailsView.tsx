@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { TaskRead, TaskStatus } from "../types";
 import { useUpdateTask } from "../hooks/useTasks";
 import AuditTimeline from "./AuditTimeline";
-import { Badge, type BadgeProps } from "../../../components/ui/badge";
+import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { cn } from "../../../lib/utils";
 import { getStatusLabel, priorityVariant } from "../utils/taskUtils";

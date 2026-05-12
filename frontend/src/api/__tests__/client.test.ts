@@ -25,7 +25,7 @@ describe("apiClient", () => {
     ).handlers[0];
 
     const config = { headers: {} };
-    const updatedConfig = await requestInterceptor.fulfilled(config);
+    const updatedConfig = (await requestInterceptor.fulfilled(config)) as any;
 
     expect(updatedConfig.headers.Authorization).toBe(`Bearer ${token}`);
   });
@@ -44,7 +44,7 @@ describe("apiClient", () => {
     ).handlers[0];
 
     const config = { headers: {} };
-    const updatedConfig = await requestInterceptor.fulfilled(config);
+    const updatedConfig = (await requestInterceptor.fulfilled(config)) as any;
 
     expect(updatedConfig.headers.Authorization).toBe(`Bearer ${token}`);
   });
@@ -60,7 +60,7 @@ describe("apiClient", () => {
     ).handlers[0];
 
     const config = { headers: {} };
-    const updatedConfig = await requestInterceptor.fulfilled(config);
+    const updatedConfig = (await requestInterceptor.fulfilled(config)) as any;
 
     expect(updatedConfig.headers.Authorization).toBeUndefined();
   });

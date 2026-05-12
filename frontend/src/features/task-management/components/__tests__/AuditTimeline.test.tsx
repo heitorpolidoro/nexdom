@@ -3,6 +3,7 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import AuditTimeline from "../AuditTimeline";
 import { useTaskHistory } from "../../hooks/useTasks";
 import { useTranslation } from "react-i18next";
+import ptData from "../../../../i18n/locales/pt.json";
 
 // Mock hooks
 vi.mock("../../hooks/useTasks", () => ({
@@ -13,8 +14,6 @@ describe("AuditTimeline", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset to default mock from setup.ts if it was overridden
-    const pt = require("../../../../i18n/locales/pt.json");
-    const ptData = pt.default || pt;
     vi.mocked(useTranslation).mockReturnValue({
       t: (key: string, options?: any) => {
         const keys = key.split(".");

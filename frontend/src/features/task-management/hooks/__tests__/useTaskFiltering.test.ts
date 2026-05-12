@@ -1,7 +1,8 @@
 import { renderHook } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import { useTaskFiltering } from "../useTaskFiltering";
-import { TaskStatus, TaskPriority, TaskRead } from "../../types";
+import { TaskStatus, TaskPriority } from "../../types";
+import type { TaskRead } from "../../types";
 
 const mockTasks: TaskRead[] = [
   {

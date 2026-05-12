@@ -7,7 +7,6 @@ import ProtectedRoute from "./features/user-administration/components/ProtectedR
 import { AuthProvider } from "./features/user-administration/context/AuthContext";
 import Navbar from "./features/user-administration/components/Navbar";
 import { UserRole } from "./types/auth";
-import { Alert, AlertDescription } from "./components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useBackendHealth } from "./hooks/useBackendHealth";
 import { useTranslation } from "react-i18next";

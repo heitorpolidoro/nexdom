@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import type { TaskRead } from "../types";
-import { TaskStatus, TaskPriority } from "../types";
+import { TaskStatus } from "../types";
 import TaskCard from "./TaskCard";
 import { useTaskFiltering, type TaskFilters } from "../hooks/useTaskFiltering";
 import { getStatusLabel } from "../utils/taskUtils";
