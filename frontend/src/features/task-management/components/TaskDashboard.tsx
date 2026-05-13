@@ -125,7 +125,7 @@ const TaskDashboard: React.FC = () => {
             <option value="">{t("tasks.dashboard.allPriorities")}</option>
             {Object.values(TaskPriority).map((p) => (
               <option key={p} value={p}>
-                {p}
+                {t(`tasks.priority.${p}`)}
               </option>
             ))}
           </Select>

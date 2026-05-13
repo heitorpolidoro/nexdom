@@ -74,7 +74,7 @@ describe("TaskDetailsView", () => {
     expect(screen.getByText("Test Task")).toBeInTheDocument();
     expect(screen.getByText("Test Description")).toBeInTheDocument();
     expect(screen.getAllByText("Pendente").length).toBeGreaterThan(0);
-    expect(screen.getByText("MEDIUM")).toBeInTheDocument();
+    expect(screen.getByText("Média")).toBeInTheDocument();
     expect(screen.getByText("user1")).toBeInTheDocument();
     expect(screen.getByText("admin")).toBeInTheDocument();
     // Check if dates are formatted (checking for year 2023)

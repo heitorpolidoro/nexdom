@@ -85,6 +85,12 @@
     "noTypesYet": "Nenhum tipo cadastrado."
   },
   "tasks": {
+    "priority": {
+      "LOW": "Baixa",
+      "MEDIUM": "Média",
+      "HIGH": "Alta",
+      "URGENT": "Urgente"
+    },
     "dashboard": {
       "title": "Tarefas",
       "newTask": "Nova Tarefa",

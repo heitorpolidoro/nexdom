@@ -38,10 +38,14 @@ const tMock = (key: string, options?: any) => {
     value = value?.[k];
   }
 
-  if (typeof value === "string" && options) {
+  if (typeof value === "string" && options && typeof options === "object") {
     Object.keys(options).forEach((k) => {
       value = value.replace(`{{${k}}}`, options[k]);
     });
+  }
+
+  if (value === undefined || value === null) {
+    return typeof options === "string" ? options : key;
   }
 
   return value || key;

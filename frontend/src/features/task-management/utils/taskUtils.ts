@@ -25,6 +25,16 @@ export function statusVariant(status: string): BadgeVariant {
   return map[status] ?? "default";
 }
 
+export function getPriorityLabel(priority: string, t: TFunction): string {
+  const map: Record<string, string> = {
+    LOW: t("tasks.priority.LOW"),
+    MEDIUM: t("tasks.priority.MEDIUM"),
+    HIGH: t("tasks.priority.HIGH"),
+    URGENT: t("tasks.priority.URGENT"),
+  };
+  return map[priority] || priority;
+}
+
 export function priorityVariant(priority: string): BadgeVariant {
   const map: Record<string, BadgeVariant> = {
     LOW: "low",

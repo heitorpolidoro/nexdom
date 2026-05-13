@@ -6,7 +6,7 @@ import AuditTimeline from "./AuditTimeline";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { cn } from "../../../lib/utils";
-import { getStatusLabel, priorityVariant } from "../utils/taskUtils";
+import { getStatusLabel, getPriorityLabel, priorityVariant } from "../utils/taskUtils";
 
 interface TaskDetailsViewProps {
   task: TaskRead;
@@ -82,7 +82,7 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
         </div>
         <div className="flex gap-2 flex-wrap">
           <Badge variant={priorityVariant(task.priority)}>
-            {task.priority}
+            {getPriorityLabel(task.priority, t)}
           </Badge>
         </div>
       </div>

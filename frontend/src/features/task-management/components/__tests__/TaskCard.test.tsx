@@ -35,6 +35,10 @@ describe("TaskCard", () => {
           "tasks.details.statusCompleted": "Concluída",
           "tasks.details.statusCanceled": "Cancelada",
           "tasks.card.noDescription": "Sem descrição",
+          "tasks.priority.LOW": "Baixa",
+          "tasks.priority.MEDIUM": "Média",
+          "tasks.priority.HIGH": "Alta",
+          "tasks.priority.URGENT": "Urgente",
         };
         return map[s] || s;
       },
@@ -48,7 +52,7 @@ describe("TaskCard", () => {
     expect(screen.getByText("Test Task")).toBeInTheDocument();
     expect(screen.getByText("Test Description")).toBeInTheDocument();
     expect(screen.getByText("Pendente")).toBeInTheDocument();
-    expect(screen.getByText("MEDIUM")).toBeInTheDocument();
+    expect(screen.getByText("Média")).toBeInTheDocument();
     // Date is rendered without "Due:" prefix
     const dateEl = screen.getByText(/\d{1,2}\/\d{1,2}\/\d{4}/);
     expect(dateEl).toBeInTheDocument();
@@ -107,9 +111,10 @@ describe("TaskCard", () => {
       TaskPriority.URGENT,
     ];
 
-    priorities.forEach((priority) => {
+    const labels = ["Baixa", "Média", "Alta", "Urgente"];
+    priorities.forEach((priority, i) => {
       const { unmount } = render(<TaskCard task={{ ...mockTask, priority }} />);
-      expect(screen.getByText(priority)).toBeInTheDocument();
+      expect(screen.getByText(labels[i])).toBeInTheDocument();
       unmount();
     });
   });

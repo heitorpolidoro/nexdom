@@ -5,6 +5,7 @@ import { Badge } from "../../../components/ui/badge";
 import { useTaskFiltering, type TaskFilters } from "../hooks/useTaskFiltering";
 import {
   getStatusLabel,
+  getPriorityLabel,
   statusVariant,
   priorityVariant,
 } from "../utils/taskUtils";
@@ -129,7 +130,7 @@ const TaskList: React.FC<TaskListProps> = ({
               </td>
               <td className="px-6 py-4">
                 <Badge variant={priorityVariant(task.priority)}>
-                  {task.priority}
+                  {getPriorityLabel(task.priority, t)}
                 </Badge>
               </td>
               <td className="px-6 py-4">

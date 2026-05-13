@@ -185,7 +185,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
           >
             {Object.values(TaskPriority).map((p) => (
               <option key={p} value={p}>
-                {p}
+                {t(`tasks.priority.${p}`)}
               </option>
             ))}
           </Select>

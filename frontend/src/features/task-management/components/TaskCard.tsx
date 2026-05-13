@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { TaskRead } from "../types";
 import { Badge } from "../../../components/ui/badge";
 import { cn } from "../../../lib/utils";
-import { getStatusLabel, statusVariant, priorityVariant } from "../utils/taskUtils";
+import { getStatusLabel, getPriorityLabel, statusVariant, priorityVariant } from "../utils/taskUtils";
 
 interface TaskCardProps {
   task: TaskRead;
@@ -65,7 +65,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
             {getStatusLabel(task.status, t)}
           </Badge>
           <Badge variant={priorityVariant(task.priority)}>
-            {task.priority}
+            {getPriorityLabel(task.priority, t)}
           </Badge>
         </div>
         {task.due_date && (

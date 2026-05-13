@@ -85,6 +85,12 @@
     "noTypesYet": "No types defined yet."
   },
   "tasks": {
+    "priority": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
     "dashboard": {
       "title": "Tasks",
       "newTask": "New Task",
