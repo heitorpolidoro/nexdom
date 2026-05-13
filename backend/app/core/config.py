@@ -1,4 +1,18 @@
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_PSYCOPG2_VALID_PARAMS = frozenset({
+    "sslmode", "sslcert", "sslkey", "sslrootcert", "sslcrl",
+    "application_name", "connect_timeout", "options",
+    "keepalives", "keepalives_idle", "keepalives_interval", "keepalives_count",
+})
+
+
+def _clean_db_url(url: str) -> str:
+    parsed = urlparse(url.replace("postgres://", "postgresql://", 1))
+    kept = {k: v[0] for k, v in parse_qs(parsed.query).items() if k in _PSYCOPG2_VALID_PARAMS}
+    return urlunparse(parsed._replace(query=urlencode(kept)))
 
 
 class Settings(BaseSettings):
@@ -12,12 +26,11 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        return self.POSTGRES_URL.replace("postgres://", "postgresql://", 1)
+        return _clean_db_url(self.POSTGRES_URL)
 
     @property
     def migration_database_url(self) -> str:
-        url = self.POSTGRES_URL_NON_POOLING or self.POSTGRES_URL
-        return url.replace("postgres://", "postgresql://", 1)
+        return _clean_db_url(self.POSTGRES_URL_NON_POOLING or self.POSTGRES_URL)
 
     # Security
     SECRET_KEY: str
