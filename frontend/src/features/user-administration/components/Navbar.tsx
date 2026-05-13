@@ -78,9 +78,11 @@ const Navbar: React.FC = () => {
           <span className="text-sm font-semibold text-foreground leading-tight">
             {user?.full_name}
           </span>
-          <span className="text-xs text-primary/80 font-medium leading-tight">
-            {user?.role}
-          </span>
+          {user?.type?.name && (
+            <span className="text-xs text-primary/80 font-medium leading-tight">
+              {user.type.name}
+            </span>
+          )}
         </div>
         <div className="h-8 w-[1px] bg-border/50 hidden sm:block" />
         <button

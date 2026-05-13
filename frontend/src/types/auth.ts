@@ -5,6 +5,11 @@ export const UserRole = {
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
+export interface UserType {
+  id: string;
+  name: string;
+}
+
 export interface User {
   id: string;
   username: string;
@@ -12,4 +17,6 @@ export interface User {
   full_name: string;
   role: UserRole;
   is_active: boolean;
+  type?: UserType | null;
+  type_id?: string | null;
 }

@@ -1,30 +1,18 @@
 """Database model for User."""
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
 from .enums import UserRole
+from .user_type import UserType
 
 if TYPE_CHECKING:
     from .task import Task
 
 
 class User(SQLModel, table=True):
-    """
-    SQLModel for the User entity.
-
-    Attributes:
-        id: Unique identifier for the user.
-        username: Unique username.
-        email: Unique email address.
-        hashed_password: The user's hashed password.
-        full_name: User's full name.
-        role: User role (ADMINISTRATOR, DIRECTOR).
-        is_active: Whether the user account is active.
-    """
-
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     username: str = Field(index=True, unique=True)
     email: str = Field(index=True, unique=True)
@@ -32,6 +20,7 @@ class User(SQLModel, table=True):
     full_name: str
     role: UserRole = Field(default=UserRole.DIRECTOR)
     is_active: bool = Field(default=True)
+    type_id: UUID | None = Field(default=None, foreign_key="user_type.id", index=True)
 
     # Relationships
     created_tasks: list["Task"] = Relationship(
@@ -42,3 +31,4 @@ class User(SQLModel, table=True):
         back_populates="assignee",
         sa_relationship_kwargs={"foreign_keys": "Task.assigned_to_id"},
     )
+    type: Optional[UserType] = Relationship(back_populates="users")
