@@ -7,7 +7,21 @@
   },
   "nav": {
     "tasks": "Tarefas",
+    "categories": "Categorias",
     "administration": "Administração"
+  },
+  "categories": {
+    "title": "Categorias",
+    "newCategory": "Nova Categoria",
+    "namePlaceholder": "Nome da categoria",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "loading": "Carregando categorias...",
+    "empty": "Nenhuma categoria cadastrada.",
+    "confirmDelete": "Excluir a categoria \"{{name}}\"?",
+    "errorCreating": "Erro ao criar categoria.",
+    "errorUpdating": "Erro ao atualizar categoria.",
+    "errorDeleting": "Erro ao excluir categoria."
   },
   "login": {
     "heading": "Entrar",

@@ -7,7 +7,21 @@
   },
   "nav": {
     "tasks": "Tasks",
+    "categories": "Categories",
     "administration": "Administration"
+  },
+  "categories": {
+    "title": "Categories",
+    "newCategory": "New Category",
+    "namePlaceholder": "Category name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading categories...",
+    "empty": "No categories yet.",
+    "confirmDelete": "Delete category \"{{name}}\"?",
+    "errorCreating": "Error creating category.",
+    "errorUpdating": "Error updating category.",
+    "errorDeleting": "Error deleting category."
   },
   "login": {
     "heading": "Sign in",

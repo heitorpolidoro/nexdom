@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import TaskDashboard from "./features/task-management/components/TaskDashboard";
+import CategoriesPage from "./features/task-management/components/CategoriesPage";
 import LoginPage from "./features/user-administration/pages/LoginPage";
 import SignupPage from "./features/user-administration/pages/SignupPage";
 import AdminUserDashboard from "./features/user-administration/pages/AdminUserDashboard";
@@ -36,6 +37,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <TaskDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/categories"
+              element={
+                <ProtectedRoute>
+                  <CategoriesPage />
                 </ProtectedRoute>
               }
             />

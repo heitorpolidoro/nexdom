@@ -4,7 +4,6 @@ from typing import Annotated
 from uuid import UUID
 
 from app.api import deps as api_deps
-from app.core.exceptions import ForbiddenError
 from app.db import get_session
 from app.models.category import Category
 from app.models.user import User
@@ -21,10 +20,7 @@ def list_categories(
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> list[CategoryRead]:
-    """List all active categories.
-
-    All authenticated users can see the categories.
-    """
+    """List all active categories. All authenticated users can see categories."""
     return CategoryService.get_categories(session=session)
 
 
@@ -32,10 +28,9 @@ def list_categories(
 def create_category(
     category_in: CategoryCreate,
     session: Annotated[Session, Depends(get_session)],
-    current_user: Annotated[User, Depends(api_deps.get_current_active_admin)],
+    current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> CategoryRead:
-    """Create a new category. Only ADMINISTRATOR can create categories.
-    """
+    """Create a new category. All authenticated users can create categories."""
     return CategoryService.create_category(session=session, category_in=category_in)
 
 
@@ -44,10 +39,9 @@ def update_category(
     category_id: UUID,
     category_in: CategoryUpdate,
     session: Annotated[Session, Depends(get_session)],
-    current_user: Annotated[User, Depends(api_deps.get_current_active_admin)],
+    current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> CategoryRead:
-    """Update a category. Only ADMINISTRATOR can update categories.
-    """
+    """Update a category. All authenticated users can update categories."""
     db_category = session.get(Category, category_id)
     if not db_category:
         raise HTTPException(status_code=404, detail="Category not found")
@@ -61,10 +55,9 @@ def update_category(
 def delete_category(
     category_id: UUID,
     session: Annotated[Session, Depends(get_session)],
-    current_user: Annotated[User, Depends(api_deps.get_current_active_admin)],
+    current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> None:
-    """Deactivate a category. Only ADMINISTRATOR can delete/deactivate categories.
-    """
+    """Deactivate a category. All authenticated users can delete/deactivate categories."""
     db_category = session.get(Category, category_id)
     if not db_category:
         raise HTTPException(status_code=404, detail="Category not found")

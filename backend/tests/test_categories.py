@@ -147,7 +147,7 @@ def test_create_category_admin_success(client: TestClient, session: Session, adm
     assert "id" in data
 
 
-def test_create_category_director_forbidden(client: TestClient, session: Session, normal_user):
+def test_create_category_non_admin_success(client: TestClient, session: Session, normal_user):
     token = get_token(client, "user1", "test_user_password")
     response = client.post(
         "/api/v1/categories/",
@@ -155,7 +155,7 @@ def test_create_category_director_forbidden(client: TestClient, session: Session
         json={"name": "Finance", "color": "#ff5500"},
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 201
 
 
 def test_create_category_unauthenticated(client: TestClient):
@@ -186,7 +186,7 @@ def test_update_category_admin_success(client: TestClient, session: Session, adm
     assert response.json()["name"] == "Renamed Category"
 
 
-def test_update_category_director_forbidden(client: TestClient, session: Session, normal_user, default_category: Category):
+def test_update_category_non_admin_success(client: TestClient, session: Session, normal_user, default_category: Category):
     token = get_token(client, "user1", "test_user_password")
     response = client.patch(
         f"/api/v1/categories/{default_category.id}",
@@ -194,7 +194,7 @@ def test_update_category_director_forbidden(client: TestClient, session: Session
         json={"name": "Renamed"},
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 200
 
 
 def test_update_category_not_found(client: TestClient, session: Session, admin_user):
@@ -223,14 +223,14 @@ def test_delete_category_admin_success(client: TestClient, session: Session, adm
     assert default_category.is_active is False
 
 
-def test_delete_category_director_forbidden(client: TestClient, session: Session, normal_user, default_category: Category):
+def test_delete_category_non_admin_success(client: TestClient, session: Session, normal_user, default_category: Category):
     token = get_token(client, "user1", "test_user_password")
     response = client.delete(
         f"/api/v1/categories/{default_category.id}",
         headers={"Authorization": f"Bearer {token}"},
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 204
 
 
 def test_delete_category_not_found(client: TestClient, session: Session, admin_user):
