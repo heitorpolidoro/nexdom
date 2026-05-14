@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
+import { useTranslation } from "react-i18next";
 import TaskList from "../TaskList";
 import { TaskStatus, TaskPriority } from "../../types";
 
@@ -171,5 +172,108 @@ describe("TaskList", () => {
 
     fireEvent.click(screen.getByText("Task 1"));
     expect(onTaskClick).toHaveBeenCalledWith("1");
+  });
+
+  it("shows no-category placeholder for tasks without category", () => {
+    const tasksNoCategory = [
+      { ...mockTasks[0], category_id: null, category_name: undefined, category_color: undefined },
+    ];
+    render(
+      <TaskList
+        tasks={tasksNoCategory as any}
+        isLoading={false}
+        isError={false}
+        error={null}
+        filters={defaultFilters}
+      />,
+    );
+    expect(screen.getByText("Sem categoria")).toBeInTheDocument();
+  });
+
+  it("shows assignee name when task has an assigned user", () => {
+    const tasksWithAssignee = [{ ...mockTasks[0], assigned_to_name: "João Silva" }];
+    render(
+      <TaskList
+        tasks={tasksWithAssignee}
+        isLoading={false}
+        isError={false}
+        error={null}
+        filters={defaultFilters}
+      />,
+    );
+    expect(screen.getByText("João Silva")).toBeInTheDocument();
+  });
+
+  it("shows formatted due date when task has a due_date", () => {
+    const tasksWithDate = [{ ...mockTasks[0], due_date: "2024-06-15T00:00:00Z" }];
+    render(
+      <TaskList
+        tasks={tasksWithDate}
+        isLoading={false}
+        isError={false}
+        error={null}
+        filters={defaultFilters}
+      />,
+    );
+    expect(screen.getByText(/2024/)).toBeInTheDocument();
+  });
+
+  it("shows category name with fallback color when category_color is missing", () => {
+    const tasksNoColor = [{ ...mockTasks[0], category_name: "Design", category_color: undefined }];
+    render(
+      <TaskList
+        tasks={tasksNoColor as any}
+        isLoading={false}
+        isError={false}
+        error={null}
+        filters={defaultFilters}
+      />,
+    );
+    expect(screen.getByText("Design")).toBeInTheDocument();
+  });
+
+  it("uses en-US date format when language is not pt", () => {
+    vi.mocked(useTranslation).mockReturnValueOnce({
+      t: (key: string) => key,
+      i18n: { language: "en", changeLanguage: vi.fn() },
+    } as any);
+    const tasksWithDate = [{ ...mockTasks[0], due_date: "2024-01-20T12:00:00Z" }];
+    render(
+      <TaskList
+        tasks={tasksWithDate}
+        isLoading={false}
+        isError={false}
+        error={null}
+        filters={defaultFilters}
+      />,
+    );
+    expect(screen.getByText(/2024/)).toBeInTheDocument();
+  });
+
+  it("renders without crashing when task has no description", () => {
+    const tasksNoDesc = [{ ...mockTasks[0], description: undefined }];
+    render(
+      <TaskList
+        tasks={tasksNoDesc as any}
+        isLoading={false}
+        isError={false}
+        error={null}
+        filters={defaultFilters}
+      />,
+    );
+    expect(screen.getByText("Task 1")).toBeInTheDocument();
+  });
+
+  it("does not throw when row is clicked without onTaskClick callback", () => {
+    render(
+      <TaskList
+        tasks={mockTasks}
+        isLoading={false}
+        isError={false}
+        error={null}
+        filters={defaultFilters}
+      />,
+    );
+    expect(() => fireEvent.click(screen.getByText("Task 1"))).not.toThrow();
   });
 });

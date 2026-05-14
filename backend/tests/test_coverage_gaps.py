@@ -165,3 +165,21 @@ def test_delete_already_deleted_task(client, session, director_token, default_ca
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert "not found" in response.json()["detail"].lower()
+
+
+def test_config_migration_database_url_fallback():
+    """Test migration_database_url falls back to POSTGRES_URL when non-pooling not set."""
+    url = settings.migration_database_url
+    assert "postgresql://" in url
+
+
+def test_config_migration_database_url_with_non_pooling():
+    """Test migration_database_url uses POSTGRES_URL_NON_POOLING when set."""
+    from app.core.config import Settings
+
+    s = Settings(
+        POSTGRES_URL="postgresql://user:pass@localhost/testdb",
+        POSTGRES_URL_NON_POOLING="postgresql://user:pass@localhost/testdb?sslmode=require",
+        SECRET_KEY="test-secret",
+    )
+    assert "sslmode=require" in s.migration_database_url

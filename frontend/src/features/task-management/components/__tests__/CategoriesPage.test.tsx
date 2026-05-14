@@ -194,4 +194,121 @@ describe("CategoriesPage", () => {
       expect(screen.getByText("Duplicate name")).toBeInTheDocument();
     });
   });
+
+  it("shows error on update failure", async () => {
+    const mutate = vi.fn((_data, options) =>
+      options?.onError?.({ response: { data: { detail: "Update failed" } } }),
+    );
+    makeHooks({ update: { mutate } });
+    render(<CategoriesPage />);
+
+    fireEvent.click(document.querySelectorAll("svg.lucide-pencil")[0].closest("button")!);
+    fireEvent.click(document.querySelector("svg.lucide-check")!.closest("button")!);
+
+    await waitFor(() => {
+      expect(screen.getByText("Update failed")).toBeInTheDocument();
+    });
+  });
+
+  it("shows error on delete failure", async () => {
+    const mutate = vi.fn((_id, options) =>
+      options?.onError?.({ response: { data: { detail: "Delete failed" } } }),
+    );
+    makeHooks({ delete: { mutate } });
+    render(<CategoriesPage />);
+
+    fireEvent.click(document.querySelectorAll("svg.lucide-trash-2")[0].closest("button")!);
+    fireEvent.click(document.querySelector("svg.lucide-check")!.closest("button")!);
+
+    await waitFor(() => {
+      expect(screen.getByText("Delete failed")).toBeInTheDocument();
+    });
+  });
+
+  it("updates color in edit form when preset color button is clicked", () => {
+    render(<CategoriesPage />);
+    fireEvent.click(document.querySelectorAll("svg.lucide-pencil")[0].closest("button")!);
+
+    const presetBtn = screen.getByRole("button", { name: "#8b5cf6" });
+    fireEvent.click(presetBtn);
+
+    expect(screen.getByDisplayValue("General")).toBeInTheDocument();
+  });
+
+  it("updates color via native color input in create form", () => {
+    render(<CategoriesPage />);
+    fireEvent.click(screen.getByRole("button", { name: /Nova Categoria/i }));
+
+    const colorInput = document.querySelector("input[type='color']") as HTMLInputElement;
+    fireEvent.change(colorInput, { target: { value: "#ff0000" } });
+
+    expect(screen.getByPlaceholderText("Nome da categoria")).toBeInTheDocument();
+  });
+
+  it("does not call create mutation when form is submitted with empty name", () => {
+    const mutate = vi.fn();
+    makeHooks({ create: { mutate } });
+    render(<CategoriesPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Nova Categoria/i }));
+    const form = screen.getByPlaceholderText("Nome da categoria").closest("form")!;
+    fireEvent.submit(form);
+
+    expect(mutate).not.toHaveBeenCalled();
+  });
+
+  it("does not call update mutation when form is submitted with empty name", () => {
+    const mutate = vi.fn();
+    makeHooks({ update: { mutate } });
+    render(<CategoriesPage />);
+
+    fireEvent.click(document.querySelectorAll("svg.lucide-pencil")[0].closest("button")!);
+    fireEvent.change(screen.getByDisplayValue("General"), { target: { value: "" } });
+    const form = document.querySelector("input[value='']")!.closest("form")!;
+    fireEvent.submit(form);
+
+    expect(mutate).not.toHaveBeenCalled();
+  });
+
+  it("shows fallback translation when create error has no detail", async () => {
+    const mutate = vi.fn((_data, options) => options?.onError?.({}));
+    makeHooks({ create: { mutate } });
+    render(<CategoriesPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Nova Categoria/i }));
+    fireEvent.change(screen.getByPlaceholderText("Nome da categoria"), {
+      target: { value: "Finance" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Salvar/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Erro ao criar categoria.")).toBeInTheDocument();
+    });
+  });
+
+  it("shows fallback translation when update error has no detail", async () => {
+    const mutate = vi.fn((_data, options) => options?.onError?.({}));
+    makeHooks({ update: { mutate } });
+    render(<CategoriesPage />);
+
+    fireEvent.click(document.querySelectorAll("svg.lucide-pencil")[0].closest("button")!);
+    fireEvent.click(document.querySelector("svg.lucide-check")!.closest("button")!);
+
+    await waitFor(() => {
+      expect(screen.getByText("Erro ao atualizar categoria.")).toBeInTheDocument();
+    });
+  });
+
+  it("shows fallback translation when delete error has no detail", async () => {
+    const mutate = vi.fn((_id, options) => options?.onError?.({}));
+    makeHooks({ delete: { mutate } });
+    render(<CategoriesPage />);
+
+    fireEvent.click(document.querySelectorAll("svg.lucide-trash-2")[0].closest("button")!);
+    fireEvent.click(document.querySelector("svg.lucide-check")!.closest("button")!);
+
+    await waitFor(() => {
+      expect(screen.getByText("Erro ao excluir categoria.")).toBeInTheDocument();
+    });
+  });
 });

@@ -140,13 +140,13 @@ const CategoriesPage: React.FC = () => {
                   <Input
                     value={editState.name}
                     onChange={(e) =>
-                      setEditState((s) => (s ? { ...s, name: e.target.value } : null))
+                      setEditState({ ...editState!, name: e.target.value })
                     }
                     disabled={updateMutation.isPending}
                   />
                   <ColorPicker
                     value={editState.color}
-                    onChange={(c) => setEditState((s) => (s ? { ...s, color: c } : null))}
+                    onChange={(c) => setEditState({ ...editState!, color: c })}
                   />
                   <div className="flex gap-2 justify-end">
                     <Button

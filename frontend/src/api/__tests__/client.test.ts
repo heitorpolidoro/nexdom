@@ -80,4 +80,24 @@ describe("apiClient", () => {
       "Request failed",
     );
   });
+
+  it("adds bypass token header when VITE_BYPASS_TOKEN is set", async () => {
+    vi.stubEnv("VITE_BYPASS_TOKEN", "my-bypass-token");
+    vi.resetModules();
+
+    const { default: freshClient } = await import("../client");
+    const interceptor = (
+      freshClient.interceptors.request as unknown as {
+        handlers: { fulfilled: (...args: unknown[]) => unknown }[];
+      }
+    ).handlers[0];
+
+    const config = { headers: {} as Record<string, string> };
+    const result = (await interceptor.fulfilled(config)) as { headers: Record<string, string> };
+
+    expect(result.headers["x-vercel-protection-bypass"]).toBe("my-bypass-token");
+
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
 });

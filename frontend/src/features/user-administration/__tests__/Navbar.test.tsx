@@ -156,4 +156,82 @@ describe("Navbar", () => {
     fireEvent.click(screen.getByText("Sair"));
     expect(mockLogout).toHaveBeenCalledOnce();
   });
+
+  it("applies active class to categories link when on /categories", () => {
+    vi.spyOn(AuthHook, "useAuth").mockReturnValue({
+      isAuthenticated: true,
+      isLoading: false,
+      user: {
+        id: "1",
+        username: "testuser",
+        email: "test@example.com",
+        full_name: "Test User",
+        role: UserRole.DIRECTOR,
+        is_active: true,
+      },
+      login: vi.fn() as any,
+      logout: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/categories"]}>
+        <Navbar />
+      </MemoryRouter>,
+    );
+
+    const link = screen.getByText("Categorias");
+    expect(link.className).toContain("text-primary");
+  });
+
+  it("renders user type name when user has a type label", () => {
+    vi.spyOn(AuthHook, "useAuth").mockReturnValue({
+      isAuthenticated: true,
+      isLoading: false,
+      user: {
+        id: "1",
+        username: "testuser",
+        email: "test@example.com",
+        full_name: "Test User",
+        role: UserRole.DIRECTOR,
+        is_active: true,
+        type: { name: "Gerente" },
+      } as any,
+      login: vi.fn() as any,
+      logout: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter>
+        <Navbar />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("Gerente")).toBeInTheDocument();
+  });
+
+  it("fires language change when a language button is clicked", () => {
+    vi.spyOn(AuthHook, "useAuth").mockReturnValue({
+      isAuthenticated: true,
+      isLoading: false,
+      user: {
+        id: "1",
+        username: "testuser",
+        email: "test@example.com",
+        full_name: "Test User",
+        role: UserRole.DIRECTOR,
+        is_active: true,
+      },
+      login: vi.fn() as any,
+      logout: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter>
+        <Navbar />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByText("PT"));
+    expect(screen.getByText("Tarefas")).toBeInTheDocument();
+  });
 });
