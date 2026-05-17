@@ -112,3 +112,6 @@ test-results.xml
 .claude/worktrees/
 .claude/settings.local.json
 .vercel
+
+.gemini/
+gha-creds-*.json
