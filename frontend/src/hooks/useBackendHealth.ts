@@ -9,8 +9,9 @@ export const useBackendHealth = () => {
       try {
         await apiClient.get("/health");
         setIsOffline(false);
-      } catch (err: any) {
-        if (!err.response) {
+      } catch (err) {
+        const axiosErr = err as { response?: unknown };
+        if (!axiosErr.response) {
           setIsOffline(true);
         }
       }
