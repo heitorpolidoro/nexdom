@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     // Fetch dev users if available (endpoint returns 404 in production)
-    apiClient
+    void apiClient
       .get<User[]>("/auth/dev-users")
       .then((res) => {
         setDevUsers(res.data);

@@ -17,7 +17,7 @@ export const useBackendHealth = () => {
       }
     };
 
-    checkHealth();
+    void checkHealth();
     const interval = setInterval(checkHealth, 5000);
     return () => clearInterval(interval);
   }, []);

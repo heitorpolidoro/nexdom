@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       sessionStorage.getItem("accessToken") ||
       localStorage.getItem("accessToken");
     if (token) {
-      fetchUser();
+      void fetchUser();
     } else {
       setIsLoading(false);
     }
