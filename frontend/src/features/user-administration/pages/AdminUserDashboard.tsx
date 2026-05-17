@@ -131,8 +131,10 @@ const AdminUserDashboard: React.FC = () => {
   };
 
   const handleSaveEdit = () => {
+    /* v8 ignore next */
+    if (!editingUser) return;
     updateUserMutation.mutate({
-      userId: editingUser!.id,
+      userId: editingUser.id,
       data: {
         full_name: editFullName || undefined,
         type_id: editTypeId || null,

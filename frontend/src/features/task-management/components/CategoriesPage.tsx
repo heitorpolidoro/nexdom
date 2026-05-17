@@ -134,19 +134,20 @@ const CategoriesPage: React.FC = () => {
       <ul className="flex flex-col gap-2">
         {categories.map((cat) => {
           if (editState?.id === cat.id) {
+            const edit = editState;
             return (
               <li key={cat.id} className="rounded-lg border bg-card p-4">
                 <form onSubmit={handleUpdate} className="flex flex-col gap-3">
                   <Input
-                    value={editState.name}
+                    value={edit.name}
                     onChange={(e) =>
-                      setEditState({ ...editState!, name: e.target.value })
+                      setEditState({ ...edit, name: e.target.value })
                     }
                     disabled={updateMutation.isPending}
                   />
                   <ColorPicker
-                    value={editState.color}
-                    onChange={(c) => setEditState({ ...editState!, color: c })}
+                    value={edit.color}
+                    onChange={(c) => setEditState({ ...edit, color: c })}
                   />
                   <div className="flex gap-2 justify-end">
                     <Button
@@ -160,7 +161,7 @@ const CategoriesPage: React.FC = () => {
                     <Button
                       type="submit"
                       size="sm"
-                      disabled={!editState.name.trim() || updateMutation.isPending}
+                      disabled={!edit.name.trim() || updateMutation.isPending}
                     >
                       <Check className="size-4" />
                     </Button>
