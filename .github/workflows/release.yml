@@ -10,7 +10,7 @@ jobs:
     name: Bump version and create release
     if: |
       github.event.pull_request.merged == true &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-release')
+      !contains(github.event.pull_request.labels.*.name, 'skip')
     runs-on: ubuntu-latest
     permissions:
       contents: write

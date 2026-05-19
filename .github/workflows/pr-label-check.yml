@@ -1,0 +1,35 @@
+name: "PR Label Check"
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+    branches: [master]
+
+jobs:
+  check-label:
+    name: Require exactly one release label
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for exactly one release label
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          required=("major" "minor" "patch" "skip")
+          count=0
+          found=""
+          for label in "${required[@]}"; do
+            if echo "$LABELS" | grep -q "\"$label\""; then
+              count=$((count + 1))
+              found="$label"
+            fi
+          done
+
+          if [ "$count" -eq 0 ]; then
+            echo "❌ PR must have exactly one of: major, minor, patch, skip"
+            exit 1
+          elif [ "$count" -gt 1 ]; then
+            echo "❌ PR has more than one release label. Choose only one of: major, minor, patch, skip"
+            exit 1
+          fi
+
+          echo "✅ Found release label: $found"
