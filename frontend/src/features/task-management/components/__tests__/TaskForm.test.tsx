@@ -3,8 +3,9 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import TaskForm from "../TaskForm";
 import { TaskPriority, TaskStatus } from "../../types";
 import { useCreateTask, useUpdateTask } from "../../hooks/useTasks";
-import { useUsers } from "../../../../hooks/useUsers";
+import { useAssignableUsers } from "../../../../hooks/useUsers";
 import { useCategories } from "../../hooks/useCategories";
+import { UserRole } from "../../../user-administration/context/AuthContext";
 
 // Mock the hooks
 vi.mock("../../hooks/useTasks", () => ({
@@ -14,11 +15,22 @@ vi.mock("../../hooks/useTasks", () => ({
 
 vi.mock("../../../../hooks/useUsers", () => ({
   useUsers: vi.fn(),
+  useAssignableUsers: vi.fn(),
 }));
 
 vi.mock("../../hooks/useCategories", () => ({
   useCategories: vi.fn(),
 }));
+
+vi.mock("../../../user-administration/context/AuthContext", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../user-administration/context/AuthContext")>();
+  return {
+    ...actual,
+    useAuth: vi.fn(() => ({
+      user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
+    })),
+  };
+});
 
 describe("TaskForm", () => {
   const mockOnSuccess = vi.fn();
@@ -41,7 +53,7 @@ describe("TaskForm", () => {
       error: null,
     } as any);
 
-    vi.mocked(useUsers).mockReturnValue({
+    vi.mocked(useAssignableUsers).mockReturnValue({
       data: [
         { id: "user-1", full_name: "User 1", username: "user1" },
         { id: "user-2", full_name: "User 2", username: "user2" },
@@ -367,7 +379,7 @@ describe("TaskForm", () => {
   });
 
   it("renders user options correctly, including fallback to username", () => {
-    vi.mocked(useUsers).mockReturnValue({
+    vi.mocked(useAssignableUsers).mockReturnValue({
       data: [
         { id: "user-1", full_name: "Full Name", username: "user1" },
         { id: "user-2", full_name: "", username: "user2_only" },

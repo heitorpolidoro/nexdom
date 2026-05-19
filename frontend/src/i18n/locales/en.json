@@ -115,6 +115,7 @@
       "viewList": "List",
       "viewBoard": "Board",
       "allCategories": "All categories",
+      "allAssignees": "All assignees",
       "connectionError": "Could not connect to the server"
     },
     "list": {
@@ -162,6 +163,8 @@
       "assignedTo": "Assigned to",
       "unassigned": "Unassigned",
       "createdBy": "Created by",
+      "category": "Category",
+      "noCategory": "No category",
       "dueDate": "Due date",
       "notSet": "Not set",
       "createdAt": "Created at",

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "../api/client";
-import type { User } from "../types/auth";
+import { UserRole, type User } from "../types/auth";
 
 export const useUsers = () => {
   return useQuery({
@@ -10,4 +10,12 @@ export const useUsers = () => {
       return response.data;
     },
   });
+};
+
+export const useAssignableUsers = () => {
+  const query = useUsers();
+  return {
+    ...query,
+    data: query.data?.filter((u) => u.role !== UserRole.ADMINISTRATOR),
+  };
 };

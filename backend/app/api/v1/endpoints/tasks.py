@@ -4,9 +4,9 @@ from typing import Annotated
 from uuid import UUID
 
 from app.api import deps as api_deps
-from app.core.exceptions import TaskNotFoundError
+from app.core.exceptions import ForbiddenError, TaskNotFoundError
 from app.db import get_session
-from app.models.enums import TaskPriority, TaskStatus
+from app.models.enums import TaskPriority, TaskStatus, UserRole
 from app.models.task import Task, TaskHistory
 from app.models.user import User
 from app.schemas.task import TaskCreate, TaskHistoryRead, TaskRead, TaskUpdate
@@ -21,7 +21,7 @@ router = APIRouter()
 def create_task(
     task_in: TaskCreate,
     session: Annotated[Session, Depends(get_session)],
-    current_user: Annotated[User, Depends(api_deps.get_current_user)],
+    current_user: Annotated[User, Depends(api_deps.get_current_active_director)],
 ) -> TaskRead:
     """Create a new task. Both ADMINISTRATOR and DIRECTOR can create tasks.
 
@@ -130,6 +130,14 @@ def update_task(
     db_task = session.get(Task, task_id)
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
+
+    if current_user.role == UserRole.DIRECTOR:
+        _DIRECTOR_FIELDS = {"status", "description", "assigned_to_id", "category_id"}
+        attempted = set(task_in.model_dump(exclude_unset=True).keys())
+        if attempted - _DIRECTOR_FIELDS:
+            raise ForbiddenError(
+                f"Directors can only update: {', '.join(sorted(_DIRECTOR_FIELDS))}"
+            )
 
     updated_task = TaskService.update_task(
         session=session, db_task=db_task, task_in=task_in, current_user=current_user

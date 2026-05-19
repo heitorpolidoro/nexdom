@@ -24,9 +24,9 @@ def test_get_task_not_found(client: TestClient, session: Session, admin_user):
     assert str(random_id) in response.json()["detail"]
 
 
-def test_create_task_validation_error(client: TestClient, session: Session, admin_user):
-    token = get_token(client, "admin", "test_admin_password")
-    # Title is required and must be min_length 1
+def test_create_task_validation_error(client: TestClient, session: Session, admin_user, normal_user):
+    # Only directors can create tasks; empty title triggers 422
+    token = get_token(client, "user1", "test_user_password")
     response = client.post(
         "/api/v1/tasks/",
         headers={"Authorization": f"Bearer {token}"},
@@ -35,21 +35,23 @@ def test_create_task_validation_error(client: TestClient, session: Session, admi
     assert response.status_code == 422
 
 
-def test_update_task_validation_error(client: TestClient, session: Session, admin_user, default_category):
-    token = get_token(client, "admin", "test_admin_password")
+def test_update_task_validation_error(client: TestClient, session: Session, admin_user, normal_user, default_category):
+    director_token = get_token(client, "user1", "test_user_password")
+    admin_token = get_token(client, "admin", "test_admin_password")
 
-    # Create a task first
+    # Create a task as director
     response = client.post(
         "/api/v1/tasks/",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {director_token}"},
         json={"title": "Valid Task", "category_id": str(default_category.id)},
     )
+    assert response.status_code == 200
     task_id = response.json()["id"]
 
-    # Update with invalid status
+    # Update with invalid status (admin can update any task)
     response = client.patch(
         f"/api/v1/tasks/{task_id}",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {admin_token}"},
         json={"status": "INVALID_STATUS"},
     )
     assert response.status_code == 422

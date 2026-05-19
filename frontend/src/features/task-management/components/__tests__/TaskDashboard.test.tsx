@@ -23,11 +23,22 @@ vi.mock("../../hooks/useTasks", () => ({
 
 vi.mock("../../../../hooks/useUsers", () => ({
   useUsers: vi.fn(),
+  useAssignableUsers: vi.fn(),
 }));
 
 vi.mock("../../hooks/useCategories", () => ({
   useCategories: vi.fn(),
 }));
+
+vi.mock("../../../user-administration/context/AuthContext", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../user-administration/context/AuthContext")>();
+  return {
+    ...actual,
+    useAuth: vi.fn(() => ({
+      user: { id: "admin-1", role: actual.UserRole.ADMINISTRATOR },
+    })),
+  };
+});
 
 const mockTasks = [
   {
@@ -75,6 +86,10 @@ describe("TaskDashboard", () => {
       isLoading: false,
     } as any);
     vi.mocked(useUsersHook.useUsers).mockReturnValue({
+      data: [],
+      isLoading: false,
+    } as any);
+    vi.mocked(useUsersHook.useAssignableUsers).mockReturnValue({
       data: [],
       isLoading: false,
     } as any);
@@ -129,7 +144,7 @@ describe("TaskDashboard", () => {
     const clearButton = screen.getByText("Limpar filtros");
     fireEvent.click(clearButton);
 
-    expect(useTasks).toHaveBeenLastCalledWith({ status: null, priority: null, category_id: null });
+    expect(useTasks).toHaveBeenLastCalledWith({ status: null, priority: null, category_id: null, assigned_to_id: null });
   });
 
   it("opens and closes the creation modal", () => {

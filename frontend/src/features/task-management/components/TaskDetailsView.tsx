@@ -100,28 +100,44 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
       {/* Metadata grid */}
       <section className="mb-4">
         <div className="grid grid-cols-2 gap-3">
-          {[
-            {
-              label: t("tasks.details.assignedTo"),
-              value: task.assigned_to_name || t("tasks.details.unassigned"),
-            },
-            {
-              label: t("tasks.details.createdBy"),
-              value: task.created_by_name || task.created_by_id,
-            },
-            {
-              label: t("tasks.details.dueDate"),
-              value: formatDate(task.due_date),
-            },
-            {
-              label: t("tasks.details.createdAt"),
-              value: formatDate(task.created_at),
-            },
-            {
-              label: t("tasks.details.updatedAt"),
-              value: formatDate(task.updated_at),
-            },
-          ].map(({ label, value }) => (
+          {(
+            [
+              {
+                label: t("tasks.details.assignedTo"),
+                value: task.assigned_to_name || t("tasks.details.unassigned"),
+              },
+              {
+                label: t("tasks.details.createdBy"),
+                value: task.created_by_name || task.created_by_id,
+              },
+              {
+                label: t("tasks.details.category"),
+                value: task.category_name ? (
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className="inline-block size-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: task.category_color ?? undefined }}
+                    />
+                    {task.category_name}
+                  </span>
+                ) : (
+                  t("tasks.details.noCategory")
+                ),
+              },
+              {
+                label: t("tasks.details.dueDate"),
+                value: formatDate(task.due_date),
+              },
+              {
+                label: t("tasks.details.createdAt"),
+                value: formatDate(task.created_at),
+              },
+              {
+                label: t("tasks.details.updatedAt"),
+                value: formatDate(task.updated_at),
+              },
+            ] as { label: string; value: React.ReactNode }[]
+          ).map(({ label, value }) => (
             <div key={label} className="flex flex-col">
               <span className="text-xs text-muted-foreground mb-0.5">
                 {label}
