@@ -50,6 +50,32 @@ class TaskRead(TaskBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TaskCommentCreate(BaseModel):
+    """Schema for creating a task comment."""
+
+    content: str = Field(..., min_length=1)
+
+
+class TaskCommentUpdate(BaseModel):
+    """Schema for updating a task comment."""
+
+    content: str = Field(..., min_length=1)
+
+
+class TaskCommentRead(BaseModel):
+    """Schema for reading a task comment."""
+
+    id: UUID
+    task_id: UUID
+    created_by_id: UUID
+    created_by_name: str
+    content: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class TaskHistoryRead(BaseModel):
     """Schema for reading task audit history."""
 

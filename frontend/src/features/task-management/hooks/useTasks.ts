@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "../../../api/client";
 import type {
+  TaskCommentRead,
   TaskRead,
   TaskStatus,
   TaskPriority,
@@ -159,4 +160,39 @@ export const useDeleteTask = () => {
 export const useInvalidateTasks = () => {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ["tasks"] });
+};
+
+// ── Comments ──────────────────────────────────────────────────────────────
+
+export const useComments = (taskId: string) => {
+  return useQuery<TaskCommentRead[]>({
+    queryKey: ["tasks", taskId, "comments"],
+    queryFn: async () => {
+      const response = await apiClient.get(`/tasks/${taskId}/comments`);
+      return response.data;
+    },
+    enabled: !!taskId,
+  });
+};
+
+export const useCreateComment = (taskId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (content: string) =>
+      apiClient.post<TaskCommentRead>(`/tasks/${taskId}/comments`, { content }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", taskId, "comments"] });
+    },
+  });
+};
+
+export const useUpdateComment = (taskId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ commentId, content }: { commentId: string; content: string }) =>
+      apiClient.patch<TaskCommentRead>(`/tasks/${taskId}/comments/${commentId}`, { content }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", taskId, "comments"] });
+    },
+  });
 };

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { TaskRead, TaskStatus } from "../types";
 import { useUpdateTask } from "../hooks/useTasks";
 import AuditTimeline from "./AuditTimeline";
+import TaskComments from "./TaskComments";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { cn } from "../../../lib/utils";
@@ -149,6 +150,9 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
           ))}
         </div>
       </section>
+
+      {/* Comments */}
+      <TaskComments taskId={task.id} />
 
       {/* Audit timeline */}
       <AuditTimeline taskId={task.id} />

@@ -3,8 +3,8 @@
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
-from app.models.task import Task, TaskHistory, get_utc_now
-from app.schemas.task import TaskCreate, TaskUpdate
+from app.models.task import Task, TaskComment, TaskHistory, get_utc_now
+from app.schemas.task import TaskCommentRead, TaskCreate, TaskUpdate
 from sqlmodel import Session, select
 
 if TYPE_CHECKING:
@@ -16,16 +16,7 @@ class TaskService:
 
     @staticmethod
     def create_task(session: Session, task_in: TaskCreate, created_by_id: UUID) -> Task:
-        """Create a new task in the database.
-
-        Args:
-            session: Database session.
-            task_in: Task data to create.
-            created_by_id: UUID of the user creating the task.
-
-        Returns:
-            Task: The created task.
-        """
+        """Create a new task in the database."""
         db_task = Task.model_validate(task_in, update={"created_by_id": created_by_id})
         session.add(db_task)
         session.commit()
@@ -36,23 +27,12 @@ class TaskService:
     def update_task(
         session: Session, db_task: Task, task_in: TaskUpdate, current_user: "User"
     ) -> Task:
-        """Update a task with audit logging.
-
-        Args:
-            session: Database session.
-            db_task: The existing task object from the database.
-            task_in: Task data to update.
-            current_user: The user performing the update.
-
-        Returns:
-            Task: The updated task.
-        """
+        """Update a task with audit logging."""
         update_data = task_in.model_dump(exclude_unset=True)
 
         for key, value in update_data.items():
             old_value = getattr(db_task, key)
             if old_value != value:
-                # Log the change
                 history = TaskHistory(
                     task_id=db_task.id,
                     changed_by_id=current_user.id,
@@ -72,15 +52,7 @@ class TaskService:
 
     @staticmethod
     def get_history(session: Session, task_id: UUID) -> list[dict[str, Any]]:
-        """Retrieve the audit history for a task.
-
-        Args:
-            session: Database session.
-            task_id: UUID of the task.
-
-        Returns:
-            list[dict]: List of history records with user names.
-        """
+        """Retrieve the audit history for a task."""
         from app.models.user import User
 
         statement = (
@@ -99,17 +71,10 @@ class TaskService:
 
     @staticmethod
     def delete_task(session: Session, db_task: Task, changed_by_id: UUID) -> None:
-        """Perform soft delete on a task and log it in history.
-
-        Args:
-            session: Database session.
-            db_task: The task object to delete.
-            changed_by_id: UUID of the user performing the deletion.
-        """
+        """Perform soft delete on a task and log it in history."""
         db_task.is_deleted = True
         db_task.updated_at = get_utc_now()
 
-        # Log deletion in history
         history = TaskHistory(
             task_id=db_task.id,
             changed_by_id=changed_by_id,
@@ -124,15 +89,7 @@ class TaskService:
 
     @staticmethod
     def get_task_with_names(session: Session, db_task: Task) -> Any:
-        """Enrich a task with creator, assignee and category details for response.
-
-        Args:
-            session: Database session.
-            db_task: The task model instance.
-
-        Returns:
-            TaskRead: The task data with names included.
-        """
+        """Enrich a task with creator, assignee and category details for response."""
         from app.models.category import Category
         from app.models.user import User
         from app.schemas.task import TaskRead
@@ -150,3 +107,63 @@ class TaskService:
         task_data["category_color"] = category.color if category else None
 
         return TaskRead.model_validate(task_data)
+
+    # ── Comments ──────────────────────────────────────────────────────────
+
+    @staticmethod
+    def get_comments(session: Session, task_id: UUID) -> list[TaskCommentRead]:
+        """List all comments for a task, ordered oldest first."""
+        from app.models.user import User
+
+        statement = (
+            select(TaskComment, User)
+            .join(User, TaskComment.created_by_id == User.id)
+            .where(TaskComment.task_id == task_id)
+            .order_by(TaskComment.created_at.asc())
+        )
+        results = session.exec(statement).all()
+        comments = []
+        for comment, user in results:
+            data = comment.model_dump()
+            data["created_by_name"] = user.full_name or user.username
+            comments.append(TaskCommentRead.model_validate(data))
+        return comments
+
+    @staticmethod
+    def create_comment(
+        session: Session, task_id: UUID, content: str, created_by_id: UUID
+    ) -> TaskCommentRead:
+        """Create a new comment on a task."""
+        from app.models.user import User
+
+        comment = TaskComment(
+            task_id=task_id,
+            created_by_id=created_by_id,
+            content=content,
+        )
+        session.add(comment)
+        session.commit()
+        session.refresh(comment)
+
+        user = session.get(User, created_by_id)
+        data = comment.model_dump()
+        data["created_by_name"] = user.full_name or user.username if user else ""
+        return TaskCommentRead.model_validate(data)
+
+    @staticmethod
+    def update_comment(
+        session: Session, comment: TaskComment, content: str
+    ) -> TaskCommentRead:
+        """Update the content of an existing comment."""
+        from app.models.user import User
+
+        comment.content = content
+        comment.updated_at = get_utc_now()
+        session.add(comment)
+        session.commit()
+        session.refresh(comment)
+
+        user = session.get(User, comment.created_by_id)
+        data = comment.model_dump()
+        data["created_by_name"] = user.full_name or user.username if user else ""
+        return TaskCommentRead.model_validate(data)

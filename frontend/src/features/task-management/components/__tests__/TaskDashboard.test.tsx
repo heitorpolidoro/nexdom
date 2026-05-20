@@ -19,6 +19,9 @@ vi.mock("../../hooks/useTasks", () => ({
   useUpdateTask: vi.fn(),
   useTaskHistory: vi.fn(),
   useDeleteTask: vi.fn(),
+  useComments: vi.fn(() => ({ data: [], isLoading: false })),
+  useCreateComment: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+  useUpdateComment: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }));
 
 vi.mock("../../../../hooks/useUsers", () => ({

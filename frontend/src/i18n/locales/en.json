@@ -178,6 +178,18 @@
       "close": "Close",
       "edit": "Edit"
     },
+    "comments": {
+      "title": "Comments",
+      "loading": "Loading comments...",
+      "empty": "No comments yet.",
+      "placeholder": "Write a comment...",
+      "send": "Comment",
+      "sending": "Sending...",
+      "edit": "edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edited": "edited"
+    },
     "audit": {
       "title": "Audit timeline",
       "loading": "Loading history...",
