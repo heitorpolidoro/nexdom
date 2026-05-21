@@ -1,7 +1,11 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import TaskComments from "../TaskComments";
-import { useComments, useCreateComment, useUpdateComment } from "../../hooks/useTasks";
+import {
+  useComments,
+  useCreateComment,
+  useUpdateComment,
+} from "../../hooks/useTasks";
 import { useAuth } from "../../../user-administration/context/AuthContext";
 
 vi.mock("../../hooks/useTasks", () => ({
@@ -116,9 +120,7 @@ describe("TaskComments", () => {
 
   it("shows edit button only for comment owner", () => {
     render(<TaskComments taskId="task-1" />);
-    expect(
-      screen.getByRole("button", { name: /editar/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /editar/i })).toBeInTheDocument();
   });
 
   it("does not show edit button for other users' comments", () => {
@@ -137,9 +139,7 @@ describe("TaskComments", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /editar/i }));
 
-    expect(
-      screen.getByRole("button", { name: /Salvar/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Salvar/i })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Cancelar/i }),
     ).toBeInTheDocument();
