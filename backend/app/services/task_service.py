@@ -96,7 +96,9 @@ class TaskService:
 
         creator = session.get(User, db_task.created_by_id)
         assignee = (
-            session.get(User, db_task.assigned_to_id) if db_task.assigned_to_id else None
+            session.get(User, db_task.assigned_to_id)
+            if db_task.assigned_to_id
+            else None
         )
         category = session.get(Category, db_task.category_id)
 

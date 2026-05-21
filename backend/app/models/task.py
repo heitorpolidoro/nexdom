@@ -61,7 +61,9 @@ class Task(SQLModel, table=True):
     assigned_to_id: UUID | None = Field(
         default=None, foreign_key=USER_ID_FK, index=True
     )
-    category_id: UUID | None = Field(default=None, foreign_key=CATEGORY_ID_FK, index=True)
+    category_id: UUID | None = Field(
+        default=None, foreign_key=CATEGORY_ID_FK, index=True
+    )
 
     # Relationships
     creator: "User" = Relationship(
@@ -97,7 +99,10 @@ class TaskComment(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     task_id: UUID = Field(
         sa_column=Column(
-            "task_id", ForeignKey("task.id", ondelete="CASCADE"), nullable=False, index=True
+            "task_id",
+            ForeignKey("task.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
         )
     )
     created_by_id: UUID = Field(foreign_key=Task.USER_ID_FK, index=True)

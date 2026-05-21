@@ -181,7 +181,9 @@ export const useCreateComment = (taskId: string) => {
     mutationFn: (content: string) =>
       apiClient.post<TaskCommentRead>(`/tasks/${taskId}/comments`, { content }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks", taskId, "comments"] });
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", taskId, "comments"],
+      });
     },
   });
 };
@@ -189,10 +191,21 @@ export const useCreateComment = (taskId: string) => {
 export const useUpdateComment = (taskId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ commentId, content }: { commentId: string; content: string }) =>
-      apiClient.patch<TaskCommentRead>(`/tasks/${taskId}/comments/${commentId}`, { content }),
+    mutationFn: ({
+      commentId,
+      content,
+    }: {
+      commentId: string;
+      content: string;
+    }) =>
+      apiClient.patch<TaskCommentRead>(
+        `/tasks/${taskId}/comments/${commentId}`,
+        { content },
+      ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks", taskId, "comments"] });
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", taskId, "comments"],
+      });
     },
   });
 };

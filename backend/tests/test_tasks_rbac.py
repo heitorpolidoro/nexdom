@@ -27,11 +27,7 @@ def test_data_fixture(session: Session):
         hashed_password=get_password_hash("pass"),
         role=UserRole.DIRECTOR,
     )
-    category = Category(
-        id=uuid.uuid4(),
-        name="Test Category",
-        color="#FFFFFF"
-    )
+    category = Category(id=uuid.uuid4(), name="Test Category", color="#FFFFFF")
     session.add(admin)
     session.add(director)
     session.add(category)
@@ -66,7 +62,7 @@ def test_rbac_task_workflow(client: TestClient, session: Session, test_data):
         json={
             "title": "Second Task",
             "assigned_to_id": str(test_data["director"].id),
-            "category_id": category_id
+            "category_id": category_id,
         },
     )
     assert response.status_code == 200

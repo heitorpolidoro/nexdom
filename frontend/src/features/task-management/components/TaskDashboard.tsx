@@ -43,7 +43,12 @@ const TaskDashboard: React.FC = () => {
   };
 
   const clearFilters = () =>
-    setFilters({ status: null, priority: null, category_id: null, assigned_to_id: null });
+    setFilters({
+      status: null,
+      priority: null,
+      category_id: null,
+      assigned_to_id: null,
+    });
 
   const handleTaskClick = (taskId: string) => {
     setSelectedTaskId(taskId);
@@ -165,7 +170,10 @@ const TaskDashboard: React.FC = () => {
             ))}
           </Select>
 
-          {(filters.status || filters.priority || filters.category_id || filters.assigned_to_id) && (
+          {(filters.status ||
+            filters.priority ||
+            filters.category_id ||
+            filters.assigned_to_id) && (
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               {t("tasks.dashboard.clearFilters")}
             </Button>

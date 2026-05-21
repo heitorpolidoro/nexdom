@@ -2,15 +2,14 @@ import random
 import uuid
 from datetime import datetime, timedelta
 
-from sqlalchemy import text
-from sqlmodel import Session, create_engine
-
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models.category import Category
 from app.models.enums import TaskPriority, TaskStatus, UserRole
 from app.models.task import Task
 from app.models.user import User
+from sqlalchemy import text
+from sqlmodel import Session, create_engine
 
 
 def seed_db() -> None:

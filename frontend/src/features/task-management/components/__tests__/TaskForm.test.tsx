@@ -22,15 +22,21 @@ vi.mock("../../hooks/useCategories", () => ({
   useCategories: vi.fn(),
 }));
 
-vi.mock("../../../user-administration/context/AuthContext", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../../user-administration/context/AuthContext")>();
-  return {
-    ...actual,
-    useAuth: vi.fn(() => ({
-      user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
-    })),
-  };
-});
+vi.mock(
+  "../../../user-administration/context/AuthContext",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../../user-administration/context/AuthContext")
+      >();
+    return {
+      ...actual,
+      useAuth: vi.fn(() => ({
+        user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
+      })),
+    };
+  },
+);
 
 describe("TaskForm", () => {
   const mockOnSuccess = vi.fn();
@@ -392,8 +398,12 @@ describe("TaskForm", () => {
     const select = screen.getByLabelText(/Atribuído a/i);
     const options = Array.from(select.querySelectorAll("option"));
 
-    expect(options.find((o) => o.textContent === "Full Name")).toBeInTheDocument();
-    expect(options.find((o) => o.textContent === "user2_only")).toBeInTheDocument();
+    expect(
+      options.find((o) => o.textContent === "Full Name"),
+    ).toBeInTheDocument();
+    expect(
+      options.find((o) => o.textContent === "user2_only"),
+    ).toBeInTheDocument();
   });
 
   it("shows validation error when category is not selected", () => {

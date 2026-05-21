@@ -1,19 +1,26 @@
-from app.main import get_origins
+from unittest.mock import patch
+
 from app.core.config import settings
+from app.main import get_origins
 from fastapi.testclient import TestClient
 from sqlmodel import Session
-from unittest.mock import patch
+
 
 def test_get_origins_empty():
     with patch.object(settings, "BACKEND_CORS_ORIGINS", []):
         assert get_origins() == []
 
-def test_list_tasks_filter_by_category(client: TestClient, session: Session, admin_user, normal_user, default_category):
+
+def test_list_tasks_filter_by_category(
+    client: TestClient, session: Session, admin_user, normal_user, default_category
+):
     director_token = client.post(
-        "/api/v1/auth/login", data={"username": "user1", "password": "test_user_password"}
+        "/api/v1/auth/login",
+        data={"username": "user1", "password": "test_user_password"},
     ).json()["access_token"]
     admin_token = client.post(
-        "/api/v1/auth/login", data={"username": "admin", "password": "test_admin_password"}
+        "/api/v1/auth/login",
+        data={"username": "admin", "password": "test_admin_password"},
     ).json()["access_token"]
 
     # Create a task as director
@@ -23,15 +30,15 @@ def test_list_tasks_filter_by_category(client: TestClient, session: Session, adm
         json={
             "title": "Category Task",
             "category_id": str(default_category.id),
-            "priority": "MEDIUM"
-        }
+            "priority": "MEDIUM",
+        },
     )
     assert resp.status_code == 200
 
     # Filter by category as admin
     response = client.get(
         f"/api/v1/tasks/?category_id={default_category.id}",
-        headers={"Authorization": f"Bearer {admin_token}"}
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert response.status_code == 200
     data = response.json()

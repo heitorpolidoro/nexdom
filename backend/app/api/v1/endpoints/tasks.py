@@ -9,15 +9,9 @@ from app.db import get_session
 from app.models.enums import TaskPriority, TaskStatus, UserRole
 from app.models.task import Task, TaskComment, TaskHistory
 from app.models.user import User
-from app.schemas.task import (
-    TaskCommentCreate,
-    TaskCommentRead,
-    TaskCommentUpdate,
-    TaskCreate,
-    TaskHistoryRead,
-    TaskRead,
-    TaskUpdate,
-)
+from app.schemas.task import (TaskCommentCreate, TaskCommentRead,
+                              TaskCommentUpdate, TaskCreate, TaskHistoryRead,
+                              TaskRead, TaskUpdate)
 from app.services.task_service import TaskService
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session, select
@@ -48,15 +42,20 @@ def list_tasks(
     category_id: Annotated[UUID | None, Query()] = None,
 ) -> list[TaskRead]:
     """List tasks with optional filters."""
-    from sqlalchemy.orm import aliased
-
     from app.models.category import Category
+    from sqlalchemy.orm import aliased
 
     creator_alias = aliased(User)
     assignee_alias = aliased(User)
 
     statement = (
-        select(Task, creator_alias.full_name, assignee_alias.full_name, Category.name, Category.color)
+        select(
+            Task,
+            creator_alias.full_name,
+            assignee_alias.full_name,
+            Category.name,
+            Category.color,
+        )
         .where(Task.is_deleted.is_(False))
         .join(creator_alias, Task.created_by_id == creator_alias.id, isouter=True)
         .join(assignee_alias, Task.assigned_to_id == assignee_alias.id, isouter=True)
@@ -142,6 +141,7 @@ def delete_task(
 
 # ── Comments ──────────────────────────────────────────────────────────────────
 
+
 @router.get("/{task_id}/comments", response_model=list[TaskCommentRead])
 def list_comments(
     task_id: UUID,
@@ -156,7 +156,11 @@ def list_comments(
     return TaskService.get_comments(session=session, task_id=task_id)
 
 
-@router.post("/{task_id}/comments", response_model=TaskCommentRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{task_id}/comments",
+    response_model=TaskCommentRead,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_comment(
     task_id: UUID,
     comment_in: TaskCommentCreate,
@@ -191,9 +195,13 @@ def update_comment(
 
     comment = session.get(TaskComment, comment_id)
     if not comment or comment.task_id != task_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found"
+        )
 
     if comment.created_by_id != current_user.id:
         raise ForbiddenError("Only the comment author can edit it")
 
-    return TaskService.update_comment(session=session, comment=comment, content=comment_in.content)
+    return TaskService.update_comment(
+        session=session, comment=comment, content=comment_in.content
+    )

@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useComments, useCreateComment, useUpdateComment } from "../hooks/useTasks";
+import {
+  useComments,
+  useCreateComment,
+  useUpdateComment,
+} from "../hooks/useTasks";
 import { useAuth } from "../../user-administration/context/AuthContext";
 import type { TaskCommentRead } from "../types";
 import { Button } from "../../../components/ui/button";
@@ -16,7 +20,11 @@ interface CommentItemProps {
   taskId: string;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, currentUserId, taskId }) => {
+const CommentItem: React.FC<CommentItemProps> = ({
+  comment,
+  currentUserId,
+  taskId,
+}) => {
   const { t, i18n } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(comment.content);
@@ -77,16 +85,27 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, currentUserId, taskI
             className="text-sm"
           />
           <div className="flex gap-2 justify-end">
-            <Button variant="outline" size="sm" onClick={handleCancel} disabled={updateComment.isPending}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCancel}
+              disabled={updateComment.isPending}
+            >
               {t("tasks.comments.cancel")}
             </Button>
-            <Button size="sm" onClick={handleSave} disabled={!draft.trim() || updateComment.isPending}>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={!draft.trim() || updateComment.isPending}
+            >
               {t("tasks.comments.save")}
             </Button>
           </div>
         </div>
       ) : (
-        <p className="text-sm text-foreground whitespace-pre-wrap">{comment.content}</p>
+        <p className="text-sm text-foreground whitespace-pre-wrap">
+          {comment.content}
+        </p>
       )}
     </div>
   );
@@ -114,7 +133,9 @@ const TaskComments: React.FC<TaskCommentsProps> = ({ taskId }) => {
       </p>
 
       {isLoading ? (
-        <p className="text-xs text-muted-foreground">{t("tasks.comments.loading")}</p>
+        <p className="text-xs text-muted-foreground">
+          {t("tasks.comments.loading")}
+        </p>
       ) : comments && comments.length > 0 ? (
         <div className="mb-3">
           {comments.map((comment) => (
@@ -127,7 +148,9 @@ const TaskComments: React.FC<TaskCommentsProps> = ({ taskId }) => {
           ))}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground mb-3">{t("tasks.comments.empty")}</p>
+        <p className="text-xs text-muted-foreground mb-3">
+          {t("tasks.comments.empty")}
+        </p>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">

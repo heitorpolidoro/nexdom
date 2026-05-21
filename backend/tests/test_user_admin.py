@@ -52,7 +52,9 @@ def test_me_endpoint(client: TestClient, admin_user):
     assert response.json()["username"] == "admin"
 
 
-def test_list_users_accessible_to_all_authenticated(client: TestClient, admin_user, normal_user):
+def test_list_users_accessible_to_all_authenticated(
+    client: TestClient, admin_user, normal_user
+):
     admin_token = get_token(client, "admin", "test_admin_password")
     user_token = get_token(client, "user1", "test_user_password")
 

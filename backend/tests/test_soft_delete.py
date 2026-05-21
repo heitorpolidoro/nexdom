@@ -9,7 +9,9 @@ def get_token(client, username, password):
     return response.json()["access_token"]
 
 
-def test_soft_delete_flow(client: TestClient, session: Session, admin_user, normal_user, default_category):
+def test_soft_delete_flow(
+    client: TestClient, session: Session, admin_user, normal_user, default_category
+):
     director_token = get_token(client, "user1", "test_user_password")
     admin_token = get_token(client, "admin", "test_admin_password")
 
@@ -42,7 +44,8 @@ def test_soft_delete_flow(client: TestClient, session: Session, admin_user, norm
 
     # 5. Get history - deleted task returns 404
     history_response = client.get(
-        f"/api/v1/tasks/{task_id}/history", headers={"Authorization": f"Bearer {admin_token}"}
+        f"/api/v1/tasks/{task_id}/history",
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert history_response.status_code == 404
 
@@ -62,6 +65,7 @@ def test_delete_unauthorized(
 
     # Director cannot delete
     delete_response = client.delete(
-        f"/api/v1/tasks/{task_id}", headers={"Authorization": f"Bearer {director_token}"}
+        f"/api/v1/tasks/{task_id}",
+        headers={"Authorization": f"Bearer {director_token}"},
     )
     assert delete_response.status_code == 403

@@ -7,7 +7,11 @@ import TaskComments from "./TaskComments";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { cn } from "../../../lib/utils";
-import { getStatusLabel, getPriorityLabel, priorityVariant } from "../utils/taskUtils";
+import {
+  getStatusLabel,
+  getPriorityLabel,
+  priorityVariant,
+} from "../utils/taskUtils";
 
 interface TaskDetailsViewProps {
   task: TaskRead;
@@ -34,8 +38,16 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
     );
   };
 
-  const statuses = ["PENDING", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELED"];
-  const displayStatuses = statuses.includes(task.status) ? statuses : [task.status, ...statuses];
+  const statuses = [
+    "PENDING",
+    "IN_PROGRESS",
+    "BLOCKED",
+    "COMPLETED",
+    "CANCELED",
+  ];
+  const displayStatuses = statuses.includes(task.status)
+    ? statuses
+    : [task.status, ...statuses];
 
   return (
     <div className="p-6">
@@ -117,7 +129,9 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
                   <span className="flex items-center gap-1.5">
                     <span
                       className="inline-block size-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: task.category_color ?? undefined }}
+                      style={{
+                        backgroundColor: task.category_color ?? undefined,
+                      }}
                     />
                     {task.category_name}
                   </span>

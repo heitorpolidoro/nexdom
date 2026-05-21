@@ -48,7 +48,8 @@ def test_list_tasks_filters(
 
     # Test filter by priority
     response = client.get(
-        "/api/v1/tasks/?priority=LOW", headers={"Authorization": f"Bearer {admin_token}"}
+        "/api/v1/tasks/?priority=LOW",
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert len(response.json()) == 1
     assert response.json()[0]["title"] == "Task 2"

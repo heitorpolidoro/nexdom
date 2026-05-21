@@ -24,7 +24,9 @@ def test_get_task_not_found(client: TestClient, session: Session, admin_user):
     assert str(random_id) in response.json()["detail"]
 
 
-def test_create_task_validation_error(client: TestClient, session: Session, admin_user, normal_user):
+def test_create_task_validation_error(
+    client: TestClient, session: Session, admin_user, normal_user
+):
     # Only directors can create tasks; empty title triggers 422
     token = get_token(client, "user1", "test_user_password")
     response = client.post(
@@ -35,7 +37,9 @@ def test_create_task_validation_error(client: TestClient, session: Session, admi
     assert response.status_code == 422
 
 
-def test_update_task_validation_error(client: TestClient, session: Session, admin_user, normal_user, default_category):
+def test_update_task_validation_error(
+    client: TestClient, session: Session, admin_user, normal_user, default_category
+):
     director_token = get_token(client, "user1", "test_user_password")
     admin_token = get_token(client, "admin", "test_admin_password")
 

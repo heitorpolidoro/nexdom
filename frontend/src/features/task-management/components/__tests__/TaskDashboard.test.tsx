@@ -33,15 +33,21 @@ vi.mock("../../hooks/useCategories", () => ({
   useCategories: vi.fn(),
 }));
 
-vi.mock("../../../user-administration/context/AuthContext", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../../user-administration/context/AuthContext")>();
-  return {
-    ...actual,
-    useAuth: vi.fn(() => ({
-      user: { id: "admin-1", role: actual.UserRole.ADMINISTRATOR },
-    })),
-  };
-});
+vi.mock(
+  "../../../user-administration/context/AuthContext",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../../user-administration/context/AuthContext")
+      >();
+    return {
+      ...actual,
+      useAuth: vi.fn(() => ({
+        user: { id: "admin-1", role: actual.UserRole.ADMINISTRATOR },
+      })),
+    };
+  },
+);
 
 const mockTasks = [
   {
@@ -147,7 +153,12 @@ describe("TaskDashboard", () => {
     const clearButton = screen.getByText("Limpar filtros");
     fireEvent.click(clearButton);
 
-    expect(useTasks).toHaveBeenLastCalledWith({ status: null, priority: null, category_id: null, assigned_to_id: null });
+    expect(useTasks).toHaveBeenLastCalledWith({
+      status: null,
+      priority: null,
+      category_id: null,
+      assigned_to_id: null,
+    });
   });
 
   it("opens and closes the creation modal", () => {
@@ -220,7 +231,9 @@ describe("TaskDashboard", () => {
     fireEvent.change(titleInput, { target: { value: "Success Task" } });
 
     const categorySelect = screen.getByLabelText(/Categoria/i);
-    fireEvent.change(categorySelect, { target: { name: "category_id", value: "cat-1" } });
+    fireEvent.change(categorySelect, {
+      target: { name: "category_id", value: "cat-1" },
+    });
 
     const createBtn = screen.getByRole("button", { name: "Criar tarefa" });
     fireEvent.click(createBtn);
@@ -417,25 +430,17 @@ describe("TaskDashboard", () => {
     render(<TaskDashboard />);
 
     // Default is board view
-    expect(screen.getByTitle("Quadro")).toHaveClass(
-      "bg-secondary",
-    );
+    expect(screen.getByTitle("Quadro")).toHaveClass("bg-secondary");
     expect(screen.getByTitle("Lista")).not.toHaveClass("bg-secondary");
 
     // Click list view
     fireEvent.click(screen.getByTitle("Lista"));
-    expect(screen.getByTitle("Lista")).toHaveClass(
-      "bg-secondary",
-    );
-    expect(screen.getByTitle("Quadro")).not.toHaveClass(
-      "bg-secondary",
-    );
+    expect(screen.getByTitle("Lista")).toHaveClass("bg-secondary");
+    expect(screen.getByTitle("Quadro")).not.toHaveClass("bg-secondary");
 
     // Click board view back
     fireEvent.click(screen.getByTitle("Quadro"));
-    expect(screen.getByTitle("Quadro")).toHaveClass(
-      "bg-secondary",
-    );
+    expect(screen.getByTitle("Quadro")).toHaveClass("bg-secondary");
   });
 
   it("renders category filter dropdown", () => {
@@ -505,17 +510,23 @@ describe("TaskDashboard", () => {
     const overlay = screen.getByLabelText("Fechar modal");
 
     fireEvent.keyDown(overlay, { key: "Enter" });
-    expect(screen.queryByRole("heading", { name: "Nova Tarefa" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Nova Tarefa" }),
+    ).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Nova Tarefa/i }));
     const overlay2 = screen.getByLabelText("Fechar modal");
     fireEvent.keyDown(overlay2, { key: " " });
-    expect(screen.queryByRole("heading", { name: "Nova Tarefa" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Nova Tarefa" }),
+    ).not.toBeInTheDocument();
 
     // Test other key
     fireEvent.click(screen.getByRole("button", { name: /Nova Tarefa/i }));
     const overlay3 = screen.getByLabelText("Fechar modal");
     fireEvent.keyDown(overlay3, { key: "Escape" });
-    expect(screen.getByRole("heading", { name: "Nova Tarefa" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Nova Tarefa" }),
+    ).toBeInTheDocument();
   });
 });
