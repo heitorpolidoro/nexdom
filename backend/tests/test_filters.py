@@ -12,12 +12,13 @@ def get_token(client, username, password):
 def test_list_tasks_filters(
     client: TestClient, session: Session, admin_user, normal_user, default_category
 ):
-    token = get_token(client, "admin", "test_admin_password")
+    director_token = get_token(client, "user1", "test_user_password")
+    admin_token = get_token(client, "admin", "test_admin_password")
 
-    # Create tasks with different properties
+    # Create tasks as director
     client.post(
         "/api/v1/tasks/",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {director_token}"},
         json={
             "title": "Task 1",
             "status": "IN_PROGRESS",
@@ -27,7 +28,7 @@ def test_list_tasks_filters(
     )
     client.post(
         "/api/v1/tasks/",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {director_token}"},
         json={
             "title": "Task 2",
             "status": "PENDING",
@@ -40,14 +41,15 @@ def test_list_tasks_filters(
     # Test filter by status
     response = client.get(
         "/api/v1/tasks/?status=IN_PROGRESS",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert len(response.json()) == 1
     assert response.json()[0]["title"] == "Task 1"
 
     # Test filter by priority
     response = client.get(
-        "/api/v1/tasks/?priority=LOW", headers={"Authorization": f"Bearer {token}"}
+        "/api/v1/tasks/?priority=LOW",
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert len(response.json()) == 1
     assert response.json()[0]["title"] == "Task 2"
@@ -55,7 +57,7 @@ def test_list_tasks_filters(
     # Test filter by assigned_to_id
     response = client.get(
         f"/api/v1/tasks/?assigned_to_id={normal_user.id}",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert len(response.json()) == 1
     assert response.json()[0]["title"] == "Task 2"
@@ -63,7 +65,7 @@ def test_list_tasks_filters(
     # Test combined filters
     response = client.get(
         "/api/v1/tasks/?status=PENDING&priority=LOW",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert len(response.json()) == 1
     assert response.json()[0]["title"] == "Task 2"

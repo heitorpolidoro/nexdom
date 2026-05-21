@@ -115,6 +115,7 @@
       "viewList": "List",
       "viewBoard": "Board",
       "allCategories": "All categories",
+      "allAssignees": "All assignees",
       "connectionError": "Could not connect to the server"
     },
     "list": {
@@ -162,6 +163,8 @@
       "assignedTo": "Assigned to",
       "unassigned": "Unassigned",
       "createdBy": "Created by",
+      "category": "Category",
+      "noCategory": "No category",
       "dueDate": "Due date",
       "notSet": "Not set",
       "createdAt": "Created at",
@@ -174,6 +177,18 @@
       "statusCanceled": "Canceled",
       "close": "Close",
       "edit": "Edit"
+    },
+    "comments": {
+      "title": "Comments",
+      "loading": "Loading comments...",
+      "empty": "No comments yet.",
+      "placeholder": "Write a comment...",
+      "send": "Comment",
+      "sending": "Sending...",
+      "edit": "edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edited": "edited"
     },
     "audit": {
       "title": "Audit timeline",

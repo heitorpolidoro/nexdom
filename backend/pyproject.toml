@@ -67,7 +67,6 @@ ignore = [
     "E501",    # Line too long em migrations
     "ERA001", # Código comentado em env.py
 ]
-"app/seed_visual.py" = ["S106", "S101", "T201", "E501", "PLC0415", "INP001"]
 "app/services/task_service.py" = ["PLC0415", "INP001"]
 "app/api/**" = ["INP001", "E501"]
 "app/core/**" = ["INP001", "E501"]
@@ -80,7 +79,5 @@ ignore = [
 [tool.coverage.run]
 omit = [
     "app/seed.py",
-    "app/seed_visual.py",
-    "app/seed_dev.py",
     "app/db.py"
 ]

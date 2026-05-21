@@ -4,14 +4,16 @@ from typing import Annotated
 from uuid import UUID
 
 from app.api import deps as api_deps
-from app.core.exceptions import TaskNotFoundError
+from app.core.exceptions import ForbiddenError, TaskNotFoundError
 from app.db import get_session
-from app.models.enums import TaskPriority, TaskStatus
-from app.models.task import Task, TaskHistory
+from app.models.enums import TaskPriority, TaskStatus, UserRole
+from app.models.task import Task, TaskComment, TaskHistory
 from app.models.user import User
-from app.schemas.task import TaskCreate, TaskHistoryRead, TaskRead, TaskUpdate
+from app.schemas.task import (TaskCommentCreate, TaskCommentRead,
+                              TaskCommentUpdate, TaskCreate, TaskHistoryRead,
+                              TaskRead, TaskUpdate)
 from app.services.task_service import TaskService
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session, select
 
 router = APIRouter()
@@ -21,18 +23,9 @@ router = APIRouter()
 def create_task(
     task_in: TaskCreate,
     session: Annotated[Session, Depends(get_session)],
-    current_user: Annotated[User, Depends(api_deps.get_current_user)],
+    current_user: Annotated[User, Depends(api_deps.get_current_active_director)],
 ) -> TaskRead:
-    """Create a new task. Both ADMINISTRATOR and DIRECTOR can create tasks.
-
-    Args:
-        task_in: Task data to create.
-        session: Database session.
-        current_user: The current authenticated user.
-
-    Returns:
-        TaskRead: The created task.
-    """
+    """Create a new task. Only DIRECTOR can create tasks."""
     db_task = TaskService.create_task(
         session=session, task_in=task_in, created_by_id=current_user.id
     )
@@ -48,29 +41,21 @@ def list_tasks(
     assigned_to_id: Annotated[UUID | None, Query()] = None,
     category_id: Annotated[UUID | None, Query()] = None,
 ) -> list[TaskRead]:
-    """List tasks with optional filters.
-
-    ADMINISTRATOR sees all tasks. DIRECTOR sees only tasks assigned to them.
-
-    Args:
-        session: Database session.
-        current_user: The current authenticated user.
-        status: Filter by task status.
-        priority: Filter by task priority.
-        assigned_to_id: Filter by the user assigned to the task.
-        category_id: Filter by the category of the task.
-
-    Returns:
-        list[TaskRead]: List of tasks matching the criteria.
-    """
-    from sqlalchemy.orm import aliased
+    """List tasks with optional filters."""
     from app.models.category import Category
+    from sqlalchemy.orm import aliased
 
     creator_alias = aliased(User)
     assignee_alias = aliased(User)
 
     statement = (
-        select(Task, creator_alias.full_name, assignee_alias.full_name, Category.name, Category.color)
+        select(
+            Task,
+            creator_alias.full_name,
+            assignee_alias.full_name,
+            Category.name,
+            Category.color,
+        )
         .where(Task.is_deleted.is_(False))
         .join(creator_alias, Task.created_by_id == creator_alias.id, isouter=True)
         .join(assignee_alias, Task.assigned_to_id == assignee_alias.id, isouter=True)
@@ -79,13 +64,10 @@ def list_tasks(
 
     if assigned_to_id:
         statement = statement.where(Task.assigned_to_id == assigned_to_id)
-
     if status:
         statement = statement.where(Task.status == status)
-
     if priority:
         statement = statement.where(Task.priority == priority)
-
     if category_id:
         statement = statement.where(Task.category_id == category_id)
 
@@ -108,33 +90,22 @@ def update_task(
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> TaskRead:
-    """Update an existing task.
-
-    ADMINISTRATOR can update any field of any task.
-    DIRECTOR can only update the status field, and only on tasks assigned to them.
-
-    Args:
-        task_id: UUID of the task to update.
-        task_in: Task data to update.
-        session: Database session.
-        current_user: The current authenticated user.
-
-    Returns:
-        TaskRead: The updated task.
-
-    Raises:
-        TaskNotFoundError: If the task does not exist or is deleted.
-        ForbiddenError: If DIRECTOR attempts to update non-status fields or a task
-            not assigned to them.
-    """
+    """Update an existing task."""
     db_task = session.get(Task, task_id)
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
 
+    if current_user.role == UserRole.DIRECTOR:
+        _DIRECTOR_FIELDS = {"status", "description", "assigned_to_id", "category_id"}
+        attempted = set(task_in.model_dump(exclude_unset=True).keys())
+        if attempted - _DIRECTOR_FIELDS:
+            raise ForbiddenError(
+                f"Directors can only update: {', '.join(sorted(_DIRECTOR_FIELDS))}"
+            )
+
     updated_task = TaskService.update_task(
         session=session, db_task=db_task, task_in=task_in, current_user=current_user
     )
-
     return TaskService.get_task_with_names(session=session, db_task=updated_task)
 
 
@@ -144,24 +115,7 @@ def get_task_history(
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> list[TaskHistory]:
-    """Get the audit history for a specific task.
-
-    ADMINISTRATOR can see history of any task. DIRECTOR can only see history of
-    tasks assigned to them.
-
-    Args:
-        task_id: UUID of the task.
-        session: Database session.
-        current_user: The current authenticated user.
-
-    Returns:
-        list[TaskHistoryRead]: List of history entries.
-
-    Raises:
-        TaskNotFoundError: If the task does not exist or is deleted.
-        ForbiddenError: If DIRECTOR tries to view history of a task not assigned
-            to them.
-    """
+    """Get the audit history for a specific task."""
     db_task = session.get(Task, task_id)
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
@@ -175,20 +129,79 @@ def delete_task(
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(api_deps.get_current_active_admin)],
 ) -> None:
-    """Delete a task (Soft Delete). Only ADMINISTRATOR can delete tasks.
-
-    Args:
-        task_id: UUID of the task to delete.
-        session: Database session.
-        current_user: The current authenticated administrator.
-
-    Raises:
-        TaskNotFoundError: If the task does not exist or is deleted.
-    """
+    """Delete a task (Soft Delete). Only ADMINISTRATOR can delete tasks."""
     db_task = session.get(Task, task_id)
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
 
     TaskService.delete_task(
         session=session, db_task=db_task, changed_by_id=current_user.id
+    )
+
+
+# ── Comments ──────────────────────────────────────────────────────────────────
+
+
+@router.get("/{task_id}/comments", response_model=list[TaskCommentRead])
+def list_comments(
+    task_id: UUID,
+    session: Annotated[Session, Depends(get_session)],
+    _current_user: Annotated[User, Depends(api_deps.get_current_user)],
+) -> list[TaskCommentRead]:
+    """List all comments for a task."""
+    db_task = session.get(Task, task_id)
+    if not db_task or db_task.is_deleted:
+        raise TaskNotFoundError(task_id)
+
+    return TaskService.get_comments(session=session, task_id=task_id)
+
+
+@router.post(
+    "/{task_id}/comments",
+    response_model=TaskCommentRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_comment(
+    task_id: UUID,
+    comment_in: TaskCommentCreate,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(api_deps.get_current_user)],
+) -> TaskCommentRead:
+    """Add a comment to a task. Any authenticated user can comment."""
+    db_task = session.get(Task, task_id)
+    if not db_task or db_task.is_deleted:
+        raise TaskNotFoundError(task_id)
+
+    return TaskService.create_comment(
+        session=session,
+        task_id=task_id,
+        content=comment_in.content,
+        created_by_id=current_user.id,
+    )
+
+
+@router.patch("/{task_id}/comments/{comment_id}", response_model=TaskCommentRead)
+def update_comment(
+    task_id: UUID,
+    comment_id: UUID,
+    comment_in: TaskCommentUpdate,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(api_deps.get_current_user)],
+) -> TaskCommentRead:
+    """Edit a comment. Only the comment author can edit it."""
+    db_task = session.get(Task, task_id)
+    if not db_task or db_task.is_deleted:
+        raise TaskNotFoundError(task_id)
+
+    comment = session.get(TaskComment, comment_id)
+    if not comment or comment.task_id != task_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found"
+        )
+
+    if comment.created_by_id != current_user.id:
+        raise ForbiddenError("Only the comment author can edit it")
+
+    return TaskService.update_comment(
+        session=session, comment=comment, content=comment_in.content
     )

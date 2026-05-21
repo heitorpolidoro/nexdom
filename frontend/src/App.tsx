@@ -8,25 +8,13 @@ import ProtectedRoute from "./features/user-administration/components/ProtectedR
 import { AuthProvider } from "./features/user-administration/context/AuthContext";
 import Navbar from "./features/user-administration/components/Navbar";
 import { UserRole } from "./types/auth";
-import { AlertCircle } from "lucide-react";
-import { useBackendHealth } from "./hooks/useBackendHealth";
-import { useTranslation } from "react-i18next";
 import "./App.css";
 
 function App() {
-  const isOffline = useBackendHealth();
-  const { t } = useTranslation();
-
   return (
     <AuthProvider>
       <BrowserRouter>
         <div className="App">
-          {isOffline && (
-            <div className="fixed top-0 left-0 right-0 z-[100] p-2 bg-destructive text-destructive-foreground text-center text-xs font-bold flex items-center justify-center gap-2">
-              <AlertCircle className="size-3" />
-              {t("tasks.dashboard.connectionError")}
-            </div>
-          )}
           <Navbar />
           <Routes>
             <Route path="/login" element={<LoginPage />} />

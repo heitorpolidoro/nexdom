@@ -130,3 +130,16 @@ export interface TaskHistoryRead {
   /** When the change occurred. */
   timestamp: Date | string;
 }
+
+/**
+ * Interface for reading a task comment.
+ */
+export interface TaskCommentRead {
+  id: string;
+  task_id: string;
+  created_by_id: string;
+  created_by_name: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}

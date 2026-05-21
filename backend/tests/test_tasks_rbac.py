@@ -27,11 +27,7 @@ def test_data_fixture(session: Session):
         hashed_password=get_password_hash("pass"),
         role=UserRole.DIRECTOR,
     )
-    category = Category(
-        id=uuid.uuid4(),
-        name="Test Category",
-        color="#FFFFFF"
-    )
+    category = Category(id=uuid.uuid4(), name="Test Category", color="#FFFFFF")
     session.add(admin)
     session.add(director)
     session.add(category)
@@ -59,14 +55,14 @@ def test_rbac_task_workflow(client: TestClient, session: Session, test_data):
     )
     assert response.status_code == 200
 
-    # 2. Administrador cria tarefa para o diretor
+    # 2. Diretor cria outra tarefa (apenas diretores criam tarefas)
     response = client.post(
         "/api/v1/tasks/",
-        headers={"Authorization": f"Bearer {admin_token}"},
+        headers={"Authorization": f"Bearer {dir_token}"},
         json={
-            "title": "Admin Task",
+            "title": "Second Task",
             "assigned_to_id": str(test_data["director"].id),
-            "category_id": category_id
+            "category_id": category_id,
         },
     )
     assert response.status_code == 200
