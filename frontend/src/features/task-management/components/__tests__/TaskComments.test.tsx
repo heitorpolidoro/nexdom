@@ -20,33 +20,44 @@ vi.mock("../../../user-administration/context/AuthContext", () => ({
 
 /** Typed mock helper for useAuth. */
 const mockAuth = (userId: string) =>
-  vi.mocked(useAuth).mockReturnValue(
-    { user: { id: userId } } as unknown as ReturnType<typeof useAuth>,
-  );
+  vi
+    .mocked(useAuth)
+    .mockReturnValue({ user: { id: userId } } as unknown as ReturnType<
+      typeof useAuth
+    >);
 
 /** Typed mock helper for useComments. */
-const mockComments = (data: ReturnType<typeof useComments>["data"], isLoading = false) =>
-  vi.mocked(useComments).mockReturnValue(
-    { data, isLoading } as unknown as ReturnType<typeof useComments>,
-  );
+const mockComments = (
+  data: ReturnType<typeof useComments>["data"],
+  isLoading = false,
+) =>
+  vi
+    .mocked(useComments)
+    .mockReturnValue({ data, isLoading } as unknown as ReturnType<
+      typeof useComments
+    >);
 
 /** Typed mock helper for useCreateComment. */
 const mockCreateComment = (
   mutate: ReturnType<typeof useCreateComment>["mutate"],
   isPending = false,
 ) =>
-  vi.mocked(useCreateComment).mockReturnValue(
-    { mutate, isPending } as unknown as ReturnType<typeof useCreateComment>,
-  );
+  vi
+    .mocked(useCreateComment)
+    .mockReturnValue({ mutate, isPending } as unknown as ReturnType<
+      typeof useCreateComment
+    >);
 
 /** Typed mock helper for useUpdateComment. */
 const mockUpdateComment = (
   mutate: ReturnType<typeof useUpdateComment>["mutate"],
   isPending = false,
 ) =>
-  vi.mocked(useUpdateComment).mockReturnValue(
-    { mutate, isPending } as unknown as ReturnType<typeof useUpdateComment>,
-  );
+  vi
+    .mocked(useUpdateComment)
+    .mockReturnValue({ mutate, isPending } as unknown as ReturnType<
+      typeof useUpdateComment
+    >);
 
 const baseComment = {
   id: "comment-1",
@@ -201,11 +212,9 @@ describe("TaskComments", () => {
   });
 
   it("clears textarea after successful comment submission", async () => {
-    mockCreateComment(
-      ((_content: unknown, opts: { onSuccess: () => void }) => {
-        opts.onSuccess();
-      }) as ReturnType<typeof useCreateComment>["mutate"],
-    );
+    mockCreateComment(((_content: unknown, opts: { onSuccess: () => void }) => {
+      opts.onSuccess();
+    }) as ReturnType<typeof useCreateComment>["mutate"]);
 
     render(<TaskComments taskId="task-1" />);
 
