@@ -52,7 +52,10 @@ def test_me_endpoint(client: TestClient, admin_user):
     assert response.json()["username"] == "admin"
 
 
-def test_list_users_restricted_to_admin(client: TestClient, admin_user, normal_user):
+def test_list_users_accessible_to_all_authenticated(
+    client: TestClient, admin_user, normal_user
+):
+    """Test that the user list endpoint is accessible to all authenticated users."""
     admin_token = get_token(client, "admin", "test_admin_password")
     user_token = get_token(client, "user1", "test_user_password")
 
@@ -63,11 +66,12 @@ def test_list_users_restricted_to_admin(client: TestClient, admin_user, normal_u
     assert response.status_code == 200
     assert len(response.json()) >= 2
 
-    # Director (normal user) cannot list
+    # Director can also list (needed to populate assignee dropdowns)
     response = client.get(
         "/api/v1/users/", headers={"Authorization": f"Bearer {user_token}"}
     )
-    assert response.status_code == 403
+    assert response.status_code == 200
+    assert len(response.json()) >= 2
 
 
 def test_update_user_status_and_role(client: TestClient, admin_user, session: Session):

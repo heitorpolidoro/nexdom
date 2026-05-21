@@ -10,11 +10,30 @@ import { useTranslation } from "react-i18next";
 vi.mock("../../hooks/useTasks", () => ({
   useUpdateTask: vi.fn(),
   useTaskHistory: vi.fn(),
+  useComments: vi.fn(() => ({ data: [], isLoading: false })),
+  useCreateComment: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+  useUpdateComment: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }));
 
 vi.mock("../../../../hooks/useUsers", () => ({
   useUsers: vi.fn(),
 }));
+
+vi.mock(
+  "../../../user-administration/context/AuthContext",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../../user-administration/context/AuthContext")
+      >();
+    return {
+      ...actual,
+      useAuth: vi.fn(() => ({
+        user: { id: "admin-1", role: actual.UserRole.ADMINISTRATOR },
+      })),
+    };
+  },
+);
 
 describe("TaskDetailsView", () => {
   const mockOnEdit = vi.fn();
@@ -120,7 +139,9 @@ describe("TaskDetailsView", () => {
     );
 
     const statusSelect = screen.getByRole("combobox");
-    fireEvent.change(statusSelect, { target: { value: TaskStatus.IN_PROGRESS } });
+    fireEvent.change(statusSelect, {
+      target: { value: TaskStatus.IN_PROGRESS },
+    });
 
     expect(mockUpdateMutate).toHaveBeenCalledWith(
       expect.objectContaining({

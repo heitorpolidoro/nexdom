@@ -1,4 +1,4 @@
-"""Database models for Task and TaskHistory."""
+"""Database models for Task, TaskComment and TaskHistory."""
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, ClassVar, Optional
@@ -61,7 +61,9 @@ class Task(SQLModel, table=True):
     assigned_to_id: UUID | None = Field(
         default=None, foreign_key=USER_ID_FK, index=True
     )
-    category_id: UUID | None = Field(default=None, foreign_key=CATEGORY_ID_FK, index=True)
+    category_id: UUID | None = Field(
+        default=None, foreign_key=CATEGORY_ID_FK, index=True
+    )
 
     # Relationships
     creator: "User" = Relationship(
@@ -76,6 +78,41 @@ class Task(SQLModel, table=True):
     history: list["TaskHistory"] = Relationship(
         back_populates="task", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
+    comments: list["TaskComment"] = Relationship(
+        back_populates="task", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+
+
+class TaskComment(SQLModel, table=True):
+    """
+    SQLModel for task comments.
+
+    Attributes:
+        id: Unique identifier for the comment.
+        task_id: ID of the associated task.
+        created_by_id: ID of the user who wrote the comment.
+        content: Comment text.
+        created_at: Creation timestamp.
+        updated_at: Last update timestamp.
+    """
+
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    task_id: UUID = Field(
+        sa_column=Column(
+            "task_id",
+            ForeignKey("task.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        )
+    )
+    created_by_id: UUID = Field(foreign_key=Task.USER_ID_FK, index=True)
+    content: str
+    created_at: datetime = Field(default_factory=get_utc_now)
+    updated_at: datetime = Field(default_factory=get_utc_now)
+
+    # Relationships
+    task: "Task" = Relationship(back_populates="comments")
+    created_by: "User" = Relationship()
 
 
 class TaskHistory(SQLModel, table=True):

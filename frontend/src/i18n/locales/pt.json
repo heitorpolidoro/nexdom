@@ -115,6 +115,7 @@
       "viewList": "Lista",
       "viewBoard": "Quadro",
       "allCategories": "Todas as categorias",
+      "allAssignees": "Todos os responsáveis",
       "connectionError": "Não foi possível conectar ao servidor"
     },
     "list": {
@@ -162,6 +163,8 @@
       "assignedTo": "Atribuído a",
       "unassigned": "Não atribuído",
       "createdBy": "Criado por",
+      "category": "Categoria",
+      "noCategory": "Sem categoria",
       "dueDate": "Data de entrega",
       "notSet": "Não definido",
       "createdAt": "Criado em",
@@ -174,6 +177,18 @@
       "statusCanceled": "Cancelada",
       "close": "Fechar",
       "edit": "Editar"
+    },
+    "comments": {
+      "title": "Comentários",
+      "loading": "Carregando comentários...",
+      "empty": "Nenhum comentário ainda.",
+      "placeholder": "Escreva um comentário...",
+      "send": "Comentar",
+      "sending": "Enviando...",
+      "edit": "editar",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "edited": "editado"
     },
     "audit": {
       "title": "Histórico de alterações",

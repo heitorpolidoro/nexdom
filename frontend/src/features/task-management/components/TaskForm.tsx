@@ -4,7 +4,7 @@ import { TaskPriority, TaskStatus } from "../types";
 import type { TaskRead, TaskCreate, TaskUpdate } from "../types";
 import { useCreateTask, useUpdateTask } from "../hooks/useTasks";
 import { useCategories } from "../hooks/useCategories";
-import { useUsers } from "../../../hooks/useUsers";
+import { useAssignableUsers } from "../../../hooks/useUsers";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
@@ -12,6 +12,10 @@ import { Select } from "../../../components/ui/select";
 import { Label } from "../../../components/ui/label";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { getStatusLabel } from "../utils/taskUtils";
+import {
+  useAuth,
+  UserRole,
+} from "../../user-administration/context/AuthContext";
 
 interface TaskFormProps {
   task?: TaskRead;
@@ -21,10 +25,13 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const isEditing = !!task;
+  const isDirector = user?.role === UserRole.DIRECTOR;
+  const directorEditing = isDirector && isEditing;
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
-  const { data: users } = useUsers();
+  const { data: users } = useAssignableUsers();
   const { data: categories } = useCategories();
 
   const isLoading =
@@ -84,7 +91,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!(formData.title as string).trim())
+    if (!directorEditing && !(formData.title as string).trim())
       newErrors.title = t("tasks.form.titleRequired");
     if (!(formData.category_id as string))
       newErrors.category_id = t("tasks.form.categoryRequired");
@@ -108,10 +115,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     };
 
     if (isEditing && task) {
-      const updatePayload: TaskUpdate = {
-        ...commonData,
-        status: formData.status as TaskStatus,
-      };
+      const updatePayload: TaskUpdate = directorEditing
+        ? {
+            status: formData.status as TaskStatus,
+            description: (formData.description as string) || null,
+            assigned_to_id: (formData.assigned_to_id as string) || null,
+            category_id: (formData.category_id as string) || undefined,
+          }
+        : { ...commonData, status: formData.status as TaskStatus };
       updateTaskMutation.mutate(
         { id: task.id, data: updatePayload },
         { onSuccess },
@@ -144,21 +155,23 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="title">{t("tasks.form.titleLabel")}</Label>
-          <Input
-            id="title"
-            name="title"
-            value={formData.title as string}
-            onChange={handleChange}
-            disabled={isLoading}
-            placeholder={t("tasks.form.titlePlaceholder")}
-            aria-invalid={!!errors.title}
-          />
-          {errors.title && (
-            <p className="text-xs text-destructive">{errors.title}</p>
-          )}
-        </div>
+        {!directorEditing && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="title">{t("tasks.form.titleLabel")}</Label>
+            <Input
+              id="title"
+              name="title"
+              value={formData.title as string}
+              onChange={handleChange}
+              disabled={isLoading}
+              placeholder={t("tasks.form.titlePlaceholder")}
+              aria-invalid={Boolean(errors.title)}
+            />
+            {errors.title && (
+              <p className="text-xs text-destructive">{errors.title}</p>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="description">
@@ -174,22 +187,24 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="priority">{t("tasks.form.priorityLabel")}</Label>
-          <Select
-            id="priority"
-            name="priority"
-            value={formData.priority as string}
-            onChange={handleChange}
-            disabled={isLoading}
-          >
-            {Object.values(TaskPriority).map((p) => (
-              <option key={p} value={p}>
-                {t(`tasks.priority.${p}`)}
-              </option>
-            ))}
-          </Select>
-        </div>
+        {!directorEditing && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="priority">{t("tasks.form.priorityLabel")}</Label>
+            <Select
+              id="priority"
+              name="priority"
+              value={formData.priority as string}
+              onChange={handleChange}
+              disabled={isLoading}
+            >
+              {Object.values(TaskPriority).map((p) => (
+                <option key={p} value={p}>
+                  {t(`tasks.priority.${p}`)}
+                </option>
+              ))}
+            </Select>
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="category_id">{t("tasks.form.categoryLabel")}</Label>
@@ -199,7 +214,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
             value={formData.category_id as string}
             onChange={handleChange}
             disabled={isLoading}
-            aria-invalid={!!errors.category_id}
+            aria-invalid={Boolean(errors.category_id)}
           >
             <option value=""></option>
             {categories?.map((cat) => (
@@ -255,17 +270,19 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
           </p>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="due_date">{t("tasks.form.dueDateLabel")}</Label>
-          <Input
-            type="date"
-            id="due_date"
-            name="due_date"
-            value={formData.due_date as string}
-            onChange={handleChange}
-            disabled={isLoading}
-          />
-        </div>
+        {!directorEditing && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="due_date">{t("tasks.form.dueDateLabel")}</Label>
+            <Input
+              type="date"
+              id="due_date"
+              name="due_date"
+              value={formData.due_date as string}
+              onChange={handleChange}
+              disabled={isLoading}
+            />
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-2 border-t">
           <Button

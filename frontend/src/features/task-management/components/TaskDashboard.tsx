@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskStatus, TaskPriority } from "../types";
+
 import TaskList from "./TaskList";
 import TaskBoard from "./TaskBoard";
 import TaskForm from "./TaskForm";
 import TaskDetailsView from "./TaskDetailsView";
 import { useTasks } from "../hooks/useTasks";
 import { useCategories } from "../hooks/useCategories";
+import { useAssignableUsers } from "../../../hooks/useUsers";
 import { Button } from "../../../components/ui/button";
 import { Select } from "../../../components/ui/select";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
@@ -20,7 +22,8 @@ const TaskDashboard: React.FC = () => {
     status: TaskStatus | null;
     priority: TaskPriority | null;
     category_id: string | null;
-  }>({ status: null, priority: null, category_id: null });
+    assigned_to_id: string | null;
+  }>({ status: null, priority: null, category_id: null, assigned_to_id: null });
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -28,17 +31,24 @@ const TaskDashboard: React.FC = () => {
 
   const { data: tasks, isLoading, isError, error } = useTasks(filters);
   const { data: categories } = useCategories();
+  const { data: users } = useAssignableUsers();
 
   const selectedTask = tasks?.find((t) => t.id === selectedTaskId);
 
   const handleFilterChange = (
-    filterType: "status" | "priority" | "category_id",
+    filterType: "status" | "priority" | "category_id" | "assigned_to_id",
     value: TaskStatus | TaskPriority | string | null,
   ) => {
     setFilters((prev) => ({ ...prev, [filterType]: value }));
   };
 
-  const clearFilters = () => setFilters({ status: null, priority: null, category_id: null });
+  const clearFilters = () =>
+    setFilters({
+      status: null,
+      priority: null,
+      category_id: null,
+      assigned_to_id: null,
+    });
 
   const handleTaskClick = (taskId: string) => {
     setSelectedTaskId(taskId);
@@ -145,7 +155,25 @@ const TaskDashboard: React.FC = () => {
             ))}
           </Select>
 
-          {(filters.status || filters.priority || filters.category_id) && (
+          <Select
+            value={filters.assigned_to_id ?? ""}
+            onChange={(e) =>
+              handleFilterChange("assigned_to_id", e.target.value || null)
+            }
+            className="w-48"
+          >
+            <option value="">{t("tasks.dashboard.allAssignees")}</option>
+            {users?.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.full_name}
+              </option>
+            ))}
+          </Select>
+
+          {(filters.status ||
+            filters.priority ||
+            filters.category_id ||
+            filters.assigned_to_id) && (
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               {t("tasks.dashboard.clearFilters")}
             </Button>
