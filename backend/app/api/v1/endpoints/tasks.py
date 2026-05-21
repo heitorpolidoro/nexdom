@@ -146,7 +146,7 @@ def delete_task(
 def list_comments(
     task_id: UUID,
     session: Annotated[Session, Depends(get_session)],
-    current_user: Annotated[User, Depends(api_deps.get_current_user)],
+    _current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> list[TaskCommentRead]:
     """List all comments for a task."""
     db_task = session.get(Task, task_id)

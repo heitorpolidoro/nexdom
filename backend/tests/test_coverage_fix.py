@@ -14,6 +14,7 @@ def test_get_origins_empty():
 def test_list_tasks_filter_by_category(
     client: TestClient, session: Session, admin_user, normal_user, default_category
 ):
+    """Test that tasks can be filtered by category_id."""
     director_token = client.post(
         "/api/v1/auth/login",
         data={"username": "user1", "password": "test_user_password"},

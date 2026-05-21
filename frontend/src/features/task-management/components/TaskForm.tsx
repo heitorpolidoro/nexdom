@@ -120,7 +120,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
             status: formData.status as TaskStatus,
             description: (formData.description as string) || null,
             assigned_to_id: (formData.assigned_to_id as string) || null,
-            category_id: (formData.category_id as string) || null,
+            category_id: (formData.category_id as string) || undefined,
           }
         : { ...commonData, status: formData.status as TaskStatus };
       updateTaskMutation.mutate(
@@ -165,7 +165,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
               onChange={handleChange}
               disabled={isLoading}
               placeholder={t("tasks.form.titlePlaceholder")}
-              aria-invalid={!!errors.title}
+              aria-invalid={Boolean(errors.title)}
             />
             {errors.title && (
               <p className="text-xs text-destructive">{errors.title}</p>
@@ -214,7 +214,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
             value={formData.category_id as string}
             onChange={handleChange}
             disabled={isLoading}
-            aria-invalid={!!errors.category_id}
+            aria-invalid={Boolean(errors.category_id)}
           >
             <option value=""></option>
             {categories?.map((cat) => (

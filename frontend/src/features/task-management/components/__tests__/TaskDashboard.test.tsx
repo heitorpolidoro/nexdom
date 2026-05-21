@@ -101,7 +101,7 @@ describe("TaskDashboard", () => {
     vi.mocked(useUsersHook.useAssignableUsers).mockReturnValue({
       data: [],
       isLoading: false,
-    } as any);
+    } as unknown as ReturnType<typeof useUsersHook.useAssignableUsers>);
 
     vi.mocked(useCategories).mockReturnValue({
       data: [{ id: "cat-1", name: "Geral", color: "#808080", is_active: true }],

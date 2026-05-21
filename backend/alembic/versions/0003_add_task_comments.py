@@ -11,6 +11,7 @@ depends_on = None
 
 
 def upgrade() -> None:
+    """Create the taskcomment table with indexes."""
     op.create_table(
         "taskcomment",
         sa.Column("id", sa.Uuid(), nullable=False),
@@ -28,6 +29,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    """Drop the taskcomment table and its indexes."""
     op.drop_index("ix_taskcomment_created_by_id", table_name="taskcomment")
     op.drop_index("ix_taskcomment_task_id", table_name="taskcomment")
     op.drop_table("taskcomment")
