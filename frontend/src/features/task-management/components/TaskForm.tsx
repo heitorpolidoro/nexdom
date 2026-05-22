@@ -120,7 +120,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
             status: formData.status as TaskStatus,
             description: (formData.description as string) || null,
             assigned_to_id: (formData.assigned_to_id as string) || null,
-            category_id: (formData.category_id as string) || undefined,
+            category_id: formData.category_id as string,
           }
         : { ...commonData, status: formData.status as TaskStatus };
       updateTaskMutation.mutate(

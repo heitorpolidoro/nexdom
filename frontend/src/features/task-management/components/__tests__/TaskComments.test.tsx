@@ -247,7 +247,7 @@ describe("TaskComments", () => {
   });
 
   it("handles undefined user from useAuth", () => {
-    vi.mocked(useAuth).mockReturnValue({ user: undefined } as any);
+    vi.mocked(useAuth).mockReturnValue({ user: undefined } as any); // skipcq: JS-0323
     render(<TaskComments taskId="task-1" />);
     expect(screen.getByText("This is a comment")).toBeInTheDocument();
   });
@@ -255,8 +255,8 @@ describe("TaskComments", () => {
   it("does not submit empty comment", () => {
     render(<TaskComments taskId="task-1" />);
     const textarea = screen.getByPlaceholderText(/Escreva um comentário/i);
-    const form = textarea.closest("form");
-    fireEvent.submit(form!);
+    const form = textarea.closest("form") as HTMLFormElement;
+    fireEvent.submit(form);
     expect(mockCreateMutate).not.toHaveBeenCalled();
   });
 
@@ -264,7 +264,7 @@ describe("TaskComments", () => {
     vi.mocked(useTranslation).mockReturnValue({
       t: (s: string) => s,
       i18n: { language: "en", changeLanguage: vi.fn() },
-    } as any);
+    } as any); // skipcq: JS-0323
 
     const toLocaleStringSpy = vi.spyOn(Date.prototype, "toLocaleString");
 

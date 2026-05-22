@@ -319,7 +319,7 @@ describe("TaskDetailsView", () => {
 
     const { rerender } = render(
       <TaskDetailsView
-        task={taskWithColor as any}
+        task={taskWithColor as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -338,7 +338,7 @@ describe("TaskDetailsView", () => {
 
     rerender(
       <TaskDetailsView
-        task={taskWithoutColor as any}
+        task={taskWithoutColor as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -359,7 +359,7 @@ describe("TaskDetailsView", () => {
 
     render(
       <TaskDetailsView
-        task={taskWithoutCategory as any}
+        task={taskWithoutCategory as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,

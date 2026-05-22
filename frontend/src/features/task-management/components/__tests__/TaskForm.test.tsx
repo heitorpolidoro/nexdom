@@ -438,7 +438,7 @@ describe("TaskForm", () => {
   it("submits update payload for director editing", () => {
     vi.mocked(useAuth).mockReturnValue({
       user: { id: "director-1", role: UserRole.DIRECTOR },
-    } as any);
+    } as any); // skipcq: JS-0323
 
     const mockTask = {
       id: "1",
@@ -455,7 +455,7 @@ describe("TaskForm", () => {
 
     render(
       <TaskForm
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onSuccess={mockOnSuccess}
         onCancel={mockOnCancel}
       />,
@@ -491,7 +491,7 @@ describe("TaskForm", () => {
   it("submits update payload for administrator editing", () => {
     vi.mocked(useAuth).mockReturnValue({
       user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
-    } as any);
+    } as any); // skipcq: JS-0323
 
     const mockTask = {
       id: "1",
@@ -508,7 +508,7 @@ describe("TaskForm", () => {
 
     render(
       <TaskForm
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onSuccess={mockOnSuccess}
         onCancel={mockOnCancel}
       />,
@@ -539,7 +539,7 @@ describe("TaskForm", () => {
   it("submits update payload for director editing with empty fields", () => {
     vi.mocked(useAuth).mockReturnValue({
       user: { id: "director-1", role: UserRole.DIRECTOR },
-    } as any);
+    } as any); // skipcq: JS-0323
 
     const mockTask = {
       id: "1",
@@ -556,7 +556,7 @@ describe("TaskForm", () => {
 
     render(
       <TaskForm
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onSuccess={mockOnSuccess}
         onCancel={mockOnCancel}
       />,
