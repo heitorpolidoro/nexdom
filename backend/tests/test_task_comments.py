@@ -1,5 +1,8 @@
 """Tests for task comment endpoints: list, create, and update."""
 
+import uuid
+from uuid import UUID
+
 import pytest
 from app.models.category import Category
 from app.models.task import TaskComment
@@ -42,7 +45,11 @@ class TestListComments:
     """Tests for GET /tasks/{task_id}/comments."""
 
     def test_list_comments_returns_empty_list(
-        self, client: TestClient, admin_user: User, normal_user: User, task_id: str
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
+        task_id: str,
     ):
         """Authenticated user gets an empty list when no comments exist."""
         token = _login(client, "admin", "test_admin_password")
@@ -57,14 +64,11 @@ class TestListComments:
         self,
         client: TestClient,
         session: Session,
-        admin_user: User,
+        admin_user: User,  # noqa: ARG002
         normal_user: User,
         task_id: str,
     ):
         """Comments are returned in the list response."""
-        import uuid
-        from uuid import UUID
-
         comment = TaskComment(
             task_id=UUID(task_id),
             created_by_id=normal_user.id,
@@ -84,11 +88,11 @@ class TestListComments:
         assert data[0]["content"] == "Hello world"
 
     def test_list_comments_404_for_missing_task(
-        self, client: TestClient, admin_user: User
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
     ):
         """Returns 404 when the task does not exist."""
-        import uuid
-
         token = _login(client, "admin", "test_admin_password")
         resp = client.get(
             f"/api/v1/tasks/{uuid.uuid4()}/comments",
@@ -97,7 +101,10 @@ class TestListComments:
         assert resp.status_code == 404
 
     def test_list_comments_requires_auth(
-        self, client: TestClient, task_id: str, admin_user: User
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
+        task_id: str,
     ):
         """Unauthenticated request is rejected."""
         resp = client.get(f"/api/v1/tasks/{task_id}/comments")
@@ -108,7 +115,11 @@ class TestCreateComment:
     """Tests for POST /tasks/{task_id}/comments."""
 
     def test_create_comment_succeeds(
-        self, client: TestClient, admin_user: User, normal_user: User, task_id: str
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,
+        task_id: str,
     ):
         """Any authenticated user can create a comment."""
         token = _login(client, "user1", "test_user_password")
@@ -123,11 +134,11 @@ class TestCreateComment:
         assert data["created_by_id"] == str(normal_user.id)
 
     def test_create_comment_404_for_missing_task(
-        self, client: TestClient, admin_user: User
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
     ):
         """Returns 404 when the task does not exist."""
-        import uuid
-
         token = _login(client, "admin", "test_admin_password")
         resp = client.post(
             f"/api/v1/tasks/{uuid.uuid4()}/comments",
@@ -137,7 +148,10 @@ class TestCreateComment:
         assert resp.status_code == 404
 
     def test_create_comment_requires_auth(
-        self, client: TestClient, task_id: str, admin_user: User
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
+        task_id: str,
     ):
         """Unauthenticated request is rejected."""
         resp = client.post(
@@ -147,7 +161,11 @@ class TestCreateComment:
         assert resp.status_code == 401
 
     def test_create_comment_empty_content_rejected(
-        self, client: TestClient, admin_user: User, normal_user: User, task_id: str
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
+        task_id: str,
     ):
         """Empty content is rejected with a validation error."""
         token = _login(client, "user1", "test_user_password")
@@ -160,10 +178,14 @@ class TestCreateComment:
 
 
 class TestDirectorFieldRestriction:
-    """Tests for director field restriction on task updates (line 102)."""
+    """Tests for director field restriction on task updates."""
 
     def test_director_cannot_update_title(
-        self, client: TestClient, admin_user: User, normal_user: User, task_id: str
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
+        task_id: str,
     ):
         """Director gets 403 when attempting to update restricted fields like title."""
         token = _login(client, "user1", "test_user_password")
@@ -182,8 +204,8 @@ class TestUpdateComment:
     def comment_id_fixture(
         self,
         client: TestClient,
-        admin_user: User,
-        normal_user: User,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
         task_id: str,
     ) -> str:
         """Create a comment as the director user and return its ID."""
@@ -199,8 +221,8 @@ class TestUpdateComment:
     def test_author_can_edit_comment(
         self,
         client: TestClient,
-        admin_user: User,
-        normal_user: User,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
         task_id: str,
         comment_id: str,
     ):
@@ -217,8 +239,8 @@ class TestUpdateComment:
     def test_non_author_cannot_edit_comment(
         self,
         client: TestClient,
-        admin_user: User,
-        normal_user: User,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
         task_id: str,
         comment_id: str,
     ):
@@ -234,14 +256,12 @@ class TestUpdateComment:
     def test_update_comment_404_for_missing_task(
         self,
         client: TestClient,
-        admin_user: User,
-        normal_user: User,
-        task_id: str,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
+        task_id: str,  # noqa: ARG002
         comment_id: str,
     ):
         """Returns 404 when the task does not exist."""
-        import uuid
-
         token = _login(client, "user1", "test_user_password")
         resp = client.patch(
             f"/api/v1/tasks/{uuid.uuid4()}/comments/{comment_id}",
@@ -251,11 +271,13 @@ class TestUpdateComment:
         assert resp.status_code == 404
 
     def test_update_comment_404_for_missing_comment(
-        self, client: TestClient, admin_user: User, normal_user: User, task_id: str
+        self,
+        client: TestClient,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
+        task_id: str,
     ):
         """Returns 404 when the comment does not exist."""
-        import uuid
-
         token = _login(client, "user1", "test_user_password")
         resp = client.patch(
             f"/api/v1/tasks/{task_id}/comments/{uuid.uuid4()}",
@@ -267,8 +289,8 @@ class TestUpdateComment:
     def test_update_comment_requires_auth(
         self,
         client: TestClient,
-        admin_user: User,
-        normal_user: User,
+        admin_user: User,  # noqa: ARG002
+        normal_user: User,  # noqa: ARG002
         task_id: str,
         comment_id: str,
     ):
