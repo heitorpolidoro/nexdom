@@ -107,11 +107,11 @@ docker-compose.override.yml
 test-results.xml
 
 # =========================
-# Claude Code
+# AI Assistants
 # =========================
-.claude/worktrees/
-.claude/settings.local.json
-.vercel
-
+.claude/
 .gemini/
+.github/commands/gemini-*.toml
+.github/workflows/gemini-*.yml
 gha-creds-*.json
+.vercel
