@@ -77,27 +77,27 @@ describe("TaskDashboard", () => {
       isLoading: false,
       isError: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
     vi.mocked(useCreateTask).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
-    } as any);
+    } as any); // skipcq: JS-0323
     vi.mocked(useUpdateTask).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
-    } as any);
+    } as any); // skipcq: JS-0323
     vi.mocked(useDeleteTask).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
-    } as any);
+    } as any); // skipcq: JS-0323
     vi.mocked(useTaskHistory).mockReturnValue({
       data: [],
       isLoading: false,
-    } as any);
+    } as any); // skipcq: JS-0323
     vi.mocked(useUsersHook.useUsers).mockReturnValue({
       data: [],
       isLoading: false,
-    } as any);
+    } as any); // skipcq: JS-0323
     vi.mocked(useUsersHook.useAssignableUsers).mockReturnValue({
       data: [],
       isLoading: false,
@@ -106,7 +106,7 @@ describe("TaskDashboard", () => {
     vi.mocked(useCategories).mockReturnValue({
       data: [{ id: "cat-1", name: "Geral", color: "#808080", is_active: true }],
       isLoading: false,
-    } as any);
+    } as any); // skipcq: JS-0323
   });
 
   it("renders the dashboard header and filters", () => {
@@ -220,7 +220,7 @@ describe("TaskDashboard", () => {
     vi.mocked(useCreateTask).mockReturnValue({
       mutate: mockMutate,
       isPending: false,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(<TaskDashboard />);
 
@@ -342,7 +342,7 @@ describe("TaskDashboard", () => {
       isLoading: false,
       isError: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(<TaskDashboard />);
     // When tasks is undefined, TaskList shouldn't render
@@ -359,7 +359,7 @@ describe("TaskDashboard", () => {
       isLoading: false,
       isError: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(<TaskDashboard />);
     // Board view is default, it should hit tasks={tasks || []} on line 160
@@ -401,7 +401,7 @@ describe("TaskDashboard", () => {
     vi.mocked(useUpdateTask).mockReturnValue({
       mutate: mockUpdateMutate,
       isPending: false,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(<TaskDashboard />);
 
@@ -421,7 +421,7 @@ describe("TaskDashboard", () => {
       isLoading: false,
       isError: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
     render(<TaskDashboard />);
     expect(screen.getByText("Task 1")).toBeInTheDocument();
   });
@@ -474,7 +474,7 @@ describe("TaskDashboard", () => {
       isLoading: true,
       isError: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
     render(<TaskDashboard />);
     expect(screen.getByText(/Carregando tarefas.../i)).toBeInTheDocument();
 
@@ -483,7 +483,7 @@ describe("TaskDashboard", () => {
       isLoading: false,
       isError: true,
       error: new Error("Fetch error"),
-    } as any);
+    } as any); // skipcq: JS-0323
     render(<TaskDashboard />);
     expect(
       screen.getByText(/Erro ao carregar tarefas: Fetch error/i),
@@ -496,7 +496,7 @@ describe("TaskDashboard", () => {
       isLoading: false,
       isError: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(<TaskDashboard />);
     fireEvent.click(screen.getByTitle("Lista"));

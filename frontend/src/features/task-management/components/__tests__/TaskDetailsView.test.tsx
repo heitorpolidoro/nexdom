@@ -64,13 +64,13 @@ describe("TaskDetailsView", () => {
     vi.mocked(useUpdateTask).mockReturnValue({
       mutate: mockUpdateMutate,
       isPending: false,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     vi.mocked(useTaskHistory).mockReturnValue({
       data: [],
       isLoading: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     vi.mocked(useUsers).mockReturnValue({
       data: [
@@ -78,13 +78,13 @@ describe("TaskDetailsView", () => {
         { id: "admin", full_name: "admin", username: "admin" },
       ],
       isLoading: false,
-    } as any);
+    } as any); // skipcq: JS-0323
   });
 
   it("renders all task metadata correctly", () => {
     render(
       <TaskDetailsView
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -104,7 +104,7 @@ describe("TaskDetailsView", () => {
   it("triggers onEdit callback when Edit button is clicked", () => {
     render(
       <TaskDetailsView
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -118,7 +118,7 @@ describe("TaskDetailsView", () => {
   it("triggers onClose callback when Close button is clicked", () => {
     render(
       <TaskDetailsView
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -132,7 +132,7 @@ describe("TaskDetailsView", () => {
   it("triggers updateTask mutation when status select is changed", () => {
     render(
       <TaskDetailsView
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -161,7 +161,7 @@ describe("TaskDetailsView", () => {
 
     render(
       <TaskDetailsView
-        task={incompleteTask as any}
+        task={incompleteTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -177,7 +177,7 @@ describe("TaskDetailsView", () => {
     statuses.forEach((status) => {
       const { rerender } = render(
         <TaskDetailsView
-          task={{ ...mockTask, status } as any}
+          task={{ ...mockTask, status } as any} // skipcq: JS-0323
           onEdit={mockOnEdit}
           onClose={mockOnClose}
         />,
@@ -203,7 +203,7 @@ describe("TaskDetailsView", () => {
   it("renders 'Nenhuma descrição fornecida.' when description is empty or null", () => {
     const { rerender } = render(
       <TaskDetailsView
-        task={{ ...mockTask, description: "" } as any}
+        task={{ ...mockTask, description: "" } as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -214,7 +214,7 @@ describe("TaskDetailsView", () => {
 
     rerender(
       <TaskDetailsView
-        task={{ ...mockTask, description: null } as any}
+        task={{ ...mockTask, description: null } as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -228,11 +228,11 @@ describe("TaskDetailsView", () => {
     vi.mocked(useUpdateTask).mockReturnValue({
       mutate: mockUpdateMutate,
       isPending: true,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(
       <TaskDetailsView
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -245,7 +245,7 @@ describe("TaskDetailsView", () => {
   it("formatDate handles all falsy values", () => {
     const { rerender } = render(
       <TaskDetailsView
-        task={{ ...mockTask, due_date: null } as any}
+        task={{ ...mockTask, due_date: null } as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -254,7 +254,7 @@ describe("TaskDetailsView", () => {
 
     rerender(
       <TaskDetailsView
-        task={{ ...mockTask, due_date: undefined } as any}
+        task={{ ...mockTask, due_date: undefined } as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -263,7 +263,7 @@ describe("TaskDetailsView", () => {
 
     rerender(
       <TaskDetailsView
-        task={{ ...mockTask, due_date: "" } as any}
+        task={{ ...mockTask, due_date: "" } as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -280,7 +280,7 @@ describe("TaskDetailsView", () => {
 
     render(
       <TaskDetailsView
-        task={strangeTask as any}
+        task={strangeTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
@@ -295,11 +295,11 @@ describe("TaskDetailsView", () => {
     vi.mocked(useTranslation).mockReturnValue({
       t: (s: string) => s,
       i18n: { language: "en" },
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(
       <TaskDetailsView
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,

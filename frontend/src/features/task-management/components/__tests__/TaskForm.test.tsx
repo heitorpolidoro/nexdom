@@ -51,13 +51,13 @@ describe("TaskForm", () => {
       mutate: mockCreateMutate,
       isPending: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     vi.mocked(useUpdateTask).mockReturnValue({
       mutate: mockUpdateMutate,
       isPending: false,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     vi.mocked(useAssignableUsers).mockReturnValue({
       data: [
@@ -65,12 +65,12 @@ describe("TaskForm", () => {
         { id: "user-2", full_name: "User 2", username: "user2" },
       ],
       isLoading: false,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     vi.mocked(useCategories).mockReturnValue({
       data: [{ id: "cat-1", name: "Geral", color: "#808080", is_active: true }],
       isLoading: false,
-    } as any);
+    } as any); // skipcq: JS-0323
   });
 
   it("renders correctly in creation mode", () => {
@@ -101,7 +101,7 @@ describe("TaskForm", () => {
 
     render(
       <TaskForm
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onSuccess={mockOnSuccess}
         onCancel={mockOnCancel}
       />,
@@ -132,7 +132,7 @@ describe("TaskForm", () => {
 
     render(
       <TaskForm
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onSuccess={mockOnSuccess}
         onCancel={mockOnCancel}
       />,
@@ -262,7 +262,7 @@ describe("TaskForm", () => {
 
     render(
       <TaskForm
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onSuccess={mockOnSuccess}
         onCancel={mockOnCancel}
       />,
@@ -294,7 +294,7 @@ describe("TaskForm", () => {
       mutate: mockCreateMutate,
       isPending: true,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
@@ -315,11 +315,11 @@ describe("TaskForm", () => {
       mutate: mockUpdateMutate,
       isPending: true,
       error: null,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(
       <TaskForm
-        task={mockTask as any}
+        task={mockTask as any} // skipcq: JS-0323
         onSuccess={mockOnSuccess}
         onCancel={mockOnCancel}
       />,
@@ -346,8 +346,8 @@ describe("TaskForm", () => {
         response: {
           data: { detail: "Create error" },
         },
-      } as any,
-    } as any);
+      } as any, // skipcq: JS-0323
+    } as any); // skipcq: JS-0323
 
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
@@ -362,8 +362,8 @@ describe("TaskForm", () => {
         response: {
           data: { detail: "Update error" },
         },
-      } as any,
-    } as any);
+      } as any, // skipcq: JS-0323
+    } as any); // skipcq: JS-0323
 
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
@@ -375,7 +375,7 @@ describe("TaskForm", () => {
       mutate: mockCreateMutate,
       isPending: false,
       error: new Error("Generic error"),
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
@@ -391,7 +391,7 @@ describe("TaskForm", () => {
         { id: "user-2", full_name: "", username: "user2_only" },
       ],
       isLoading: false,
-    } as any);
+    } as any); // skipcq: JS-0323
 
     render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
 
