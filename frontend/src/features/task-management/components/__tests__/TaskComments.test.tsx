@@ -211,6 +211,24 @@ describe("TaskComments", () => {
     expect(screen.getByRole("button", { name: /Cancelar/i })).toBeDisabled();
   });
 
+  it("exits edit mode after successful update", async () => {
+    mockUpdateComment(((_payload: unknown, opts: { onSuccess: () => void }) => {
+      opts.onSuccess();
+    }) as ReturnType<typeof useUpdateComment>["mutate"]);
+
+    render(<TaskComments taskId="task-1" />);
+
+    fireEvent.click(screen.getByRole("button", { name: /editar/i }));
+
+    const editTextarea = screen.getAllByRole("textbox")[0];
+    fireEvent.change(editTextarea, { target: { value: "Updated content" } });
+    fireEvent.click(screen.getByRole("button", { name: /Salvar/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: /Salvar/i })).not.toBeInTheDocument();
+    });
+  });
+
   it("clears textarea after successful comment submission", async () => {
     mockCreateComment(((_content: unknown, opts: { onSuccess: () => void }) => {
       opts.onSuccess();

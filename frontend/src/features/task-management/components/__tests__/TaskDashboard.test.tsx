@@ -529,4 +529,18 @@ describe("TaskDashboard", () => {
       screen.getByRole("heading", { name: "Nova Tarefa" }),
     ).toBeInTheDocument();
   });
+
+  it("renders assignee options and filters by assignee", () => {
+    vi.mocked(useUsersHook.useAssignableUsers).mockReturnValue({
+      data: [{ id: "user-1", full_name: "Alice", username: "alice", email: "", is_active: true, role: "DIRECTOR" }],
+      isLoading: false,
+    } as any);
+
+    render(<TaskDashboard />);
+
+    expect(screen.getByRole("option", { name: "Alice" })).toBeInTheDocument();
+
+    const assigneeSelect = screen.getByDisplayValue(/Todos os responsáveis|All assignees/i);
+    fireEvent.change(assigneeSelect, { target: { value: "user-1" } });
+  });
 });

@@ -1,14 +1,17 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { 
-  useTasks, 
-  useTask, 
-  useCreateTask, 
-  useUpdateTask, 
-  useTaskHistory, 
+import {
+  useTasks,
+  useTask,
+  useCreateTask,
+  useUpdateTask,
+  useTaskHistory,
   useInvalidateTasks,
-  useDeleteTask
+  useDeleteTask,
+  useComments,
+  useCreateComment,
+  useUpdateComment,
 } from "../useTasks";
 import apiClient from "../../../../api/client";
 import { TaskStatus, TaskPriority } from "../../types";
@@ -151,6 +154,54 @@ describe("useTasks hooks", () => {
       await result.current.mutateAsync("1");
 
       expect(apiClient.delete).toHaveBeenCalledWith("/tasks/1");
+    });
+  });
+
+  describe("useComments", () => {
+    it("fetches comments for a task", async () => {
+      const mockComments = [
+        { id: "c1", task_id: "1", content: "Hello", created_by_id: "u1", created_by_name: "Alice", created_at: "", updated_at: "" },
+      ];
+      vi.mocked(apiClient.get).mockResolvedValueOnce({ data: mockComments });
+
+      const { result } = renderHook(() => useComments("1"), {
+        wrapper: createWrapper(),
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      expect(result.current.data).toEqual(mockComments);
+      expect(apiClient.get).toHaveBeenCalledWith("/tasks/1/comments");
+    });
+  });
+
+  describe("useCreateComment", () => {
+    it("posts a new comment and invalidates query", async () => {
+      const mockComment = { id: "c1", content: "Hello" };
+      vi.mocked(apiClient.post).mockResolvedValueOnce({ data: mockComment });
+
+      const { result } = renderHook(() => useCreateComment("1"), {
+        wrapper: createWrapper(),
+      });
+
+      await result.current.mutateAsync("Hello");
+
+      expect(apiClient.post).toHaveBeenCalledWith("/tasks/1/comments", { content: "Hello" });
+    });
+  });
+
+  describe("useUpdateComment", () => {
+    it("patches a comment and invalidates query", async () => {
+      const mockComment = { id: "c1", content: "Updated" };
+      vi.mocked(apiClient.patch).mockResolvedValueOnce({ data: mockComment });
+
+      const { result } = renderHook(() => useUpdateComment("1"), {
+        wrapper: createWrapper(),
+      });
+
+      await result.current.mutateAsync({ commentId: "c1", content: "Updated" });
+
+      expect(apiClient.patch).toHaveBeenCalledWith("/tasks/1/comments/c1", { content: "Updated" });
     });
   });
 });
