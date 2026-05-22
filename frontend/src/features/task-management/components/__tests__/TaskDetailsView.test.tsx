@@ -309,4 +309,62 @@ describe("TaskDetailsView", () => {
     const dateEls = screen.getAllByText(/2023/);
     expect(dateEls.length).toBeGreaterThan(0);
   });
+
+  it("renders category badge with correct style when color is present or missing", () => {
+    const taskWithColor = {
+      ...mockTask,
+      category_name: "Feature",
+      category_color: "#ff0000",
+    };
+
+    const { rerender } = render(
+      <TaskDetailsView
+        task={taskWithColor as any}
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    const outerSpan = screen.getByText("Feature");
+    const colorDot = outerSpan.querySelector("span");
+    expect(colorDot).toBeInTheDocument();
+    expect(colorDot).toHaveStyle({ backgroundColor: "#ff0000" });
+
+    const taskWithoutColor = {
+      ...mockTask,
+      category_name: "Feature",
+      category_color: null,
+    };
+
+    rerender(
+      <TaskDetailsView
+        task={taskWithoutColor as any}
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    const outerSpan2 = screen.getByText("Feature");
+    const colorDot2 = outerSpan2.querySelector("span");
+    expect(colorDot2).toBeInTheDocument();
+    expect(colorDot2).toHaveStyle({ backgroundColor: "" });
+  });
+
+  it("renders 'Sem categoria' when category_name is missing", () => {
+    const taskWithoutCategory = {
+      ...mockTask,
+      category_name: null,
+      category_color: null,
+    };
+
+    render(
+      <TaskDetailsView
+        task={taskWithoutCategory as any}
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    expect(screen.getByText(/Sem categoria|tasks.details.noCategory/)).toBeInTheDocument();
+  });
 });

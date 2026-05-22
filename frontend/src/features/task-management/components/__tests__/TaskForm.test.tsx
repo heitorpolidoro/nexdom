@@ -5,7 +5,7 @@ import { TaskPriority, TaskStatus } from "../../types";
 import { useCreateTask, useUpdateTask } from "../../hooks/useTasks";
 import { useAssignableUsers } from "../../../../hooks/useUsers";
 import { useCategories } from "../../hooks/useCategories";
-import { UserRole } from "../../../user-administration/context/AuthContext";
+import { useAuth, UserRole } from "../../../user-administration/context/AuthContext";
 
 // Mock the hooks
 vi.mock("../../hooks/useTasks", () => ({
@@ -431,6 +431,149 @@ describe("TaskForm", () => {
       expect.objectContaining({
         category_id: "cat-1",
       }),
+      expect.any(Object),
+    );
+  });
+
+  it("submits update payload for director editing", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "director-1", role: UserRole.DIRECTOR },
+    } as any);
+
+    const mockTask = {
+      id: "1",
+      title: "Old Title",
+      description: "Old Description",
+      priority: TaskPriority.LOW,
+      status: TaskStatus.PENDING,
+      assigned_to_id: "user-1",
+      created_by_id: "director-1",
+      created_at: new Date(),
+      updated_at: new Date(),
+      category_id: "cat-1",
+    };
+
+    render(
+      <TaskForm
+        task={mockTask as any}
+        onSuccess={mockOnSuccess}
+        onCancel={mockOnCancel}
+      />,
+    );
+
+    expect(screen.queryByLabelText(/Título \*/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Prioridade/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Data de entrega/i)).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Descrição/i), {
+      target: { name: "description", value: "Updated Description" },
+    });
+    fireEvent.change(screen.getByLabelText(/Status/i), {
+      target: { name: "status", value: TaskStatus.COMPLETED },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Atualizar tarefa/i }));
+
+    expect(mockUpdateMutate).toHaveBeenCalledWith(
+      {
+        id: "1",
+        data: {
+          status: TaskStatus.COMPLETED,
+          description: "Updated Description",
+          assigned_to_id: "user-1",
+          category_id: "cat-1",
+        },
+      },
+      expect.any(Object),
+    );
+  });
+
+  it("submits update payload for administrator editing", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
+    } as any);
+
+    const mockTask = {
+      id: "1",
+      title: "Old Title",
+      description: "Old Description",
+      priority: TaskPriority.LOW,
+      status: TaskStatus.PENDING,
+      assigned_to_id: "user-1",
+      created_by_id: "admin-1",
+      created_at: "2023-01-01T10:00:00Z",
+      updated_at: "2023-01-01T10:00:00Z",
+      category_id: "cat-1",
+    };
+
+    render(
+      <TaskForm
+        task={mockTask as any}
+        onSuccess={mockOnSuccess}
+        onCancel={mockOnCancel}
+      />,
+    );
+
+    expect(screen.getByLabelText(/Título \*/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Prioridade/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Atualizar tarefa/i }));
+
+    expect(mockUpdateMutate).toHaveBeenCalledWith(
+      {
+        id: "1",
+        data: {
+          title: "Old Title",
+          description: "Old Description",
+          priority: TaskPriority.LOW,
+          due_date: null,
+          assigned_to_id: "user-1",
+          category_id: "cat-1",
+          status: TaskStatus.PENDING,
+        },
+      },
+      expect.any(Object),
+    );
+  });
+
+  it("submits update payload for director editing with empty fields", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "director-1", role: UserRole.DIRECTOR },
+    } as any);
+
+    const mockTask = {
+      id: "1",
+      title: "Old Title",
+      description: "",
+      priority: TaskPriority.LOW,
+      status: TaskStatus.PENDING,
+      assigned_to_id: "",
+      created_by_id: "director-1",
+      created_at: new Date(),
+      updated_at: new Date(),
+      category_id: "cat-1",
+    };
+
+    render(
+      <TaskForm
+        task={mockTask as any}
+        onSuccess={mockOnSuccess}
+        onCancel={mockOnCancel}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Atualizar tarefa/i }));
+
+    expect(mockUpdateMutate).toHaveBeenCalledWith(
+      {
+        id: "1",
+        data: {
+          status: TaskStatus.PENDING,
+          description: null,
+          assigned_to_id: null,
+          category_id: "cat-1",
+        },
+      },
       expect.any(Object),
     );
   });

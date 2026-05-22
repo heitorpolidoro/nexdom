@@ -542,5 +542,14 @@ describe("TaskDashboard", () => {
 
     const assigneeSelect = screen.getByDisplayValue(/Todos os responsáveis|All assignees/i);
     fireEvent.change(assigneeSelect, { target: { value: "user-1" } });
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ assigned_to_id: "user-1" }),
+    );
+
+    // Clear assignee filter
+    fireEvent.change(assigneeSelect, { target: { value: "" } });
+    expect(useTasks).toHaveBeenLastCalledWith(
+      expect.objectContaining({ assigned_to_id: null }),
+    );
   });
 });

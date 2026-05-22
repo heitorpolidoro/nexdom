@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
+import { useTranslation } from "react-i18next";
 import TaskComments from "../TaskComments";
 import {
   useComments,
@@ -243,5 +244,33 @@ describe("TaskComments", () => {
     await waitFor(() => {
       expect(textarea).toHaveValue("");
     });
+  });
+
+  it("handles undefined user from useAuth", () => {
+    vi.mocked(useAuth).mockReturnValue({ user: undefined } as any);
+    render(<TaskComments taskId="task-1" />);
+    expect(screen.getByText("This is a comment")).toBeInTheDocument();
+  });
+
+  it("does not submit empty comment", () => {
+    render(<TaskComments taskId="task-1" />);
+    const textarea = screen.getByPlaceholderText(/Escreva um comentário/i);
+    const form = textarea.closest("form");
+    fireEvent.submit(form!);
+    expect(mockCreateMutate).not.toHaveBeenCalled();
+  });
+
+  it("formats date in English locale when language is not pt", () => {
+    vi.mocked(useTranslation).mockReturnValue({
+      t: (s: string) => s,
+      i18n: { language: "en", changeLanguage: vi.fn() },
+    } as any);
+
+    const toLocaleStringSpy = vi.spyOn(Date.prototype, "toLocaleString");
+
+    render(<TaskComments taskId="task-1" />);
+
+    expect(toLocaleStringSpy).toHaveBeenCalledWith("en-US");
+    toLocaleStringSpy.mockRestore();
   });
 });
