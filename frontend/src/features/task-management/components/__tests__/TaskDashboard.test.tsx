@@ -534,7 +534,7 @@ describe("TaskDashboard", () => {
     vi.mocked(useUsersHook.useAssignableUsers).mockReturnValue({
       data: [{ id: "user-1", full_name: "Alice", username: "alice", email: "", is_active: true, role: "DIRECTOR" }],
       isLoading: false,
-    } as any);
+    } as unknown as ReturnType<typeof useUsersHook.useAssignableUsers>);
 
     render(<TaskDashboard />);
 
