@@ -435,6 +435,37 @@ describe("TaskForm", () => {
     );
   });
 
+  it("shows title field for DIRECTOR when editing a task", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "director-1", role: UserRole.DIRECTOR },
+    } as any); // skipcq: JS-0323
+
+    const mockTask = {
+      id: "1",
+      title: "Old Title",
+      description: "Old Description",
+      priority: TaskPriority.LOW,
+      status: TaskStatus.PENDING,
+      assigned_to_id: "user-1",
+      created_by_id: "director-1",
+      created_at: new Date(),
+      updated_at: new Date(),
+      category_id: "cat-1",
+    };
+
+    render(
+      <TaskForm
+        task={mockTask as any} // skipcq: JS-0323
+        onSuccess={mockOnSuccess}
+        onCancel={mockOnCancel}
+      />,
+    );
+
+    expect(screen.getByLabelText(/Título \*/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Prioridade/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Data de entrega/i)).toBeInTheDocument();
+  });
+
   it("submits update payload for director editing", () => {
     vi.mocked(useAuth).mockReturnValue({
       user: { id: "director-1", role: UserRole.DIRECTOR },
@@ -461,9 +492,9 @@ describe("TaskForm", () => {
       />,
     );
 
-    expect(screen.queryByLabelText(/Título \*/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Prioridade/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Data de entrega/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/Título \*/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Prioridade/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Data de entrega/i)).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText(/Descrição/i), {
       target: { name: "description", value: "Updated Description" },
@@ -477,12 +508,14 @@ describe("TaskForm", () => {
     expect(mockUpdateMutate).toHaveBeenCalledWith(
       {
         id: "1",
-        data: {
+        data: expect.objectContaining({
           status: TaskStatus.COMPLETED,
           description: "Updated Description",
           assigned_to_id: "user-1",
           category_id: "cat-1",
-        },
+          title: "Old Title",
+          priority: TaskPriority.LOW,
+        }),
       },
       expect.any(Object),
     );
@@ -567,12 +600,14 @@ describe("TaskForm", () => {
     expect(mockUpdateMutate).toHaveBeenCalledWith(
       {
         id: "1",
-        data: {
+        data: expect.objectContaining({
           status: TaskStatus.PENDING,
           description: null,
           assigned_to_id: null,
           category_id: "cat-1",
-        },
+          title: "Old Title",
+          priority: TaskPriority.LOW,
+        }),
       },
       expect.any(Object),
     );
