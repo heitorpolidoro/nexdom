@@ -12,10 +12,6 @@ import { Select } from "../../../components/ui/select";
 import { Label } from "../../../components/ui/label";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { getStatusLabel } from "../utils/taskUtils";
-import {
-  useAuth,
-  UserRole,
-} from "../../user-administration/context/AuthContext";
 
 interface TaskFormProps {
   task?: TaskRead;
@@ -25,10 +21,7 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const isEditing = !!task;
-  const isDirector = user?.role === UserRole.DIRECTOR;
-  const directorEditing = isDirector && isEditing;
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
   const { data: users } = useAssignableUsers();
@@ -91,7 +84,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!directorEditing && !(formData.title as string).trim())
+    if (!(formData.title as string).trim())
       newErrors.title = t("tasks.form.titleRequired");
     if (!(formData.category_id as string))
       newErrors.category_id = t("tasks.form.categoryRequired");
@@ -115,14 +108,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     };
 
     if (isEditing && task) {
-      const updatePayload: TaskUpdate = directorEditing
-        ? {
-            status: formData.status as TaskStatus,
-            description: (formData.description as string) || null,
-            assigned_to_id: (formData.assigned_to_id as string) || null,
-            category_id: formData.category_id as string,
-          }
-        : { ...commonData, status: formData.status as TaskStatus };
+      const updatePayload: TaskUpdate = {
+        ...commonData,
+        status: formData.status as TaskStatus,
+      };
       updateTaskMutation.mutate(
         { id: task.id, data: updatePayload },
         { onSuccess },
@@ -155,8 +144,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {!directorEditing && (
-          <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
             <Label htmlFor="title">{t("tasks.form.titleLabel")}</Label>
             <Input
               id="title"
@@ -171,7 +159,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
               <p className="text-xs text-destructive">{errors.title}</p>
             )}
           </div>
-        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="description">
@@ -187,8 +174,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
           />
         </div>
 
-        {!directorEditing && (
-          <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
             <Label htmlFor="priority">{t("tasks.form.priorityLabel")}</Label>
             <Select
               id="priority"
@@ -204,7 +190,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
               ))}
             </Select>
           </div>
-        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="category_id">{t("tasks.form.categoryLabel")}</Label>
@@ -270,8 +255,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
           </p>
         </div>
 
-        {!directorEditing && (
-          <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
             <Label htmlFor="due_date">{t("tasks.form.dueDateLabel")}</Label>
             <Input
               type="date"
@@ -282,7 +266,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
               disabled={isLoading}
             />
           </div>
-        )}
 
         <div className="flex justify-end gap-3 pt-2 border-t">
           <Button
