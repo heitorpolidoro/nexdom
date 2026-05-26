@@ -6,7 +6,7 @@ from uuid import UUID
 from app.api import deps as api_deps
 from app.core.exceptions import ForbiddenError, TaskNotFoundError
 from app.db import get_session
-from app.models.enums import TaskPriority, TaskStatus, UserRole
+from app.models.enums import TaskPriority, TaskStatus
 from app.models.task import Task, TaskComment, TaskHistory
 from app.models.user import User
 from app.schemas.task import (TaskCommentCreate, TaskCommentRead,
@@ -23,9 +23,9 @@ router = APIRouter()
 def create_task(
     task_in: TaskCreate,
     session: Annotated[Session, Depends(get_session)],
-    current_user: Annotated[User, Depends(api_deps.get_current_active_director)],
+    current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> TaskRead:
-    """Create a new task. Only DIRECTOR can create tasks."""
+    """Create a new task. Any authenticated user can create tasks."""
     db_task = TaskService.create_task(
         session=session, task_in=task_in, created_by_id=current_user.id
     )
@@ -95,13 +95,7 @@ def update_task(
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
 
-    if current_user.role == UserRole.DIRECTOR:
-        _DIRECTOR_FIELDS = {"status", "description", "assigned_to_id", "category_id"}
-        attempted = set(task_in.model_dump(exclude_unset=True).keys())
-        if attempted - _DIRECTOR_FIELDS:
-            raise ForbiddenError(
-                f"Directors can only update: {', '.join(sorted(_DIRECTOR_FIELDS))}"
-            )
+    api_deps.assert_can_edit_task(current_user, db_task)
 
     updated_task = TaskService.update_task(
         session=session, db_task=db_task, task_in=task_in, current_user=current_user

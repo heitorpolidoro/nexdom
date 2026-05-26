@@ -74,17 +74,6 @@ def get_current_user(
     return user
 
 
-def get_current_active_director(
-    current_user: Annotated[User, Depends(get_current_user)],
-) -> User:
-    """Deprecated: kept temporarily so tasks.py imports don't break before Task 3."""
-    if current_user.role != UserRole.DIRECTOR:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="The user doesn't have enough privileges",
-        )
-    return current_user
-
 
 def get_current_active_admin(
     current_user: Annotated[User, Depends(get_current_user)],

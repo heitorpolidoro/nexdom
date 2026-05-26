@@ -177,26 +177,6 @@ class TestCreateComment:
         assert resp.status_code == 422
 
 
-class TestDirectorFieldRestriction:
-    """Tests for director field restriction on task updates."""
-
-    def test_director_cannot_update_title(
-        self,
-        client: TestClient,
-        admin_user: User,  # noqa: ARG002
-        normal_user: User,  # noqa: ARG002
-        task_id: str,
-    ):
-        """Director gets 403 when attempting to update restricted fields like title."""
-        token = _login(client, "user1", "test_user_password")
-        resp = client.patch(
-            f"/api/v1/tasks/{task_id}",
-            headers={"Authorization": f"Bearer {token}"},
-            json={"title": "Sneaky title change"},
-        )
-        assert resp.status_code == 403
-
-
 class TestUpdateComment:
     """Tests for PATCH /tasks/{task_id}/comments/{comment_id}."""
 

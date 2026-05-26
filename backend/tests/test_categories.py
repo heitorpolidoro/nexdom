@@ -244,6 +244,94 @@ def test_delete_category_not_found(client: TestClient, session: Session, admin_u
     assert "not found" in response.json()["detail"].lower()
 
 
+def test_director_can_create_category(client: TestClient, session: Session, normal_user, admin_user):
+    """DIRECTOR can create categories."""
+    resp = client.post(
+        "/api/v1/auth/login",
+        data={"username": "user1", "password": "test_user_password"},
+    )
+    token = resp.json()["access_token"]
+    resp = client.post(
+        "/api/v1/categories/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"name": "Dir Category", "color": "#ff0000"},
+    )
+    assert resp.status_code == 201
+
+
+def test_manager_cannot_create_category(client: TestClient, session: Session, admin_user):
+    """MANAGER gets 403 when trying to create a category."""
+    import uuid as _uuid
+    from app.core.security import get_password_hash
+    from app.models.enums import UserRole
+    from app.models.user import User
+    manager = User(
+        id=_uuid.uuid4(),
+        username="mgr_cat_test",
+        email="mgr_cat_test@test.com",
+        full_name="Manager Cat",
+        hashed_password=get_password_hash("pass"),
+        role=UserRole.MANAGER,
+    )
+    session.add(manager)
+    session.commit()
+
+    resp = client.post(
+        "/api/v1/auth/login",
+        data={"username": "mgr_cat_test", "password": "pass"},
+    )
+    token = resp.json()["access_token"]
+    resp = client.post(
+        "/api/v1/categories/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"name": "Manager Category", "color": "#ff0000"},
+    )
+    assert resp.status_code == 403
+
+
+def test_manager_cannot_update_category(client: TestClient, session: Session, admin_user):
+    """MANAGER gets 403 when trying to update a category."""
+    import uuid as _uuid
+    from app.core.security import get_password_hash
+    from app.models.enums import UserRole
+    from app.models.user import User
+    manager = User(
+        id=_uuid.uuid4(),
+        username="mgr_cat_upd",
+        email="mgr_cat_upd@test.com",
+        full_name="Manager Cat Upd",
+        hashed_password=get_password_hash("pass"),
+        role=UserRole.MANAGER,
+    )
+    session.add(manager)
+    session.commit()
+
+    # Admin creates a category first
+    resp = client.post(
+        "/api/v1/auth/login",
+        data={"username": "admin", "password": "test_admin_password"},
+    )
+    admin_token = resp.json()["access_token"]
+    cat_resp = client.post(
+        "/api/v1/categories/",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"name": "Protected Cat", "color": "#ff0000"},
+    )
+    cat_id = cat_resp.json()["id"]
+
+    resp = client.post(
+        "/api/v1/auth/login",
+        data={"username": "mgr_cat_upd", "password": "pass"},
+    )
+    token = resp.json()["access_token"]
+    resp = client.patch(
+        f"/api/v1/categories/{cat_id}",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"name": "Hacked"},
+    )
+    assert resp.status_code == 403
+
+
 def test_list_categories_excludes_deactivated(client: TestClient, session: Session, admin_user, default_category: Category):
     token = get_token(client, "admin", "test_admin_password")
 

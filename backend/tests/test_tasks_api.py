@@ -37,18 +37,6 @@ def test_create_task_validation_error(
     assert response.status_code == 422
 
 
-def test_non_director_cannot_create_task(
-    client: TestClient, session: Session, admin_user, normal_user, default_category
-):
-    """Non-director (admin) gets 403 when trying to create a task."""
-    token = get_token(client, "admin", "test_admin_password")
-    response = client.post(
-        "/api/v1/tasks/",
-        headers={"Authorization": f"Bearer {token}"},
-        json={"title": "Admin Task", "category_id": str(default_category.id)},
-    )
-    assert response.status_code == 403
-
 
 def test_update_task_validation_error(
     client: TestClient, session: Session, admin_user, normal_user, default_category

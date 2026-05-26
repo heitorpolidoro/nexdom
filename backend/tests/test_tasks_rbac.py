@@ -173,3 +173,144 @@ def test_assert_can_edit_task_manager_other_user_raises(session: Session, test_d
     session.commit()
     with pytest.raises(ForbiddenError):
         assert_can_edit_task(manager, task)
+
+
+@pytest.fixture(name="manager_user")
+def manager_user_fixture(session: Session):
+    """Create and persist a MANAGER user for RBAC tests."""
+    import uuid as _uuid
+    from app.core.security import get_password_hash
+    manager = User(
+        id=_uuid.uuid4(),
+        username="manager_rbac",
+        email="manager_rbac@test.com",
+        full_name="Manager Test",
+        hashed_password=get_password_hash("pass"),
+        role=UserRole.MANAGER,
+    )
+    session.add(manager)
+    session.commit()
+    return manager
+
+
+def test_manager_can_create_task(client: TestClient, session: Session, test_data, manager_user):
+    """MANAGER can create tasks."""
+    token = get_token(client, "manager_rbac", "pass")
+    response = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"title": "Manager Task", "category_id": str(test_data["category"].id)},
+    )
+    assert response.status_code == 200
+
+
+def test_admin_can_create_task(client: TestClient, session: Session, test_data):
+    """ADMINISTRATOR can create tasks."""
+    token = get_token(client, "admin_rbac", "pass")
+    response = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"title": "Admin Task", "category_id": str(test_data["category"].id)},
+    )
+    assert response.status_code == 200
+
+
+def test_manager_cannot_edit_other_assigned_task(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """MANAGER gets 403 when editing a task assigned to another user."""
+    dir_token = get_token(client, "director_rbac", "pass")
+    mgr_token = get_token(client, "manager_rbac", "pass")
+    category_id = str(test_data["category"].id)
+
+    resp = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {dir_token}"},
+        json={
+            "title": "Director Task",
+            "category_id": category_id,
+            "assigned_to_id": str(test_data["director"].id),
+        },
+    )
+    assert resp.status_code == 200
+    task_id = resp.json()["id"]
+
+    resp = client.patch(
+        f"/api/v1/tasks/{task_id}",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+        json={"status": "IN_PROGRESS"},
+    )
+    assert resp.status_code == 403
+
+
+def test_manager_can_edit_self_assigned_task(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """MANAGER can edit a task assigned to themselves."""
+    dir_token = get_token(client, "director_rbac", "pass")
+    mgr_token = get_token(client, "manager_rbac", "pass")
+    category_id = str(test_data["category"].id)
+
+    resp = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {dir_token}"},
+        json={
+            "title": "Manager Own Task",
+            "category_id": category_id,
+            "assigned_to_id": str(manager_user.id),
+        },
+    )
+    assert resp.status_code == 200
+    task_id = resp.json()["id"]
+
+    resp = client.patch(
+        f"/api/v1/tasks/{task_id}",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+        json={"status": "IN_PROGRESS"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "IN_PROGRESS"
+
+
+def test_manager_can_edit_unassigned_task(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """MANAGER can edit a task with no assignee."""
+    dir_token = get_token(client, "director_rbac", "pass")
+    mgr_token = get_token(client, "manager_rbac", "pass")
+
+    resp = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {dir_token}"},
+        json={"title": "Unassigned Task", "category_id": str(test_data["category"].id)},
+    )
+    assert resp.status_code == 200
+    task_id = resp.json()["id"]
+
+    resp = client.patch(
+        f"/api/v1/tasks/{task_id}",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+        json={"status": "IN_PROGRESS"},
+    )
+    assert resp.status_code == 200
+
+
+def test_manager_cannot_delete_task(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """MANAGER gets 403 when trying to delete a task."""
+    dir_token = get_token(client, "director_rbac", "pass")
+    mgr_token = get_token(client, "manager_rbac", "pass")
+
+    resp = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {dir_token}"},
+        json={"title": "Task To Delete", "category_id": str(test_data["category"].id)},
+    )
+    task_id = resp.json()["id"]
+
+    resp = client.delete(
+        f"/api/v1/tasks/{task_id}",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+    )
+    assert resp.status_code == 403
