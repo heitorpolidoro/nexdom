@@ -7,6 +7,7 @@ import {
   useUpdateCategory,
   useDeleteCategory,
 } from "../../hooks/useCategories";
+import { useAuth, UserRole } from "../../../user-administration/context/AuthContext";
 
 vi.mock("../../hooks/useCategories", () => ({
   useCategories: vi.fn(),
@@ -14,6 +15,21 @@ vi.mock("../../hooks/useCategories", () => ({
   useUpdateCategory: vi.fn(),
   useDeleteCategory: vi.fn(),
 }));
+
+vi.mock(
+  "../../../user-administration/context/AuthContext",
+  async () => {
+    const actual = await vi.importActual<
+      typeof import("../../../user-administration/context/AuthContext")
+    >("../../../user-administration/context/AuthContext");
+    return {
+      ...actual,
+      useAuth: vi.fn(() => ({
+        user: { id: "admin-1", role: actual.UserRole.ADMINISTRATOR },
+      })),
+    };
+  },
+);
 
 const mockCategories = [
   { id: "cat-1", name: "General", color: "#808080", is_active: true },
@@ -310,5 +326,30 @@ describe("CategoriesPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Erro ao excluir categoria.")).toBeInTheDocument();
     });
+  });
+
+  it("MANAGER user does not see the New Category button", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "manager-1", role: UserRole.MANAGER },
+    } as any); // skipcq: JS-0323
+    render(<CategoriesPage />);
+    expect(screen.queryByRole("button", { name: /Nova Categoria/i })).not.toBeInTheDocument();
+  });
+
+  it("ADMINISTRATOR user sees the New Category button", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
+    } as any); // skipcq: JS-0323
+    render(<CategoriesPage />);
+    expect(screen.getByRole("button", { name: /Nova Categoria/i })).toBeInTheDocument();
+  });
+
+  it("MANAGER user does not see edit/delete buttons in category list", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "manager-1", role: UserRole.MANAGER },
+    } as any); // skipcq: JS-0323
+    render(<CategoriesPage />);
+    expect(document.querySelectorAll("svg.lucide-pencil")).toHaveLength(0);
+    expect(document.querySelectorAll("svg.lucide-trash-2")).toHaveLength(0);
   });
 });

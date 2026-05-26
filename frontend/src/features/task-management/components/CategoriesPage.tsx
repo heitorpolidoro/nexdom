@@ -11,6 +11,7 @@ import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
 import type { CategoryRead } from "../types";
+import { useAuth, UserRole } from "../../user-administration/context/AuthContext";
 
 interface ApiError extends Error {
   response?: { data?: { detail?: string } };
@@ -64,6 +65,9 @@ const CategoriesPage: React.FC = () => {
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
+
+  const { user } = useAuth();
+  const canWrite = user?.role === UserRole.ADMINISTRATOR || user?.role === UserRole.DIRECTOR;
 
   const [newName, setNewName] = useState("");
   const [newColor, setNewColor] = useState("#6366f1");
@@ -133,7 +137,7 @@ const CategoriesPage: React.FC = () => {
     return (
       <ul className="flex flex-col gap-2">
         {categories.map((cat) => {
-          if (editState?.id === cat.id) {
+          if (editState?.id === cat.id && canWrite) {
             const edit = editState;
             return (
               <li key={cat.id} className="rounded-lg border bg-card p-4">
@@ -171,7 +175,7 @@ const CategoriesPage: React.FC = () => {
             );
           }
 
-          if (confirmDeleteId === cat.id) {
+          if (confirmDeleteId === cat.id && canWrite) {
             return (
               <li
                 key={cat.id}
@@ -214,24 +218,26 @@ const CategoriesPage: React.FC = () => {
                 />
                 <span className="text-sm font-medium">{cat.name}</span>
               </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => startEdit(cat)}
-                  className="px-2"
-                >
-                  <Pencil className="size-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setConfirmDeleteId(cat.id)}
-                  className="px-2 text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="size-3.5" />
-                </Button>
-              </div>
+              {canWrite && (
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => startEdit(cat)}
+                    className="px-2"
+                  >
+                    <Pencil className="size-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setConfirmDeleteId(cat.id)}
+                    className="px-2 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
+              )}
             </li>
           );
         })}
@@ -245,7 +251,7 @@ const CategoriesPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-foreground">
           {t("categories.title")}
         </h1>
-        {!showForm && (
+        {canWrite && !showForm && (
           <Button onClick={() => { setShowForm(true); setEditState(null); }}>
             <Plus className="size-4" />
             {t("categories.newCategory")}
@@ -259,7 +265,7 @@ const CategoriesPage: React.FC = () => {
         </Alert>
       )}
 
-      {showForm && (
+      {canWrite && showForm && (
         <form
           onSubmit={handleCreate}
           className="mb-6 p-4 rounded-lg border bg-card flex flex-col gap-3"
