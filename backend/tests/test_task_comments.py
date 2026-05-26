@@ -334,3 +334,24 @@ def test_history_resolves_assigned_to_id(
     assert entry["resolved_new_value"]["role"] == "DIRECTOR"
     # old_value was None (unassigned before)
     assert entry["resolved_old_value"] is None
+
+
+class TestResolveUser:
+    """Unit tests for TaskService._resolve_user edge cases."""
+
+    def test_resolve_user_invalid_uuid_returns_none(self, session: Session):
+        """Non-UUID strings (e.g. corrupted history) return None gracefully."""
+        from app.services.task_service import TaskService
+
+        result = TaskService._resolve_user(session, "not-a-uuid")
+        assert result is None
+
+    def test_resolve_user_deleted_user_returns_none(self, session: Session):
+        """If the UUID is valid but the user no longer exists, return None."""
+        import uuid as _uuid
+
+        from app.services.task_service import TaskService
+
+        ghost_id = str(_uuid.uuid4())
+        result = TaskService._resolve_user(session, ghost_id)
+        assert result is None

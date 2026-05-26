@@ -183,6 +183,27 @@ def seed_db() -> None:
             },
         ]
 
+        tasks_data += [
+            {
+                "title": "Controle de Estoque",
+                "description": "Atualizar planilha de controle de materiais do almoxarifado.",
+                "status": TaskStatus.PENDING,
+                "priority": TaskPriority.MEDIUM,
+                "assigned_to_id": manager.id,
+                "due_date": now + timedelta(days=4),
+                "category_id": categories["Operacional"].id,
+            },
+            {
+                "title": "Relatório de Equipe",
+                "description": "Compilar métricas de desempenho da equipe operacional.",
+                "status": TaskStatus.IN_PROGRESS,
+                "priority": TaskPriority.HIGH,
+                "assigned_to_id": manager.id,
+                "due_date": now + timedelta(days=2),
+                "category_id": categories["RH"].id,
+            },
+        ]
+
         for t_data in tasks_data:
             task = Task(
                 title=t_data["title"],
