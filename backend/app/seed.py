@@ -84,8 +84,18 @@ def seed_db() -> None:
             session.add(user)
             diretores.append(user)
 
+        manager = User(
+            id=uuid.UUID("33333333-3333-3333-3333-333333333333"),
+            username="gerente1",
+            email="gerente1@sigecon.com",
+            hashed_password=get_password_hash("test_user_password"),
+            full_name="Gerente Operacional",
+            role=UserRole.MANAGER,
+            is_active=True,
+        )
+        session.add(manager)
         session.commit()
-        print(f"✅ {1 + len(diretores)} usuários criados.")
+        print(f"✅ {1 + len(diretores) + 1} usuários criados.")
 
         # 4. Tarefas
         now = datetime.now()

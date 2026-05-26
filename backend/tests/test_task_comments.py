@@ -280,3 +280,57 @@ class TestUpdateComment:
             json={"content": "Updated"},
         )
         assert resp.status_code == 401
+
+
+def test_history_resolves_assigned_to_id(
+    client: TestClient, session: Session, normal_user, admin_user, default_category
+):
+    """GET /tasks/{id}/history enriches assigned_to_id entries with resolved name+role."""
+
+    def get_token_local(username, password):
+        resp = client.post(
+            "/api/v1/auth/login",
+            data={"username": username, "password": password},
+        )
+        return resp.json()["access_token"]
+
+    dir_token = get_token_local("user1", "test_user_password")
+    admin_token = get_token_local("admin", "test_admin_password")
+
+    # Create a task (any authenticated user can create now)
+    resp = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {dir_token}"},
+        json={"title": "History Test Task", "category_id": str(default_category.id)},
+    )
+    assert resp.status_code == 200
+    task_id = resp.json()["id"]
+
+    # Assign it to normal_user — creates a history entry with assigned_to_id
+    resp = client.patch(
+        f"/api/v1/tasks/{task_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"assigned_to_id": str(normal_user.id)},
+    )
+    assert resp.status_code == 200
+
+    # Get history
+    resp = client.get(
+        f"/api/v1/tasks/{task_id}/history",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert resp.status_code == 200
+    history = resp.json()
+
+    assigned_entries = [e for e in history if e["field_name"] == "assigned_to_id"]
+    assert len(assigned_entries) > 0
+    entry = assigned_entries[0]
+
+    # new_value is still the raw UUID string
+    assert entry["new_value"] == str(normal_user.id)
+    # resolved_new_value has name and role
+    assert entry["resolved_new_value"] is not None
+    assert entry["resolved_new_value"]["name"] == normal_user.full_name
+    assert entry["resolved_new_value"]["role"] == "DIRECTOR"
+    # old_value was None (unassigned before)
+    assert entry["resolved_old_value"] is None
