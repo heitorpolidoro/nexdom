@@ -118,7 +118,7 @@ describe("AdminUserDashboard", () => {
       expect(screen.getByText("User One")).toBeDefined();
     });
 
-    const select = screen.getByRole("combobox");
+    const select = screen.getByRole("combobox", { name: /Filtrar por status/i });
     fireEvent.change(select, { target: { value: "active" } });
 
     await waitFor(() => {
@@ -137,7 +137,7 @@ describe("AdminUserDashboard", () => {
       expect(screen.getByText("User One")).toBeDefined();
     });
 
-    const select = screen.getByRole("combobox");
+    const select = screen.getByRole("combobox", { name: /Filtrar por status/i });
     fireEvent.change(select, { target: { value: "inactive" } });
 
     await waitFor(() => {
@@ -191,7 +191,7 @@ describe("AdminUserDashboard", () => {
     });
   });
 
-  it("changes user role", async () => {
+  it("changes user role via select", async () => {
     (apiClient.get as any).mockResolvedValue({ data: mockUsers });
     (apiClient.patch as any).mockResolvedValue({
       data: { ...mockUsers[0], role: UserRole.ADMINISTRATOR },
@@ -203,8 +203,8 @@ describe("AdminUserDashboard", () => {
       expect(screen.getByText("User One")).toBeDefined();
     });
 
-    const administradorButton = screen.getByText("Mudar p/ Admin");
-    fireEvent.click(administradorButton);
+    const roleSelects = screen.getAllByRole("combobox", { name: "Cargo" });
+    fireEvent.change(roleSelects[0], { target: { value: UserRole.ADMINISTRATOR } });
 
     await waitFor(() => {
       expect(apiClient.patch).toHaveBeenCalledWith("/users/user-1", {
@@ -213,7 +213,7 @@ describe("AdminUserDashboard", () => {
     });
   });
 
-  it("changes ADMINISTRATOR user role to DIRECTOR", async () => {
+  it("changes ADMINISTRATOR user role to DIRECTOR via select", async () => {
     (apiClient.get as any).mockResolvedValue({ data: mockUsers });
     (apiClient.patch as any).mockResolvedValue({
       data: { ...mockUsers[1], role: UserRole.DIRECTOR },
@@ -225,8 +225,8 @@ describe("AdminUserDashboard", () => {
       expect(screen.getByText("User Two")).toBeDefined();
     });
 
-    const diretorButton = screen.getByText("Mudar p/ Diretor");
-    fireEvent.click(diretorButton);
+    const roleSelects = screen.getAllByRole("combobox", { name: "Cargo" });
+    fireEvent.change(roleSelects[1], { target: { value: UserRole.DIRECTOR } });
 
     await waitFor(() => {
       expect(apiClient.patch).toHaveBeenCalledWith("/users/user-2", {
@@ -266,8 +266,10 @@ describe("AdminUserDashboard", () => {
       expect(screen.getByText("Admin User")).toBeDefined();
     });
 
-    const mudarButtons = screen.getAllByText(/Mudar p\//i);
-    fireEvent.click(mudarButtons[0]);
+    // The current user's role select is disabled, but we can still trigger handleRoleSelect
+    // by forcing a change event on it
+    const roleSelects = screen.getAllByRole("combobox", { name: "Cargo" });
+    fireEvent.change(roleSelects[0], { target: { value: UserRole.DIRECTOR } });
 
     await waitFor(() => {
       expect(
@@ -637,8 +639,13 @@ describe("AdminUserDashboard", () => {
 
     fireEvent.click(screen.getAllByText("Editar")[0]);
 
+    // The type select inside the modal does not have an aria-label="Cargo", so
+    // we grab the last combobox that is NOT a role select (aria-label Cargo)
     const selects = screen.getAllByRole("combobox");
-    const typeSelect = selects[selects.length - 1];
+    const nonRoleSelects = selects.filter(
+      (s) => (s as HTMLSelectElement).getAttribute("aria-label") !== "Cargo",
+    );
+    const typeSelect = nonRoleSelects[nonRoleSelects.length - 1];
     fireEvent.change(typeSelect, { target: { value: "type-1" } });
     expect((typeSelect as HTMLSelectElement).value).toBe("type-1");
   });
@@ -685,6 +692,34 @@ describe("AdminUserDashboard", () => {
     });
   });
 
+  // ── Role select ─────────────────────────────────────────────────────────
+
+  it("renders a role select for each user in the table", async () => {
+    (apiClient.get as any).mockResolvedValue({ data: mockUsers });
+
+    render(<AdminUserDashboard />, { wrapper: createWrapper() });
+
+    await waitFor(() => expect(screen.getByText("User One")).toBeDefined());
+
+    const roleSelects = screen.getAllByRole("combobox", { name: "Cargo" });
+    expect(roleSelects).toHaveLength(mockUsers.length);
+  });
+
+  it("role select shows 3 options: Administrator, Director, Manager", async () => {
+    (apiClient.get as any).mockResolvedValue({ data: mockUsers });
+
+    render(<AdminUserDashboard />, { wrapper: createWrapper() });
+
+    await waitFor(() => expect(screen.getByText("User One")).toBeDefined());
+
+    const roleSelects = screen.getAllByRole("combobox", { name: "Cargo" });
+    const firstSelect = roleSelects[0] as HTMLSelectElement;
+    expect(firstSelect.options).toHaveLength(3);
+    expect(firstSelect.options[0].value).toBe(UserRole.ADMINISTRATOR);
+    expect(firstSelect.options[1].value).toBe(UserRole.DIRECTOR);
+    expect(firstSelect.options[2].value).toBe(UserRole.MANAGER);
+  });
+
   it("pre-fills type_id when user has a type", async () => {
     const userWithType = { ...mockUsers[0], type: { id: "type-1", name: "Manager" } };
     (apiClient.get as any).mockImplementation((url: string) => {
@@ -699,7 +734,10 @@ describe("AdminUserDashboard", () => {
     fireEvent.click(screen.getAllByText("Editar")[0]);
 
     const selects = screen.getAllByRole("combobox");
-    const typeSelect = selects[selects.length - 1];
+    const nonRoleSelects = selects.filter(
+      (s) => (s as HTMLSelectElement).getAttribute("aria-label") !== "Cargo",
+    );
+    const typeSelect = nonRoleSelects[nonRoleSelects.length - 1];
     expect((typeSelect as HTMLSelectElement).value).toBe("type-1");
   });
 });

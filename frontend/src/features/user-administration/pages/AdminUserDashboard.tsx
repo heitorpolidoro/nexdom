@@ -112,15 +112,11 @@ const AdminUserDashboard: React.FC = () => {
     });
   };
 
-  const handleRoleChange = (user: User) => {
+  const handleRoleSelect = (user: User, newRole: UserRole) => {
     if (user.id === currentUser?.id) {
       setActionError(t("admin.cannotChangeOwnRole"));
       return;
     }
-    const newRole =
-      user.role === UserRole.ADMINISTRATOR
-        ? UserRole.DIRECTOR
-        : UserRole.ADMINISTRATOR;
     updateUserMutation.mutate({ userId: user.id, data: { role: newRole } });
   };
 
@@ -332,15 +328,17 @@ const AdminUserDashboard: React.FC = () => {
                           ? t("admin.deactivate")
                           : t("admin.approve")}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRoleChange(user)}
+                      <Select
+                        aria-label={t("admin.colRole")}
+                        value={user.role}
+                        onChange={(e) => handleRoleSelect(user, e.target.value as UserRole)}
+                        className="h-8 text-sm w-36"
+                        disabled={user.id === currentUser?.id || updateUserMutation.isPending}
                       >
-                        {user.role === UserRole.ADMINISTRATOR
-                          ? t("admin.makeDirector")
-                          : t("admin.makeAdministrator")}
-                      </Button>
+                        <option value={UserRole.ADMINISTRATOR}>{t("roles.ADMINISTRATOR")}</option>
+                        <option value={UserRole.DIRECTOR}>{t("roles.DIRECTOR")}</option>
+                        <option value={UserRole.MANAGER}>{t("roles.MANAGER")}</option>
+                      </Select>
                     </div>
                   </td>
                 </tr>

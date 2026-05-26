@@ -57,6 +57,11 @@
     "validationError": "Erro de validação: {{messages}}",
     "genericError": "Ocorreu um erro ao realizar o cadastro. Tente novamente mais tarde."
   },
+  "roles": {
+    "ADMINISTRATOR": "Administrador",
+    "DIRECTOR": "Diretor",
+    "MANAGER": "Gerente"
+  },
   "admin": {
     "title": "Gerenciamento de Usuários",
     "backToDashboard": "Voltar ao Dashboard",
