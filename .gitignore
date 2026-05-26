@@ -115,3 +115,4 @@ test-results.xml
 .github/workflows/gemini-*.yml
 gha-creds-*.json
 .vercel
+.worktrees/
