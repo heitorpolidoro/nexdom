@@ -9,6 +9,12 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 
+def test_manager_role_value_exists():
+    """MANAGER must exist as a valid UserRole value."""
+    from app.models.enums import UserRole
+    assert UserRole.MANAGER == "MANAGER"
+
+
 @pytest.fixture(name="test_data")
 def test_data_fixture(session: Session):
     admin = User(
