@@ -57,6 +57,11 @@
     "validationError": "Validation error: {{messages}}",
     "genericError": "An error occurred during sign up. Please try again later."
   },
+  "roles": {
+    "ADMINISTRATOR": "Administrator",
+    "DIRECTOR": "Director",
+    "MANAGER": "Manager"
+  },
   "admin": {
     "title": "User Management",
     "backToDashboard": "Back to Dashboard",
