@@ -307,6 +307,53 @@ describe("AuditTimeline", () => {
     expect(screen.getByText("Jane Smith")).toBeInTheDocument();
   });
 
+  it("renders when history data is undefined (count defaults to 0)", () => {
+    // Covers the `history?.length ?? 0` fallback branch (line 56)
+    vi.mocked(useTaskHistory).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    render(<AuditTimeline taskId="test-id" />);
+
+    // Button renders with no count badge (count === 0)
+    expect(
+      screen.getByRole("button", { name: /histórico de alterações/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/\(\d+\)/)).not.toBeInTheDocument();
+  });
+
+  it("falls back to raw new_value when resolved_new_value is null for assigned_to_id", () => {
+    // Covers the `entry.new_value` branch of the ternary on line 38
+    vi.mocked(useTaskHistory).mockReturnValue({
+      data: [
+        {
+          id: "3",
+          task_id: "test-id",
+          user_name: "Admin",
+          field_name: "assigned_to_id",
+          old_value: null,
+          new_value: "ghost-uuid",
+          timestamp: "2023-10-27T10:00:00Z",
+          changed_by_id: "admin-1",
+          resolved_old_value: null,
+          resolved_new_value: null,
+        },
+      ],
+      isLoading: false,
+    } as any);
+
+    render(<AuditTimeline taskId="test-id" />);
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
+    fireEvent.click(toggleBtn);
+
+    // Both resolved values are null → falls back to raw value display
+    expect(screen.getByText("ghost-uuid")).toBeInTheDocument();
+  });
+
   it("displays resolved name and role for assigned_to_id entries", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       data: [
