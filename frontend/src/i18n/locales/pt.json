@@ -198,5 +198,10 @@
       "none": "Nenhum",
       "emptyValue": "Vazio"
     }
+  },
+  "roles": {
+    "ADMINISTRATOR": "Administrador",
+    "DIRECTOR": "Diretor",
+    "MANAGER": "Gerente"
   }
 }
