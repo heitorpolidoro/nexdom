@@ -5,6 +5,8 @@ import { useTaskHistory } from "../../hooks/useTasks";
 import { useTranslation } from "react-i18next";
 import ptData from "../../../../i18n/locales/pt.json";
 
+type MockTaskHistory = ReturnType<typeof useTaskHistory>;
+
 // Mock hooks
 vi.mock("../../hooks/useTasks", () => ({
   useTaskHistory: vi.fn(),
@@ -29,14 +31,14 @@ describe("AuditTimeline", () => {
         return value || key;
       },
       i18n: { language: "pt", changeLanguage: vi.fn() },
-    } as any);
+    } as unknown as MockTaskHistory);
   });
 
   it("renders loading state", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       isLoading: true,
       error: null,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
     expect(screen.getByText(/Carregando histórico.../i)).toBeInTheDocument();
@@ -46,7 +48,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       isLoading: false,
       error: new Error("Fetch error"),
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
     expect(
@@ -58,7 +60,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       data: [],
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -89,7 +91,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       data: mockHistory,
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -121,7 +123,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       data: mockHistory,
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -151,7 +153,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       data: mockHistory,
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -165,7 +167,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTranslation).mockReturnValue({
       t: (s: string) => s,
       i18n: { language: "en" },
-    } as any);
+    } as unknown as MockTaskHistory);
 
     const mockHistory = [
       {
@@ -185,7 +187,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       data: mockHistory,
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -217,7 +219,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTaskHistory).mockReturnValue({
       data: mockHistory,
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -244,7 +246,7 @@ describe("AuditTimeline", () => {
         },
       ],
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -271,7 +273,7 @@ describe("AuditTimeline", () => {
         },
       ],
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -297,7 +299,7 @@ describe("AuditTimeline", () => {
         },
       ],
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -313,7 +315,7 @@ describe("AuditTimeline", () => {
       data: undefined,
       isLoading: false,
       error: null,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
 
@@ -342,7 +344,7 @@ describe("AuditTimeline", () => {
         },
       ],
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
     const toggleBtn = screen.getByRole("button", {
@@ -371,7 +373,7 @@ describe("AuditTimeline", () => {
         },
       ],
       isLoading: false,
-    } as any);
+    } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
     const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
