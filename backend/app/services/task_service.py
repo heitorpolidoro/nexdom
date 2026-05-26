@@ -52,7 +52,12 @@ class TaskService:
 
     @staticmethod
     def get_history(session: Session, task_id: UUID) -> list[dict[str, Any]]:
-        """Retrieve the audit history for a task."""
+        """Retrieve the audit history for a task.
+
+        For entries where field_name == 'assigned_to_id', the old_value and
+        new_value (UUID strings) are resolved to {name, role} dicts in
+        resolved_old_value and resolved_new_value respectively.
+        """
         from app.models.user import User
 
         statement = (
@@ -66,8 +71,31 @@ class TaskService:
         for history, user in results:
             item = history.model_dump()
             item["user_name"] = user.full_name or user.username
+            if history.field_name == "assigned_to_id":
+                item["resolved_old_value"] = TaskService._resolve_user(
+                    session, history.old_value
+                )
+                item["resolved_new_value"] = TaskService._resolve_user(
+                    session, history.new_value
+                )
             history_list.append(item)
         return history_list
+
+    @staticmethod
+    def _resolve_user(session: Session, user_id_str: str | None) -> dict | None:
+        """Look up a user by UUID string and return {name, role}, or None."""
+        if user_id_str is None or user_id_str == "null":
+            return None
+        from app.models.user import User
+        import uuid as _uuid
+        try:
+            uid = _uuid.UUID(user_id_str)
+        except ValueError:
+            return None
+        u = session.get(User, uid)
+        if u is None:
+            return None
+        return {"name": u.full_name or u.username, "role": str(u.role)}
 
     @staticmethod
     def delete_task(session: Session, db_task: Task, changed_by_id: UUID) -> None:

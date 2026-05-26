@@ -87,5 +87,7 @@ class TaskHistoryRead(BaseModel):
     old_value: str | None = None
     new_value: str | None = None
     timestamp: datetime
+    resolved_old_value: dict | None = None
+    resolved_new_value: dict | None = None
 
     model_config = ConfigDict(from_attributes=True)
