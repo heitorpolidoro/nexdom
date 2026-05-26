@@ -95,3 +95,81 @@ def test_rbac_task_workflow(client: TestClient, session: Session, test_data):
         headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert response.status_code == 204
+
+
+def test_assert_can_edit_task_allows_admin(session: Session, test_data):
+    """ADMINISTRATOR can always edit any task, even one assigned to someone else."""
+    from app.api.deps import assert_can_edit_task
+    from app.models.task import Task
+    admin = test_data["admin"]
+    task = Task(
+        title="T",
+        category_id=test_data["category"].id,
+        created_by_id=admin.id,
+        assigned_to_id=test_data["director"].id,
+    )
+    session.add(task)
+    session.commit()
+    # Should not raise
+    assert_can_edit_task(admin, task)
+
+
+def test_assert_can_edit_task_manager_unassigned(session: Session, test_data):
+    """MANAGER can edit tasks with no assignee."""
+    import uuid as _uuid
+    from app.api.deps import assert_can_edit_task
+    from app.core.security import get_password_hash
+    from app.models.enums import UserRole
+    from app.models.task import Task
+    from app.models.user import User
+    manager = User(
+        id=_uuid.uuid4(),
+        username="mgr_tmp",
+        email="mgr_tmp@test.com",
+        full_name="Manager Tmp",
+        hashed_password=get_password_hash("pass"),
+        role=UserRole.MANAGER,
+    )
+    session.add(manager)
+    session.commit()
+    task = Task(
+        title="T",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        assigned_to_id=None,
+    )
+    session.add(task)
+    session.commit()
+    assert_can_edit_task(manager, task)  # should not raise
+
+
+def test_assert_can_edit_task_manager_other_user_raises(session: Session, test_data):
+    """MANAGER cannot edit tasks assigned to someone else."""
+    import uuid as _uuid
+    import pytest
+    from app.api.deps import assert_can_edit_task
+    from app.core.exceptions import ForbiddenError
+    from app.core.security import get_password_hash
+    from app.models.enums import UserRole
+    from app.models.task import Task
+    from app.models.user import User
+    manager = User(
+        id=_uuid.uuid4(),
+        username="mgr_tmp2",
+        email="mgr_tmp2@test.com",
+        full_name="Manager Tmp2",
+        hashed_password=get_password_hash("pass"),
+        role=UserRole.MANAGER,
+    )
+    session.add(manager)
+    session.commit()
+    task = Task(
+        title="T",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        assigned_to_id=test_data["director"].id,  # assigned to director, not manager
+    )
+    session.add(task)
+    session.commit()
+    with pytest.raises(ForbiddenError):
+        assert_can_edit_task(manager, task)

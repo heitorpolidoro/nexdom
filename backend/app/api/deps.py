@@ -6,8 +6,10 @@ import uuid
 from typing import Annotated
 
 from app.core.config import settings
+from app.core.exceptions import ForbiddenError
 from app.db import get_session
 from app.models.enums import UserRole
+from app.models.task import Task
 from app.models.user import User
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -35,7 +37,6 @@ def get_current_user(
     Raises:
         HTTPException: If token is invalid, expired, or user not found.
     """
-    # Try all available secret keys for rotation support
     all_keys = [settings.SECRET_KEY, *settings.SECRET_KEYS]
     payload = None
 
@@ -76,7 +77,7 @@ def get_current_user(
 def get_current_active_director(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
-    """Verify the current user has the DIRECTOR role."""
+    """Deprecated: kept temporarily so tasks.py imports don't break before Task 3."""
     if current_user.role != UserRole.DIRECTOR:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -106,3 +107,23 @@ def get_current_active_admin(
             detail="The user doesn't have enough privileges",
         )
     return current_user
+
+
+def assert_can_edit_task(current_user: User, task: Task) -> None:
+    """Raise ForbiddenError if MANAGER tries to edit a task not assigned to them.
+
+    ADMINISTRATOR and DIRECTOR may edit any task.
+    MANAGER may only edit tasks that are unassigned or assigned to themselves.
+
+    Args:
+        current_user: The authenticated user making the request.
+        task: The task being edited.
+
+    Raises:
+        ForbiddenError: If a MANAGER attempts to edit a task assigned to another user.
+    """
+    if current_user.role == UserRole.MANAGER:
+        if task.assigned_to_id is not None and task.assigned_to_id != current_user.id:
+            raise ForbiddenError(
+                "Managers can only edit unassigned or self-assigned tasks"
+            )

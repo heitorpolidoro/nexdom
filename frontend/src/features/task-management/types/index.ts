@@ -129,6 +129,10 @@ export interface TaskHistoryRead {
   new_value: string | null;
   /** When the change occurred. */
   timestamp: Date | string;
+  /** Resolved user info for assigned_to_id old value. */
+  resolved_old_value: { name: string; role: string } | null;
+  /** Resolved user info for assigned_to_id new value. */
+  resolved_new_value: { name: string; role: string } | null;
 }
 
 /**

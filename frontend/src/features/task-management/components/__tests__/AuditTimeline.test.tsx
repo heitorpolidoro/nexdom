@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import AuditTimeline from "../AuditTimeline";
 import { useTaskHistory } from "../../hooks/useTasks";
@@ -61,6 +61,10 @@ describe("AuditTimeline", () => {
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
+
+    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    fireEvent.click(toggleBtn);
+
     expect(
       screen.getByText(/Nenhuma alteração registrada ainda./i),
     ).toBeInTheDocument();
@@ -77,6 +81,8 @@ describe("AuditTimeline", () => {
         old_value: "PENDING",
         new_value: "IN_PROGRESS",
         timestamp: "2023-10-27T10:00:00Z",
+        resolved_old_value: null,
+        resolved_new_value: null,
       },
     ];
 
@@ -86,6 +92,9 @@ describe("AuditTimeline", () => {
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
+
+    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    fireEvent.click(toggleBtn);
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
     expect(screen.getByText("status")).toBeInTheDocument();
@@ -104,6 +113,8 @@ describe("AuditTimeline", () => {
         old_value: null,
         new_value: "New description",
         timestamp: "2023-10-27T09:00:00Z",
+        resolved_old_value: null,
+        resolved_new_value: null,
       },
     ];
 
@@ -113,6 +124,9 @@ describe("AuditTimeline", () => {
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
+
+    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    fireEvent.click(toggleBtn);
 
     expect(screen.getAllByText("Nenhum").length).toBeGreaterThan(0);
     expect(screen.getByText("New description")).toBeInTheDocument();
@@ -129,6 +143,8 @@ describe("AuditTimeline", () => {
         old_value: "Old",
         new_value: "",
         timestamp: "2023-10-27T10:00:00Z",
+        resolved_old_value: null,
+        resolved_new_value: null,
       },
     ];
 
@@ -138,6 +154,9 @@ describe("AuditTimeline", () => {
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
+
+    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    fireEvent.click(toggleBtn);
 
     expect(screen.getByText("Vazio")).toBeInTheDocument();
   });
@@ -158,6 +177,8 @@ describe("AuditTimeline", () => {
         old_value: "Old",
         new_value: "New",
         timestamp: "2023-10-27T10:00:00Z",
+        resolved_old_value: null,
+        resolved_new_value: null,
       },
     ];
 
@@ -167,6 +188,9 @@ describe("AuditTimeline", () => {
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
+
+    const toggleBtn = screen.getByRole("button", { name: /tasks.audit.title/i });
+    fireEvent.click(toggleBtn);
 
     // Check English date format (Oct 27, 2023)
     expect(screen.getByText(/Oct 27, 2023/)).toBeInTheDocument();
@@ -185,6 +209,8 @@ describe("AuditTimeline", () => {
         old_value: "null",
         new_value: "New description",
         timestamp: "2023-10-27T09:00:00Z",
+        resolved_old_value: null,
+        resolved_new_value: null,
       },
     ];
 
@@ -194,6 +220,9 @@ describe("AuditTimeline", () => {
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
+
+    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    fireEvent.click(toggleBtn);
 
     expect(screen.getAllByText("Nenhum").length).toBeGreaterThan(0);
   });
@@ -210,12 +239,100 @@ describe("AuditTimeline", () => {
           old_value: "old",
           new_value: "new",
           timestamp: "2023-10-27T10:00:00Z",
+          resolved_old_value: null,
+          resolved_new_value: null,
         },
       ],
       isLoading: false,
     } as any);
 
     render(<AuditTimeline taskId="test-id" />);
+
+    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    fireEvent.click(toggleBtn);
+
     expect(screen.getByText("John Doe")).toBeInTheDocument();
+  });
+
+  it("is collapsed by default — entries not visible", () => {
+    vi.mocked(useTaskHistory).mockReturnValue({
+      data: [
+        {
+          id: "1",
+          task_id: "test-id",
+          user_name: "John Doe",
+          field_name: "status",
+          old_value: "PENDING",
+          new_value: "IN_PROGRESS",
+          timestamp: "2023-10-27T10:00:00Z",
+          changed_by_id: "user-1",
+          resolved_old_value: null,
+          resolved_new_value: null,
+        },
+      ],
+      isLoading: false,
+    } as any);
+
+    render(<AuditTimeline taskId="test-id" />);
+
+    expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /histórico de alterações/i })).toBeInTheDocument();
+    expect(screen.getByText("(1)")).toBeInTheDocument();
+  });
+
+  it("expands when toggle button is clicked", () => {
+    vi.mocked(useTaskHistory).mockReturnValue({
+      data: [
+        {
+          id: "1",
+          task_id: "test-id",
+          user_name: "Jane Smith",
+          field_name: "status",
+          old_value: "PENDING",
+          new_value: "IN_PROGRESS",
+          timestamp: "2023-10-27T10:00:00Z",
+          changed_by_id: "user-1",
+          resolved_old_value: null,
+          resolved_new_value: null,
+        },
+      ],
+      isLoading: false,
+    } as any);
+
+    render(<AuditTimeline taskId="test-id" />);
+
+    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    fireEvent.click(toggleBtn);
+
+    expect(screen.getByText("Jane Smith")).toBeInTheDocument();
+  });
+
+  it("displays resolved name and role for assigned_to_id entries", () => {
+    vi.mocked(useTaskHistory).mockReturnValue({
+      data: [
+        {
+          id: "2",
+          task_id: "test-id",
+          user_name: "Admin User",
+          field_name: "assigned_to_id",
+          old_value: null,
+          new_value: "some-uuid",
+          timestamp: "2023-10-27T10:00:00Z",
+          changed_by_id: "admin-1",
+          resolved_old_value: null,
+          resolved_new_value: { name: "João Silva", role: "DIRECTOR" },
+        },
+      ],
+      isLoading: false,
+    } as any);
+
+    render(<AuditTimeline taskId="test-id" />);
+    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    fireEvent.click(toggleBtn);
+
+    // Should show "João Silva (Diretor)" not the raw UUID
+    expect(screen.getByText(/João Silva/)).toBeInTheDocument();
+    expect(screen.getByText(/Diretor/)).toBeInTheDocument();
+    expect(screen.queryByText("some-uuid")).not.toBeInTheDocument();
   });
 });
