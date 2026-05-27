@@ -5,7 +5,10 @@ import { TaskPriority, TaskStatus } from "../../types";
 import { useCreateTask, useUpdateTask } from "../../hooks/useTasks";
 import { useAssignableUsers } from "../../../../hooks/useUsers";
 import { useCategories } from "../../hooks/useCategories";
-import { useAuth, UserRole } from "../../../user-administration/context/AuthContext";
+import {
+  useAuth,
+  UserRole,
+} from "../../../user-administration/context/AuthContext";
 
 // Mock the hooks
 vi.mock("../../hooks/useTasks", () => ({
@@ -563,10 +566,112 @@ describe("TaskForm", () => {
           assigned_to_id: "user-1",
           category_id: "cat-1",
           status: TaskStatus.PENDING,
+          manager_visible: false,
         },
       },
       expect.any(Object),
     );
+  });
+
+  describe("manager_visible toggle", () => {
+    const existingTask = {
+      id: "1",
+      title: "Existing Task",
+      description: "Some description",
+      priority: TaskPriority.MEDIUM,
+      status: TaskStatus.PENDING,
+      assigned_to_id: "user-1",
+      created_by_id: "admin-1",
+      created_at: new Date(),
+      updated_at: new Date(),
+      category_id: "cat-1",
+      manager_visible: false,
+    };
+
+    it("shows manager_visible toggle for ADMINISTRATOR in edit mode", () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
+      } as any); // skipcq: JS-0323
+
+      render(
+        <TaskForm
+          task={existingTask as any} // skipcq: JS-0323
+          onSuccess={mockOnSuccess}
+          onCancel={mockOnCancel}
+        />,
+      );
+
+      expect(
+        screen.getByLabelText(/visível para gerentes/i),
+      ).toBeInTheDocument();
+    });
+
+    it("shows manager_visible toggle for DIRECTOR in edit mode", () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: { id: "director-1", role: UserRole.DIRECTOR },
+      } as any); // skipcq: JS-0323
+
+      render(
+        <TaskForm
+          task={existingTask as any} // skipcq: JS-0323
+          onSuccess={mockOnSuccess}
+          onCancel={mockOnCancel}
+        />,
+      );
+
+      expect(
+        screen.getByLabelText(/visível para gerentes/i),
+      ).toBeInTheDocument();
+    });
+
+    it("does NOT show manager_visible toggle for MANAGER", () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: { id: "manager-1", role: UserRole.MANAGER },
+      } as any); // skipcq: JS-0323
+
+      render(
+        <TaskForm
+          task={existingTask as any} // skipcq: JS-0323
+          onSuccess={mockOnSuccess}
+          onCancel={mockOnCancel}
+        />,
+      );
+
+      expect(
+        screen.queryByLabelText(/visível para gerentes/i),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does NOT show manager_visible toggle in create mode even for ADMIN", () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
+      } as any); // skipcq: JS-0323
+
+      render(<TaskForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />);
+
+      expect(
+        screen.queryByLabelText(/visível para gerentes/i),
+      ).not.toBeInTheDocument();
+    });
+
+    it("toggling the checkbox updates manager_visible in form state", () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
+      } as any); // skipcq: JS-0323
+
+      render(
+        <TaskForm
+          task={existingTask as any} // skipcq: JS-0323
+          onSuccess={mockOnSuccess}
+          onCancel={mockOnCancel}
+        />,
+      );
+
+      const checkbox = screen.getByLabelText(/visível para gerentes/i);
+      expect(checkbox).not.toBeChecked();
+      fireEvent.click(checkbox);
+      expect(checkbox).toBeChecked();
+    });
   });
 
   it("submits update payload for director editing with empty fields", () => {

@@ -15,9 +15,17 @@ class TaskService:
     """Service class for task-related operations."""
 
     @staticmethod
-    def create_task(session: Session, task_in: TaskCreate, created_by_id: UUID) -> Task:
+    def create_task(
+        session: Session,
+        task_in: TaskCreate,
+        created_by_id: UUID,
+        manager_visible: bool = False,
+    ) -> Task:
         """Create a new task in the database."""
-        db_task = Task.model_validate(task_in, update={"created_by_id": created_by_id})
+        db_task = Task.model_validate(
+            task_in,
+            update={"created_by_id": created_by_id, "manager_visible": manager_visible},
+        )
         session.add(db_task)
         session.commit()
         session.refresh(db_task)
@@ -28,7 +36,13 @@ class TaskService:
         session: Session, db_task: Task, task_in: TaskUpdate, current_user: "User"
     ) -> Task:
         """Update a task with audit logging."""
+        from app.models.enums import UserRole
+
         update_data = task_in.model_dump(exclude_unset=True)
+
+        # MANAGER cannot change visibility flag — strip it silently
+        if current_user.role == UserRole.MANAGER:
+            update_data.pop("manager_visible", None)
 
         for key, value in update_data.items():
             old_value = getattr(db_task, key)
@@ -86,8 +100,10 @@ class TaskService:
         """Look up a user by UUID string and return {name, role}, or None."""
         if user_id_str is None or user_id_str == "null":
             return None
-        from app.models.user import User
         import uuid as _uuid
+
+        from app.models.user import User
+
         try:
             uid = _uuid.UUID(user_id_str)
         except ValueError:

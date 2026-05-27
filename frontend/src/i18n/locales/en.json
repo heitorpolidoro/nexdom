@@ -160,7 +160,8 @@
       "submitEdit": "Update task",
       "submitCreate": "Create task",
       "categoryLabel": "Category",
-      "categoryRequired": "Category is required"
+      "categoryRequired": "Category is required",
+      "managerVisible": "Visible to managers"
     },
     "details": {
       "description": "Description",

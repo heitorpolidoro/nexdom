@@ -64,6 +64,7 @@ const mockTasks = [
     category_id: "cat-1",
     category_name: "General",
     category_color: "#808080",
+    manager_visible: false,
   },
 ];
 
@@ -532,7 +533,16 @@ describe("TaskDashboard", () => {
 
   it("renders assignee options and filters by assignee", () => {
     vi.mocked(useUsersHook.useAssignableUsers).mockReturnValue({
-      data: [{ id: "user-1", full_name: "Alice", username: "alice", email: "", is_active: true, role: "DIRECTOR" }],
+      data: [
+        {
+          id: "user-1",
+          full_name: "Alice",
+          username: "alice",
+          email: "",
+          is_active: true,
+          role: "DIRECTOR",
+        },
+      ],
       isLoading: false,
     } as unknown as ReturnType<typeof useUsersHook.useAssignableUsers>);
 
@@ -540,7 +550,9 @@ describe("TaskDashboard", () => {
 
     expect(screen.getByRole("option", { name: "Alice" })).toBeInTheDocument();
 
-    const assigneeSelect = screen.getByDisplayValue(/Todos os responsáveis|All assignees/i);
+    const assigneeSelect = screen.getByDisplayValue(
+      /Todos os responsáveis|All assignees/i,
+    );
     fireEvent.change(assigneeSelect, { target: { value: "user-1" } });
     expect(useTasks).toHaveBeenLastCalledWith(
       expect.objectContaining({ assigned_to_id: "user-1" }),

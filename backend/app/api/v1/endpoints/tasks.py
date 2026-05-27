@@ -6,7 +6,7 @@ from uuid import UUID
 from app.api import deps as api_deps
 from app.core.exceptions import ForbiddenError, TaskNotFoundError
 from app.db import get_session
-from app.models.enums import TaskPriority, TaskStatus
+from app.models.enums import TaskPriority, TaskStatus, UserRole
 from app.models.task import Task, TaskComment, TaskHistory
 from app.models.user import User
 from app.schemas.task import (TaskCommentCreate, TaskCommentRead,
@@ -27,7 +27,10 @@ def create_task(
 ) -> TaskRead:
     """Create a new task. Any authenticated user can create tasks."""
     db_task = TaskService.create_task(
-        session=session, task_in=task_in, created_by_id=current_user.id
+        session=session,
+        task_in=task_in,
+        created_by_id=current_user.id,
+        manager_visible=(current_user.role == UserRole.MANAGER),
     )
     return TaskService.get_task_with_names(session=session, db_task=db_task)
 
@@ -70,6 +73,8 @@ def list_tasks(
         statement = statement.where(Task.priority == priority)
     if category_id:
         statement = statement.where(Task.category_id == category_id)
+    if current_user.role == UserRole.MANAGER:
+        statement = statement.where(Task.manager_visible.is_(True))
 
     results = session.exec(statement).all()
     tasks = []
@@ -95,6 +100,7 @@ def update_task(
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
 
+    api_deps.assert_manager_can_see_task(current_user, db_task)
     api_deps.assert_can_edit_task(current_user, db_task)
 
     updated_task = TaskService.update_task(
@@ -114,6 +120,7 @@ def get_task_history(
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
 
+    api_deps.assert_manager_can_see_task(current_user, db_task)
     return TaskService.get_history(session=session, task_id=task_id)
 
 
@@ -140,13 +147,14 @@ def delete_task(
 def list_comments(
     task_id: UUID,
     session: Annotated[Session, Depends(get_session)],
-    _current_user: Annotated[User, Depends(api_deps.get_current_user)],
+    current_user: Annotated[User, Depends(api_deps.get_current_user)],
 ) -> list[TaskCommentRead]:
     """List all comments for a task."""
     db_task = session.get(Task, task_id)
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
 
+    api_deps.assert_manager_can_see_task(current_user, db_task)
     return TaskService.get_comments(session=session, task_id=task_id)
 
 
@@ -166,6 +174,7 @@ def create_comment(
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
 
+    api_deps.assert_manager_can_see_task(current_user, db_task)
     return TaskService.create_comment(
         session=session,
         task_id=task_id,
@@ -187,6 +196,7 @@ def update_comment(
     if not db_task or db_task.is_deleted:
         raise TaskNotFoundError(task_id)
 
+    api_deps.assert_manager_can_see_task(current_user, db_task)
     comment = session.get(TaskComment, comment_id)
     if not comment or comment.task_id != task_id:
         raise HTTPException(

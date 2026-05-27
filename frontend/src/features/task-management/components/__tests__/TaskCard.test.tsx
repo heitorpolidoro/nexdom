@@ -23,6 +23,7 @@ const mockTask = {
   category_id: "cat-1",
   category_name: "General",
   category_color: "#808080",
+  manager_visible: false,
 };
 
 describe("TaskCard", () => {
@@ -163,7 +164,9 @@ describe("TaskCard", () => {
     render(<TaskCard task={mockTask} />);
 
     expect(screen.getByText("General")).toBeInTheDocument();
-    const dot = document.querySelector('[style*="background-color: rgb(128, 128, 128)"], [style*="background-color:#808080"], [style*="backgroundColor"]');
+    const dot = document.querySelector(
+      '[style*="background-color: rgb(128, 128, 128)"], [style*="background-color:#808080"], [style*="backgroundColor"]',
+    );
     expect(dot).toBeTruthy();
   });
 
@@ -175,10 +178,16 @@ describe("TaskCard", () => {
   });
 
   it("renders category color dot with fallback when category_color is null", () => {
-    const taskWithoutColor = { ...mockTask, category_name: "General", category_color: null };
+    const taskWithoutColor = {
+      ...mockTask,
+      category_name: "General",
+      category_color: null,
+    };
     render(<TaskCard task={taskWithoutColor as any} />);
     expect(screen.getByText("General")).toBeInTheDocument();
-    const dot = document.querySelector('[style*="background-color"]') as HTMLElement | null;
+    const dot = document.querySelector(
+      '[style*="background-color"]',
+    ) as HTMLElement | null;
     expect(dot).toBeTruthy();
     expect(dot?.style.backgroundColor).toBe("rgb(128, 128, 128)");
   });

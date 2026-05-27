@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import ptData from "../../../../i18n/locales/pt.json";
 
 type MockTaskHistory = ReturnType<typeof useTaskHistory>;
+type MockUseTranslation = ReturnType<typeof useTranslation>;
 
 // Mock hooks
 vi.mock("../../hooks/useTasks", () => ({
@@ -31,7 +32,7 @@ describe("AuditTimeline", () => {
         return value || key;
       },
       i18n: { language: "pt", changeLanguage: vi.fn() },
-    } as unknown as MockTaskHistory);
+    } as unknown as MockUseTranslation);
   });
 
   it("renders loading state", () => {
@@ -64,7 +65,9 @@ describe("AuditTimeline", () => {
 
     render(<AuditTimeline taskId="test-id" />);
 
-    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
     fireEvent.click(toggleBtn);
 
     expect(
@@ -95,7 +98,9 @@ describe("AuditTimeline", () => {
 
     render(<AuditTimeline taskId="test-id" />);
 
-    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
     fireEvent.click(toggleBtn);
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
@@ -127,7 +132,9 @@ describe("AuditTimeline", () => {
 
     render(<AuditTimeline taskId="test-id" />);
 
-    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
     fireEvent.click(toggleBtn);
 
     expect(screen.getAllByText("Nenhum").length).toBeGreaterThan(0);
@@ -157,7 +164,9 @@ describe("AuditTimeline", () => {
 
     render(<AuditTimeline taskId="test-id" />);
 
-    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
     fireEvent.click(toggleBtn);
 
     expect(screen.getByText("Vazio")).toBeInTheDocument();
@@ -167,7 +176,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTranslation).mockReturnValue({
       t: (s: string) => s,
       i18n: { language: "en" },
-    } as unknown as MockTaskHistory);
+    } as unknown as MockUseTranslation);
 
     const mockHistory = [
       {
@@ -191,7 +200,9 @@ describe("AuditTimeline", () => {
 
     render(<AuditTimeline taskId="test-id" />);
 
-    const toggleBtn = screen.getByRole("button", { name: /tasks.audit.title/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /tasks.audit.title/i,
+    });
     fireEvent.click(toggleBtn);
 
     // Check English date format (Oct 27, 2023)
@@ -223,7 +234,9 @@ describe("AuditTimeline", () => {
 
     render(<AuditTimeline taskId="test-id" />);
 
-    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
     fireEvent.click(toggleBtn);
 
     expect(screen.getAllByText("Nenhum").length).toBeGreaterThan(0);
@@ -250,7 +263,9 @@ describe("AuditTimeline", () => {
 
     render(<AuditTimeline taskId="test-id" />);
 
-    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
     fireEvent.click(toggleBtn);
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
@@ -278,7 +293,9 @@ describe("AuditTimeline", () => {
     render(<AuditTimeline taskId="test-id" />);
 
     expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /histórico de alterações/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /histórico de alterações/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText("(1)")).toBeInTheDocument();
   });
 
@@ -303,7 +320,9 @@ describe("AuditTimeline", () => {
 
     render(<AuditTimeline taskId="test-id" />);
 
-    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
     fireEvent.click(toggleBtn);
 
     expect(screen.getByText("Jane Smith")).toBeInTheDocument();
@@ -376,7 +395,9 @@ describe("AuditTimeline", () => {
     } as unknown as MockTaskHistory);
 
     render(<AuditTimeline taskId="test-id" />);
-    const toggleBtn = screen.getByRole("button", { name: /histórico de alterações/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /histórico de alterações/i,
+    });
     fireEvent.click(toggleBtn);
 
     // Should show "João Silva (Diretor)" not the raw UUID

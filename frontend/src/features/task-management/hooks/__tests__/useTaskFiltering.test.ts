@@ -15,6 +15,7 @@ const mockTasks: TaskRead[] = [
     updated_at: new Date().toISOString(),
     created_by_id: "admin",
     category_id: "cat-1",
+    manager_visible: false,
   },
   {
     id: "2",
@@ -26,6 +27,7 @@ const mockTasks: TaskRead[] = [
     updated_at: new Date().toISOString(),
     created_by_id: "admin",
     category_id: "cat-1",
+    manager_visible: false,
   },
   {
     id: "3",
@@ -37,6 +39,7 @@ const mockTasks: TaskRead[] = [
     updated_at: new Date().toISOString(),
     created_by_id: "admin",
     category_id: "cat-1",
+    manager_visible: false,
   },
 ];
 
@@ -49,7 +52,7 @@ describe("useTaskFiltering", () => {
 
   it("filters tasks by status", () => {
     const { result } = renderHook(() =>
-      useTaskFiltering(mockTasks, { status: TaskStatus.PENDING })
+      useTaskFiltering(mockTasks, { status: TaskStatus.PENDING }),
     );
     expect(result.current).toHaveLength(1);
     expect(result.current[0].id).toBe("1");
@@ -57,7 +60,7 @@ describe("useTaskFiltering", () => {
 
   it("filters tasks by priority", () => {
     const { result } = renderHook(() =>
-      useTaskFiltering(mockTasks, { priority: TaskPriority.MEDIUM })
+      useTaskFiltering(mockTasks, { priority: TaskPriority.MEDIUM }),
     );
     expect(result.current).toHaveLength(1);
     expect(result.current[0].id).toBe("2");
@@ -65,7 +68,7 @@ describe("useTaskFiltering", () => {
 
   it("filters tasks by assigned_to_id", () => {
     const { result } = renderHook(() =>
-      useTaskFiltering(mockTasks, { assigned_to_id: "user-1" })
+      useTaskFiltering(mockTasks, { assigned_to_id: "user-1" }),
     );
     expect(result.current).toHaveLength(2);
     expect(result.current.map((t) => t.id)).toEqual(["1", "3"]);
@@ -76,7 +79,7 @@ describe("useTaskFiltering", () => {
       useTaskFiltering(mockTasks, {
         status: TaskStatus.COMPLETED,
         assigned_to_id: "user-1",
-      })
+      }),
     );
     expect(result.current).toHaveLength(1);
     expect(result.current[0].id).toBe("3");
@@ -84,7 +87,7 @@ describe("useTaskFiltering", () => {
 
   it("returns empty array when no tasks match filters", () => {
     const { result } = renderHook(() =>
-      useTaskFiltering(mockTasks, { status: TaskStatus.CANCELED })
+      useTaskFiltering(mockTasks, { status: TaskStatus.CANCELED }),
     );
     expect(result.current).toHaveLength(0);
   });
@@ -95,7 +98,7 @@ describe("useTaskFiltering", () => {
       ({ tasks, filters }) => useTaskFiltering(tasks, filters),
       {
         initialProps: { tasks: mockTasks, filters },
-      }
+      },
     );
 
     const firstResult = result.current;

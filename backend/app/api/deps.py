@@ -74,7 +74,6 @@ def get_current_user(
     return user
 
 
-
 def get_current_active_admin(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
@@ -96,6 +95,22 @@ def get_current_active_admin(
             detail="The user doesn't have enough privileges",
         )
     return current_user
+
+
+def assert_manager_can_see_task(current_user: User, task: Task) -> None:
+    """Raise TaskNotFoundError if MANAGER tries to access a task with manager_visible=False.
+
+    Args:
+        current_user: The authenticated user making the request.
+        task: The task being accessed.
+
+    Raises:
+        TaskNotFoundError: If a MANAGER attempts to access a task not visible to managers.
+    """
+    from app.core.exceptions import TaskNotFoundError
+
+    if current_user.role == UserRole.MANAGER and not task.manager_visible:
+        raise TaskNotFoundError(task.id)
 
 
 def assert_can_edit_task(current_user: User, task: Task) -> None:

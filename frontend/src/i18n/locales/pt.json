@@ -160,7 +160,8 @@
       "submitEdit": "Atualizar tarefa",
       "submitCreate": "Criar tarefa",
       "categoryLabel": "Categoria",
-      "categoryRequired": "Categoria é obrigatória"
+      "categoryRequired": "Categoria é obrigatória",
+      "managerVisible": "Visível para gerentes"
     },
     "details": {
       "description": "Descrição",
