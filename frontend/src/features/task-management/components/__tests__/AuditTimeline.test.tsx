@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import ptData from "../../../../i18n/locales/pt.json";
 
 type MockTaskHistory = ReturnType<typeof useTaskHistory>;
+type MockUseTranslation = ReturnType<typeof useTranslation>;
 
 // Mock hooks
 vi.mock("../../hooks/useTasks", () => ({
@@ -31,7 +32,7 @@ describe("AuditTimeline", () => {
         return value || key;
       },
       i18n: { language: "pt", changeLanguage: vi.fn() },
-    } as unknown as MockTaskHistory);
+    } as unknown as MockUseTranslation);
   });
 
   it("renders loading state", () => {
@@ -167,7 +168,7 @@ describe("AuditTimeline", () => {
     vi.mocked(useTranslation).mockReturnValue({
       t: (s: string) => s,
       i18n: { language: "en" },
-    } as unknown as MockTaskHistory);
+    } as unknown as MockUseTranslation);
 
     const mockHistory = [
       {
