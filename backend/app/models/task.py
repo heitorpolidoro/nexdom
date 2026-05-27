@@ -52,7 +52,7 @@ class Task(SQLModel, table=True):
     created_at: datetime = Field(default_factory=get_utc_now)
     updated_at: datetime = Field(default_factory=get_utc_now)
     is_deleted: bool = Field(default=False, index=True)
-    manager_visible: bool = Field(default=False, index=True)
+    manager_visible: bool = Field(default=False)
 
     USER_ID_FK: ClassVar[str] = "user.id"
     CATEGORY_ID_FK: ClassVar[str] = "category.id"

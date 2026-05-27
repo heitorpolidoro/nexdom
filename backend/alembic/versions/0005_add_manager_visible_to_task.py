@@ -24,9 +24,7 @@ def upgrade() -> None:
             server_default="false",
         ),
     )
-    op.create_index("ix_task_manager_visible", "task", ["manager_visible"])
 
 
 def downgrade() -> None:
-    op.drop_index("ix_task_manager_visible", table_name="task")
     op.drop_column("task", "manager_visible")
