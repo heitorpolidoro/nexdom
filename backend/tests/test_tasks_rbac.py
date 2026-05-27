@@ -314,3 +314,23 @@ def test_manager_cannot_delete_task(
         headers={"Authorization": f"Bearer {mgr_token}"},
     )
     assert resp.status_code == 403
+
+
+def test_manager_visible_field_exists_on_task():
+    """Task model must have a manager_visible boolean field defaulting to False."""
+    from app.models.task import Task
+    task = Task(title="t", created_by_id=__import__("uuid").uuid4())
+    assert task.manager_visible is False
+
+
+def test_task_read_schema_includes_manager_visible():
+    """TaskRead schema must expose manager_visible."""
+    from app.schemas.task import TaskRead
+    assert "manager_visible" in TaskRead.model_fields
+
+
+def test_task_update_schema_includes_manager_visible():
+    """TaskUpdate schema must accept manager_visible."""
+    from app.schemas.task import TaskUpdate
+    update = TaskUpdate(manager_visible=True)
+    assert update.manager_visible is True

@@ -33,6 +33,7 @@ class TaskUpdate(BaseModel):
     due_date: datetime | None = None
     assigned_to_id: UUID | None = None
     category_id: UUID | None = None
+    manager_visible: bool | None = None
 
 
 class TaskRead(TaskBase):
@@ -46,6 +47,7 @@ class TaskRead(TaskBase):
     assigned_to_name: str | None = None
     category_name: str | None = None
     category_color: str | None = None
+    manager_visible: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
