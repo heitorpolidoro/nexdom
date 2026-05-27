@@ -47,16 +47,20 @@ describe("TaskBoard", () => {
         isError={false}
         error={null}
         filters={{}}
-      />
+      />,
     );
 
     expect(screen.getByText("Task 1")).toBeInTheDocument();
     expect(screen.getByText("Task 2")).toBeInTheDocument();
-    
+
     // Check if they are in the correct columns
-    const pendingColumn = screen.getByRole("heading", { name: "Pendente" }).closest('.flex-1');
-    const inProgressColumn = screen.getByRole("heading", { name: "Em andamento" }).closest('.flex-1');
-    
+    const pendingColumn = screen
+      .getByRole("heading", { name: "Pendente" })
+      .closest(".flex-1");
+    const inProgressColumn = screen
+      .getByRole("heading", { name: "Em andamento" })
+      .closest(".flex-1");
+
     expect(pendingColumn).toHaveTextContent("Task 1");
     expect(inProgressColumn).toHaveTextContent("Task 2");
   });
@@ -69,7 +73,7 @@ describe("TaskBoard", () => {
         isError={false}
         error={null}
         filters={{ assigned_to_id: "user-2" }}
-      />
+      />,
     );
 
     expect(screen.getByText("Task 1")).toBeInTheDocument();
@@ -84,7 +88,7 @@ describe("TaskBoard", () => {
         isError={false}
         error={null}
         filters={{ status: TaskStatus.PENDING }}
-      />
+      />,
     );
 
     expect(screen.getByText("Task 1")).toBeInTheDocument();
@@ -99,7 +103,7 @@ describe("TaskBoard", () => {
         isError={false}
         error={null}
         filters={{ priority: TaskPriority.HIGH }}
-      />
+      />,
     );
 
     expect(screen.queryByText("Task 1")).not.toBeInTheDocument();
@@ -116,7 +120,7 @@ describe("TaskBoard", () => {
         error={null}
         filters={{}}
         onTaskClick={onTaskClick}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByText("Task 1"));
@@ -131,7 +135,7 @@ describe("TaskBoard", () => {
         isError={false}
         error={null}
         filters={{}}
-      />
+      />,
     );
 
     expect(screen.getByText("Carregando tarefas...")).toBeInTheDocument();
@@ -145,9 +149,11 @@ describe("TaskBoard", () => {
         isError={true}
         error={new Error("Test Error")}
         filters={{}}
-      />
+      />,
     );
 
-    expect(screen.getByText("Erro ao carregar tarefas: Test Error")).toBeInTheDocument();
+    expect(
+      screen.getByText("Erro ao carregar tarefas: Test Error"),
+    ).toBeInTheDocument();
   });
 });

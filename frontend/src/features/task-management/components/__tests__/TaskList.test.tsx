@@ -178,7 +178,12 @@ describe("TaskList", () => {
 
   it("shows no-category placeholder for tasks without category", () => {
     const tasksNoCategory = [
-      { ...mockTasks[0], category_id: null, category_name: undefined, category_color: undefined },
+      {
+        ...mockTasks[0],
+        category_id: null,
+        category_name: undefined,
+        category_color: undefined,
+      },
     ];
     render(
       <TaskList
@@ -193,7 +198,9 @@ describe("TaskList", () => {
   });
 
   it("shows assignee name when task has an assigned user", () => {
-    const tasksWithAssignee = [{ ...mockTasks[0], assigned_to_name: "João Silva" }];
+    const tasksWithAssignee = [
+      { ...mockTasks[0], assigned_to_name: "João Silva" },
+    ];
     render(
       <TaskList
         tasks={tasksWithAssignee}
@@ -207,7 +214,9 @@ describe("TaskList", () => {
   });
 
   it("shows formatted due date when task has a due_date", () => {
-    const tasksWithDate = [{ ...mockTasks[0], due_date: "2024-06-15T00:00:00Z" }];
+    const tasksWithDate = [
+      { ...mockTasks[0], due_date: "2024-06-15T00:00:00Z" },
+    ];
     render(
       <TaskList
         tasks={tasksWithDate}
@@ -221,7 +230,9 @@ describe("TaskList", () => {
   });
 
   it("shows category name with fallback color when category_color is missing", () => {
-    const tasksNoColor = [{ ...mockTasks[0], category_name: "Design", category_color: undefined }];
+    const tasksNoColor = [
+      { ...mockTasks[0], category_name: "Design", category_color: undefined },
+    ];
     render(
       <TaskList
         tasks={tasksNoColor as any}
@@ -239,7 +250,9 @@ describe("TaskList", () => {
       t: (key: string) => key,
       i18n: { language: "en", changeLanguage: vi.fn() },
     } as any);
-    const tasksWithDate = [{ ...mockTasks[0], due_date: "2024-01-20T12:00:00Z" }];
+    const tasksWithDate = [
+      { ...mockTasks[0], due_date: "2024-01-20T12:00:00Z" },
+    ];
     render(
       <TaskList
         tasks={tasksWithDate}

@@ -316,7 +316,7 @@ describe("TaskDetailsView", () => {
       ...mockTask,
       category_name: "Feature",
       category_color: "#ff0000",
-    manager_visible: false,
+      manager_visible: false,
     };
 
     const { rerender } = render(
@@ -336,7 +336,7 @@ describe("TaskDetailsView", () => {
       ...mockTask,
       category_name: "Feature",
       category_color: null,
-    manager_visible: false,
+      manager_visible: false,
     };
 
     rerender(
@@ -358,7 +358,7 @@ describe("TaskDetailsView", () => {
       ...mockTask,
       category_name: null,
       category_color: null,
-    manager_visible: false,
+      manager_visible: false,
     };
 
     render(
@@ -369,6 +369,8 @@ describe("TaskDetailsView", () => {
       />,
     );
 
-    expect(screen.getByText(/Sem categoria|tasks.details.noCategory/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Sem categoria|tasks.details.noCategory/),
+    ).toBeInTheDocument();
   });
 });
