@@ -483,3 +483,63 @@ def test_manager_gets_404_for_invisible_task_comments(
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 404
+
+
+def test_admin_can_set_manager_visible_true(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """ADMIN can set manager_visible=True on a task, making it visible to MANAGER."""
+    from app.models.task import Task
+
+    hidden = Task(
+        title="Will Become Visible",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        manager_visible=False,
+    )
+    session.add(hidden)
+    session.commit()
+
+    admin_token = get_token(client, "admin_rbac", "pass")
+    response = client.patch(
+        f"/api/v1/tasks/{hidden.id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"manager_visible": True},
+    )
+    assert response.status_code == 200
+    assert response.json()["manager_visible"] is True
+
+    # MANAGER can now see it in the list
+    mgr_token = get_token(client, "manager_rbac", "pass")
+    list_response = client.get(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+    )
+    titles = [t["title"] for t in list_response.json()]
+    assert "Will Become Visible" in titles
+
+
+def test_manager_cannot_change_manager_visible(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """MANAGER cannot change manager_visible even on their own task."""
+    from app.models.task import Task
+
+    visible = Task(
+        title="Manager Own Task",
+        category_id=test_data["category"].id,
+        created_by_id=manager_user.id,
+        manager_visible=True,
+    )
+    session.add(visible)
+    session.commit()
+
+    mgr_token = get_token(client, "manager_rbac", "pass")
+    response = client.patch(
+        f"/api/v1/tasks/{visible.id}",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+        json={"manager_visible": False},
+    )
+    # Request succeeds (other fields could be updated) but manager_visible is ignored
+    assert response.status_code == 200
+    assert response.json()["manager_visible"] is True  # unchanged

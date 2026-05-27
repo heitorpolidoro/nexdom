@@ -36,7 +36,12 @@ class TaskService:
         session: Session, db_task: Task, task_in: TaskUpdate, current_user: "User"
     ) -> Task:
         """Update a task with audit logging."""
+        from app.models.enums import UserRole
         update_data = task_in.model_dump(exclude_unset=True)
+
+        # MANAGER cannot change visibility flag — strip it silently
+        if current_user.role == UserRole.MANAGER:
+            update_data.pop("manager_visible", None)
 
         for key, value in update_data.items():
             old_value = getattr(db_task, key)
