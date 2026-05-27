@@ -218,7 +218,12 @@ def test_admin_can_create_task(client: TestClient, session: Session, test_data):
 def test_manager_cannot_edit_other_assigned_task(
     client: TestClient, session: Session, test_data, manager_user
 ):
-    """MANAGER gets 403 when editing a task assigned to another user."""
+    """MANAGER gets 404 when editing a task not visible to managers (manager_visible=False).
+
+    Tasks created by DIRECTOR have manager_visible=False, so MANAGER cannot see them at all
+    (404), regardless of assignment. The 403 (forbidden) path only applies when the task
+    IS visible to the MANAGER but assigned to someone else.
+    """
     dir_token = get_token(client, "director_rbac", "pass")
     mgr_token = get_token(client, "manager_rbac", "pass")
     category_id = str(test_data["category"].id)
@@ -240,28 +245,27 @@ def test_manager_cannot_edit_other_assigned_task(
         headers={"Authorization": f"Bearer {mgr_token}"},
         json={"status": "IN_PROGRESS"},
     )
-    assert resp.status_code == 403
+    # Task was created by DIRECTOR (manager_visible=False), so MANAGER sees 404, not 403
+    assert resp.status_code == 404
 
 
 def test_manager_can_edit_self_assigned_task(
     client: TestClient, session: Session, test_data, manager_user
 ):
-    """MANAGER can edit a task assigned to themselves."""
-    dir_token = get_token(client, "director_rbac", "pass")
-    mgr_token = get_token(client, "manager_rbac", "pass")
-    category_id = str(test_data["category"].id)
+    """MANAGER can edit a task assigned to themselves (when manager_visible=True)."""
+    from app.models.task import Task
 
-    resp = client.post(
-        "/api/v1/tasks/",
-        headers={"Authorization": f"Bearer {dir_token}"},
-        json={
-            "title": "Manager Own Task",
-            "category_id": category_id,
-            "assigned_to_id": str(manager_user.id),
-        },
+    mgr_token = get_token(client, "manager_rbac", "pass")
+    task = Task(
+        title="Manager Own Task",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        assigned_to_id=manager_user.id,
+        manager_visible=True,
     )
-    assert resp.status_code == 200
-    task_id = resp.json()["id"]
+    session.add(task)
+    session.commit()
+    task_id = str(task.id)
 
     resp = client.patch(
         f"/api/v1/tasks/{task_id}",
@@ -275,17 +279,20 @@ def test_manager_can_edit_self_assigned_task(
 def test_manager_can_edit_unassigned_task(
     client: TestClient, session: Session, test_data, manager_user
 ):
-    """MANAGER can edit a task with no assignee."""
-    dir_token = get_token(client, "director_rbac", "pass")
-    mgr_token = get_token(client, "manager_rbac", "pass")
+    """MANAGER can edit a task with no assignee (when manager_visible=True)."""
+    from app.models.task import Task
 
-    resp = client.post(
-        "/api/v1/tasks/",
-        headers={"Authorization": f"Bearer {dir_token}"},
-        json={"title": "Unassigned Task", "category_id": str(test_data["category"].id)},
+    mgr_token = get_token(client, "manager_rbac", "pass")
+    task = Task(
+        title="Unassigned Task",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        assigned_to_id=None,
+        manager_visible=True,
     )
-    assert resp.status_code == 200
-    task_id = resp.json()["id"]
+    session.add(task)
+    session.commit()
+    task_id = str(task.id)
 
     resp = client.patch(
         f"/api/v1/tasks/{task_id}",
@@ -372,3 +379,107 @@ def test_director_create_task_sets_manager_visible_false(client: TestClient, tes
     )
     assert response.status_code == 200
     assert response.json()["manager_visible"] is False
+
+
+def test_manager_list_only_sees_visible_tasks(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """MANAGER only sees tasks with manager_visible=True in the list."""
+    from app.models.task import Task
+
+    hidden = Task(
+        title="Hidden from Manager",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        manager_visible=False,
+    )
+    visible = Task(
+        title="Visible to Manager",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        manager_visible=True,
+    )
+    session.add(hidden)
+    session.add(visible)
+    session.commit()
+
+    token = get_token(client, "manager_rbac", "pass")
+    response = client.get(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+    titles = [t["title"] for t in response.json()]
+    assert "Visible to Manager" in titles
+    assert "Hidden from Manager" not in titles
+
+
+def test_admin_list_sees_all_tasks(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """ADMIN sees all tasks regardless of manager_visible."""
+    from app.models.task import Task
+
+    hidden = Task(
+        title="Admin Sees Hidden",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        manager_visible=False,
+    )
+    session.add(hidden)
+    session.commit()
+
+    token = get_token(client, "admin_rbac", "pass")
+    response = client.get(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+    titles = [t["title"] for t in response.json()]
+    assert "Admin Sees Hidden" in titles
+
+
+def test_manager_gets_404_for_invisible_task_history(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """MANAGER gets 404 when accessing history of a task with manager_visible=False."""
+    from app.models.task import Task
+
+    hidden = Task(
+        title="Hidden History Task",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        manager_visible=False,
+    )
+    session.add(hidden)
+    session.commit()
+
+    token = get_token(client, "manager_rbac", "pass")
+    response = client.get(
+        f"/api/v1/tasks/{hidden.id}/history",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 404
+
+
+def test_manager_gets_404_for_invisible_task_comments(
+    client: TestClient, session: Session, test_data, manager_user
+):
+    """MANAGER gets 404 when listing comments of a task with manager_visible=False."""
+    from app.models.task import Task
+
+    hidden = Task(
+        title="Hidden Comments Task",
+        category_id=test_data["category"].id,
+        created_by_id=test_data["admin"].id,
+        manager_visible=False,
+    )
+    session.add(hidden)
+    session.commit()
+
+    token = get_token(client, "manager_rbac", "pass")
+    response = client.get(
+        f"/api/v1/tasks/{hidden.id}/comments",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 404
