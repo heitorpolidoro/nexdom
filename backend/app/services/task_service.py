@@ -15,9 +15,17 @@ class TaskService:
     """Service class for task-related operations."""
 
     @staticmethod
-    def create_task(session: Session, task_in: TaskCreate, created_by_id: UUID) -> Task:
+    def create_task(
+        session: Session,
+        task_in: TaskCreate,
+        created_by_id: UUID,
+        manager_visible: bool = False,
+    ) -> Task:
         """Create a new task in the database."""
-        db_task = Task.model_validate(task_in, update={"created_by_id": created_by_id})
+        db_task = Task.model_validate(
+            task_in,
+            update={"created_by_id": created_by_id, "manager_visible": manager_visible},
+        )
         session.add(db_task)
         session.commit()
         session.refresh(db_task)

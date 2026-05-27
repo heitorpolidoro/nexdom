@@ -6,7 +6,7 @@ from uuid import UUID
 from app.api import deps as api_deps
 from app.core.exceptions import ForbiddenError, TaskNotFoundError
 from app.db import get_session
-from app.models.enums import TaskPriority, TaskStatus
+from app.models.enums import TaskPriority, TaskStatus, UserRole
 from app.models.task import Task, TaskComment, TaskHistory
 from app.models.user import User
 from app.schemas.task import (TaskCommentCreate, TaskCommentRead,
@@ -27,7 +27,10 @@ def create_task(
 ) -> TaskRead:
     """Create a new task. Any authenticated user can create tasks."""
     db_task = TaskService.create_task(
-        session=session, task_in=task_in, created_by_id=current_user.id
+        session=session,
+        task_in=task_in,
+        created_by_id=current_user.id,
+        manager_visible=(current_user.role == UserRole.MANAGER),
     )
     return TaskService.get_task_with_names(session=session, db_task=db_task)
 

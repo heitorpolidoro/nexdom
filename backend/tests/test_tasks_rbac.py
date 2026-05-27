@@ -334,3 +334,41 @@ def test_task_update_schema_includes_manager_visible():
     from app.schemas.task import TaskUpdate
     update = TaskUpdate(manager_visible=True)
     assert update.manager_visible is True
+
+
+def test_manager_create_task_sets_manager_visible_true(
+    client: TestClient, test_data, manager_user
+):
+    """Tasks created by MANAGER must have manager_visible=True."""
+    token = get_token(client, "manager_rbac", "pass")
+    response = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"title": "Manager Visible Task", "category_id": str(test_data["category"].id)},
+    )
+    assert response.status_code == 200
+    assert response.json()["manager_visible"] is True
+
+
+def test_admin_create_task_sets_manager_visible_false(client: TestClient, test_data):
+    """Tasks created by ADMIN must have manager_visible=False by default."""
+    token = get_token(client, "admin_rbac", "pass")
+    response = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"title": "Admin Hidden Task", "category_id": str(test_data["category"].id)},
+    )
+    assert response.status_code == 200
+    assert response.json()["manager_visible"] is False
+
+
+def test_director_create_task_sets_manager_visible_false(client: TestClient, test_data):
+    """Tasks created by DIRECTOR must have manager_visible=False by default."""
+    token = get_token(client, "director_rbac", "pass")
+    response = client.post(
+        "/api/v1/tasks/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"title": "Director Hidden Task", "category_id": str(test_data["category"].id)},
+    )
+    assert response.status_code == 200
+    assert response.json()["manager_visible"] is False
