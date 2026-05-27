@@ -56,6 +56,7 @@ describe("TaskDetailsView", () => {
     category_id: "cat-1",
     category_name: "General",
     category_color: "#808080",
+    manager_visible: false,
   };
 
   beforeEach(() => {
@@ -315,6 +316,7 @@ describe("TaskDetailsView", () => {
       ...mockTask,
       category_name: "Feature",
       category_color: "#ff0000",
+    manager_visible: false,
     };
 
     const { rerender } = render(
@@ -334,6 +336,7 @@ describe("TaskDetailsView", () => {
       ...mockTask,
       category_name: "Feature",
       category_color: null,
+    manager_visible: false,
     };
 
     rerender(
@@ -355,6 +358,7 @@ describe("TaskDetailsView", () => {
       ...mockTask,
       category_name: null,
       category_color: null,
+    manager_visible: false,
     };
 
     render(

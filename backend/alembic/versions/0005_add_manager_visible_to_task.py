@@ -15,6 +15,7 @@ depends_on = None
 
 
 def upgrade() -> None:
+    """Add manager_visible column to the task table."""
     op.add_column(
         "task",
         sa.Column(
@@ -27,4 +28,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    """Remove manager_visible column from the task table."""
     op.drop_column("task", "manager_visible")
