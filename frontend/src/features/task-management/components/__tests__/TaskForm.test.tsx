@@ -653,6 +653,25 @@ describe("TaskForm", () => {
         screen.queryByLabelText(/visível para gerentes/i),
       ).not.toBeInTheDocument();
     });
+
+    it("toggling the checkbox updates manager_visible in form state", () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: { id: "admin-1", role: UserRole.ADMINISTRATOR },
+      } as any); // skipcq: JS-0323
+
+      render(
+        <TaskForm
+          task={existingTask as any} // skipcq: JS-0323
+          onSuccess={mockOnSuccess}
+          onCancel={mockOnCancel}
+        />,
+      );
+
+      const checkbox = screen.getByLabelText(/visível para gerentes/i);
+      expect(checkbox).not.toBeChecked();
+      fireEvent.click(checkbox);
+      expect(checkbox).toBeChecked();
+    });
   });
 
   it("submits update payload for director editing with empty fields", () => {
