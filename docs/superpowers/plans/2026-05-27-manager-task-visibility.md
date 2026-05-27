@@ -12,26 +12,27 @@
 
 ## File Map
 
-| File | Change |
-|---|---|
-| `backend/app/models/task.py` | Add `manager_visible` field |
-| `backend/alembic/versions/0005_add_manager_visible_to_task.py` | New migration |
-| `backend/app/schemas/task.py` | Add field to `TaskUpdate` + `TaskRead` |
-| `backend/app/services/task_service.py` | `create_task` accepts flag; `update_task` strips for MANAGER |
-| `backend/app/api/deps.py` | Add `assert_manager_can_see_task` helper |
-| `backend/app/api/v1/endpoints/tasks.py` | Pass flag on create; filter list; guard all task-specific endpoints |
-| `backend/tests/test_tasks_rbac.py` | New tests for visibility rules |
-| `frontend/src/features/task-management/types/index.ts` | Add `manager_visible` to `TaskRead` + `TaskUpdate` |
-| `frontend/src/i18n/locales/pt.json` | Add `tasks.managerVisible` key |
-| `frontend/src/i18n/locales/en.json` | Add `tasks.managerVisible` key |
-| `frontend/src/features/task-management/components/TaskForm.tsx` | Checkbox toggle (ADMIN/DIRECTOR only, edit mode only) |
-| `frontend/src/features/task-management/components/__tests__/TaskForm.test.tsx` | Tests for toggle visibility |
+| File                                                                           | Change                                                              |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| `backend/app/models/task.py`                                                   | Add `manager_visible` field                                         |
+| `backend/alembic/versions/0005_add_manager_visible_to_task.py`                 | New migration                                                       |
+| `backend/app/schemas/task.py`                                                  | Add field to `TaskUpdate` + `TaskRead`                              |
+| `backend/app/services/task_service.py`                                         | `create_task` accepts flag; `update_task` strips for MANAGER        |
+| `backend/app/api/deps.py`                                                      | Add `assert_manager_can_see_task` helper                            |
+| `backend/app/api/v1/endpoints/tasks.py`                                        | Pass flag on create; filter list; guard all task-specific endpoints |
+| `backend/tests/test_tasks_rbac.py`                                             | New tests for visibility rules                                      |
+| `frontend/src/features/task-management/types/index.ts`                         | Add `manager_visible` to `TaskRead` + `TaskUpdate`                  |
+| `frontend/src/i18n/locales/pt.json`                                            | Add `tasks.managerVisible` key                                      |
+| `frontend/src/i18n/locales/en.json`                                            | Add `tasks.managerVisible` key                                      |
+| `frontend/src/features/task-management/components/TaskForm.tsx`                | Checkbox toggle (ADMIN/DIRECTOR only, edit mode only)               |
+| `frontend/src/features/task-management/components/__tests__/TaskForm.test.tsx` | Tests for toggle visibility                                         |
 
 ---
 
 ## Task 1: Backend — Model + Schema + Migration
 
 **Files:**
+
 - Modify: `backend/app/models/task.py`
 - Modify: `backend/app/schemas/task.py`
 - Create: `backend/alembic/versions/0005_add_manager_visible_to_task.py`
@@ -189,6 +190,7 @@ git commit -m "feat: add manager_visible field to Task model, schemas, and migra
 ## Task 2: Backend — create_task sets manager_visible
 
 **Files:**
+
 - Modify: `backend/app/services/task_service.py`
 - Modify: `backend/app/api/v1/endpoints/tasks.py`
 - Modify: `backend/tests/test_tasks_rbac.py`
@@ -319,6 +321,7 @@ git commit -m "feat: set manager_visible=True when MANAGER creates a task"
 ## Task 3: Backend — list filter + visibility guard helper
 
 **Files:**
+
 - Modify: `backend/app/api/deps.py`
 - Modify: `backend/app/api/v1/endpoints/tasks.py`
 - Modify: `backend/tests/test_tasks_rbac.py`
@@ -611,6 +614,7 @@ git commit -m "feat: filter tasks by manager_visible for MANAGER role; add visib
 ## Task 4: Backend — update_task strips manager_visible for MANAGER; ADMIN can set it
 
 **Files:**
+
 - Modify: `backend/app/services/task_service.py`
 - Modify: `backend/tests/test_tasks_rbac.py`
 
@@ -756,6 +760,7 @@ git commit -m "feat: MANAGER cannot change manager_visible; ADMIN/DIRECTOR can t
 ## Task 5: Frontend — Types + i18n + TaskForm toggle
 
 **Files:**
+
 - Modify: `frontend/src/features/task-management/types/index.ts`
 - Modify: `frontend/src/i18n/locales/pt.json`
 - Modify: `frontend/src/i18n/locales/en.json`
@@ -795,7 +800,9 @@ describe("manager_visible toggle", () => {
       manager_visible: false,
     };
 
-    render(<TaskForm task={existingTask} onSuccess={vi.fn()} onCancel={vi.fn()} />);
+    render(
+      <TaskForm task={existingTask} onSuccess={vi.fn()} onCancel={vi.fn()} />,
+    );
 
     expect(
       screen.getByRole("checkbox", { name: /visível para gerentes/i }),
@@ -823,7 +830,9 @@ describe("manager_visible toggle", () => {
       manager_visible: false,
     };
 
-    render(<TaskForm task={existingTask} onSuccess={vi.fn()} onCancel={vi.fn()} />);
+    render(
+      <TaskForm task={existingTask} onSuccess={vi.fn()} onCancel={vi.fn()} />,
+    );
 
     expect(
       screen.getByRole("checkbox", { name: /visível para gerentes/i }),
@@ -851,7 +860,9 @@ describe("manager_visible toggle", () => {
       manager_visible: true,
     };
 
-    render(<TaskForm task={existingTask} onSuccess={vi.fn()} onCancel={vi.fn()} />);
+    render(
+      <TaskForm task={existingTask} onSuccess={vi.fn()} onCancel={vi.fn()} />,
+    );
 
     expect(
       screen.queryByRole("checkbox", { name: /visível para gerentes/i }),
@@ -971,8 +982,7 @@ const transforms: Record<string, (value: unknown) => unknown> = {
   description: (v) => v || "",
   priority: (v) => v,
   assigned_to_id: (v) => v || "",
-  due_date: (v) =>
-    v ? new Date(v as string).toISOString().split("T")[0] : "",
+  due_date: (v) => (v ? new Date(v as string).toISOString().split("T")[0] : ""),
   status: (v) => v,
   category_id: (v) => v || "",
   manager_visible: (v) => Boolean(v),
@@ -982,44 +992,44 @@ const transforms: Record<string, (value: unknown) => unknown> = {
 In `handleSubmit`, update the `updatePayload` to include `manager_visible`:
 
 ```tsx
-    if (isEditing && task) {
-      const updatePayload: TaskUpdate = {
-        ...commonData,
-        status: formData.status as TaskStatus,
-        manager_visible: formData.manager_visible as boolean,
-      };
-      updateTaskMutation.mutate(
-        { id: task.id, data: updatePayload },
-        { onSuccess },
-      );
-    } else {
-      createTaskMutation.mutate(commonData, { onSuccess });
-    }
+if (isEditing && task) {
+  const updatePayload: TaskUpdate = {
+    ...commonData,
+    status: formData.status as TaskStatus,
+    manager_visible: formData.manager_visible as boolean,
+  };
+  updateTaskMutation.mutate(
+    { id: task.id, data: updatePayload },
+    { onSuccess },
+  );
+} else {
+  createTaskMutation.mutate(commonData, { onSuccess });
+}
 ```
 
 Add the toggle in the form JSX, just before the buttons row (`<div className="flex justify-end gap-3 pt-2 border-t">`):
 
 ```tsx
-        {isEditing && user?.role !== UserRole.MANAGER && (
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="manager_visible"
-              checked={Boolean(formData.manager_visible)}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  manager_visible: e.target.checked,
-                }))
-              }
-              disabled={isLoading}
-              className="h-4 w-4 rounded border-input"
-            />
-            <Label htmlFor="manager_visible">
-              {t("tasks.managerVisible")}
-            </Label>
-          </div>
-        )}
+{
+  isEditing && user?.role !== UserRole.MANAGER && (
+    <div className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        id="manager_visible"
+        checked={Boolean(formData.manager_visible)}
+        onChange={(e) =>
+          setFormData((prev) => ({
+            ...prev,
+            manager_visible: e.target.checked,
+          }))
+        }
+        disabled={isLoading}
+        className="h-4 w-4 rounded border-input"
+      />
+      <Label htmlFor="manager_visible">{t("tasks.managerVisible")}</Label>
+    </div>
+  );
+}
 ```
 
 - [ ] **Step 6: Run tests to verify they pass**

@@ -74,7 +74,6 @@ def get_current_user(
     return user
 
 
-
 def get_current_active_admin(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:

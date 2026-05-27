@@ -5,7 +5,10 @@ import { TaskPriority, TaskStatus } from "../../types";
 import { useCreateTask, useUpdateTask } from "../../hooks/useTasks";
 import { useAssignableUsers } from "../../../../hooks/useUsers";
 import { useCategories } from "../../hooks/useCategories";
-import { useAuth, UserRole } from "../../../user-administration/context/AuthContext";
+import {
+  useAuth,
+  UserRole,
+} from "../../../user-administration/context/AuthContext";
 
 // Mock the hooks
 vi.mock("../../hooks/useTasks", () => ({

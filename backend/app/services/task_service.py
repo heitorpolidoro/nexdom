@@ -37,6 +37,7 @@ class TaskService:
     ) -> Task:
         """Update a task with audit logging."""
         from app.models.enums import UserRole
+
         update_data = task_in.model_dump(exclude_unset=True)
 
         # MANAGER cannot change visibility flag — strip it silently
@@ -99,8 +100,10 @@ class TaskService:
         """Look up a user by UUID string and return {name, role}, or None."""
         if user_id_str is None or user_id_str == "null":
             return None
-        from app.models.user import User
         import uuid as _uuid
+
+        from app.models.user import User
+
         try:
             uid = _uuid.UUID(user_id_str)
         except ValueError:

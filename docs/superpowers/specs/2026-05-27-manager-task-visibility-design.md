@@ -13,14 +13,14 @@ Adicionar uma flag booleana `manager_visible` ao modelo `Task` que controla se u
 
 ## Regras de negócio
 
-| Situação | `manager_visible` |
-|---|---|
-| Tarefa criada por MANAGER | `True` (automático, pelo servidor) |
-| Tarefa criada por ADMIN ou DIRECTOR | `False` (padrão) |
-| ADMIN/DIRECTOR alteram a flag | Permitido via `PATCH /tasks/{id}` |
-| MANAGER tenta alterar a flag | Campo ignorado silenciosamente |
-| MANAGER tenta ver tarefa com `manager_visible=False` | 404 |
-| MANAGER lista tarefas | Filtro automático: só `manager_visible=True` |
+| Situação                                             | `manager_visible`                            |
+| ---------------------------------------------------- | -------------------------------------------- |
+| Tarefa criada por MANAGER                            | `True` (automático, pelo servidor)           |
+| Tarefa criada por ADMIN ou DIRECTOR                  | `False` (padrão)                             |
+| ADMIN/DIRECTOR alteram a flag                        | Permitido via `PATCH /tasks/{id}`            |
+| MANAGER tenta alterar a flag                         | Campo ignorado silenciosamente               |
+| MANAGER tenta ver tarefa com `manager_visible=False` | 404                                          |
+| MANAGER lista tarefas                                | Filtro automático: só `manager_visible=True` |
 
 A flag não é exposta no `TaskCreate` — é sempre determinada pelo servidor com base no role do criador.
 
@@ -118,16 +118,20 @@ export interface TaskRead {
 Toggle condicional — apenas para ADMIN e DIRECTOR:
 
 ```tsx
-{user?.role !== UserRole.MANAGER && (
-  <label>
-    <input
-      type="checkbox"
-      checked={formData.manager_visible ?? false}
-      onChange={(e) => setFormData({ ...formData, manager_visible: e.target.checked })}
-    />
-    {t("tasks.managerVisible")}
-  </label>
-)}
+{
+  user?.role !== UserRole.MANAGER && (
+    <label>
+      <input
+        type="checkbox"
+        checked={formData.manager_visible ?? false}
+        onChange={(e) =>
+          setFormData({ ...formData, manager_visible: e.target.checked })
+        }
+      />
+      {t("tasks.managerVisible")}
+    </label>
+  );
+}
 ```
 
 Para MANAGER, o campo não está no DOM.
@@ -138,14 +142,14 @@ Para MANAGER, o campo não está no DOM.
 
 ### Backend (`test_tasks_rbac.py`)
 
-| Teste | Resultado esperado |
-|---|---|
-| MANAGER cria tarefa | `manager_visible=True` |
-| ADMIN cria tarefa | `manager_visible=False` |
-| MANAGER lista tarefas | Só tasks com `manager_visible=True` |
-| MANAGER GET task com `manager_visible=False` | 404 |
-| ADMIN faz PATCH `manager_visible=True` | MANAGER passa a ver |
-| MANAGER faz PATCH `manager_visible=False` | Campo ignorado |
+| Teste                                        | Resultado esperado                  |
+| -------------------------------------------- | ----------------------------------- |
+| MANAGER cria tarefa                          | `manager_visible=True`              |
+| ADMIN cria tarefa                            | `manager_visible=False`             |
+| MANAGER lista tarefas                        | Só tasks com `manager_visible=True` |
+| MANAGER GET task com `manager_visible=False` | 404                                 |
+| ADMIN faz PATCH `manager_visible=True`       | MANAGER passa a ver                 |
+| MANAGER faz PATCH `manager_visible=False`    | Campo ignorado                      |
 
 ### Frontend (`TaskForm.test.tsx`)
 
@@ -156,16 +160,16 @@ Para MANAGER, o campo não está no DOM.
 
 ## Matriz de permissões atualizada
 
-| Ação | ADMINISTRATOR | DIRECTOR | MANAGER |
-|---|---|---|---|
-| Listar usuários | ✓ | ✓ | ✓ |
-| Gerenciar usuários (ativar/role) | ✓ | ✗ | ✗ |
-| Listar tarefas | ✓ (todas) | ✓ (todas) | ✓ (só `manager_visible=True`) |
-| Criar tarefa | ✓ | ✓ | ✓ (auto `manager_visible=True`) |
-| Editar qualquer tarefa (todos os campos) | ✓ | ✓ | ✗ |
-| Editar tarefa não-atribuída ou própria | ✓ | ✓ | ✓ |
-| Alterar `manager_visible` | ✓ | ✓ | ✗ |
-| Deletar tarefa (soft delete) | ✓ | ✗ | ✗ |
-| Comentar em qualquer tarefa | ✓ | ✓ | ✓ |
-| Editar próprio comentário | ✓ | ✓ | ✓ |
-| Criar / editar categorias | ✓ | ✓ | ✗ |
+| Ação                                     | ADMINISTRATOR | DIRECTOR  | MANAGER                         |
+| ---------------------------------------- | ------------- | --------- | ------------------------------- |
+| Listar usuários                          | ✓             | ✓         | ✓                               |
+| Gerenciar usuários (ativar/role)         | ✓             | ✗         | ✗                               |
+| Listar tarefas                           | ✓ (todas)     | ✓ (todas) | ✓ (só `manager_visible=True`)   |
+| Criar tarefa                             | ✓             | ✓         | ✓ (auto `manager_visible=True`) |
+| Editar qualquer tarefa (todos os campos) | ✓             | ✓         | ✗                               |
+| Editar tarefa não-atribuída ou própria   | ✓             | ✓         | ✓                               |
+| Alterar `manager_visible`                | ✓             | ✓         | ✗                               |
+| Deletar tarefa (soft delete)             | ✓             | ✗         | ✗                               |
+| Comentar em qualquer tarefa              | ✓             | ✓         | ✓                               |
+| Editar próprio comentário                | ✓             | ✓         | ✓                               |
+| Criar / editar categorias                | ✓             | ✓         | ✗                               |

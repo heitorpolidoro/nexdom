@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskPriority, TaskStatus } from "../types";
 import type { TaskRead, TaskCreate, TaskUpdate } from "../types";
-import { useAuth, UserRole } from "../../user-administration/context/AuthContext";
+import {
+  useAuth,
+  UserRole,
+} from "../../user-administration/context/AuthContext";
 import { useCreateTask, useUpdateTask } from "../hooks/useTasks";
 import { useCategories } from "../hooks/useCategories";
 import { useAssignableUsers } from "../../../hooks/useUsers";
@@ -150,20 +153,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-            <Label htmlFor="title">{t("tasks.form.titleLabel")}</Label>
-            <Input
-              id="title"
-              name="title"
-              value={formData.title as string}
-              onChange={handleChange}
-              disabled={isLoading}
-              placeholder={t("tasks.form.titlePlaceholder")}
-              aria-invalid={Boolean(errors.title)}
-            />
-            {errors.title && (
-              <p className="text-xs text-destructive">{errors.title}</p>
-            )}
-          </div>
+          <Label htmlFor="title">{t("tasks.form.titleLabel")}</Label>
+          <Input
+            id="title"
+            name="title"
+            value={formData.title as string}
+            onChange={handleChange}
+            disabled={isLoading}
+            placeholder={t("tasks.form.titlePlaceholder")}
+            aria-invalid={Boolean(errors.title)}
+          />
+          {errors.title && (
+            <p className="text-xs text-destructive">{errors.title}</p>
+          )}
+        </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="description">
@@ -180,21 +183,21 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
         </div>
 
         <div className="flex flex-col gap-1.5">
-            <Label htmlFor="priority">{t("tasks.form.priorityLabel")}</Label>
-            <Select
-              id="priority"
-              name="priority"
-              value={formData.priority as string}
-              onChange={handleChange}
-              disabled={isLoading}
-            >
-              {Object.values(TaskPriority).map((p) => (
-                <option key={p} value={p}>
-                  {t(`tasks.priority.${p}`)}
-                </option>
-              ))}
-            </Select>
-          </div>
+          <Label htmlFor="priority">{t("tasks.form.priorityLabel")}</Label>
+          <Select
+            id="priority"
+            name="priority"
+            value={formData.priority as string}
+            onChange={handleChange}
+            disabled={isLoading}
+          >
+            {Object.values(TaskPriority).map((p) => (
+              <option key={p} value={p}>
+                {t(`tasks.priority.${p}`)}
+              </option>
+            ))}
+          </Select>
+        </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="category_id">{t("tasks.form.categoryLabel")}</Label>
@@ -261,16 +264,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
         </div>
 
         <div className="flex flex-col gap-1.5">
-            <Label htmlFor="due_date">{t("tasks.form.dueDateLabel")}</Label>
-            <Input
-              type="date"
-              id="due_date"
-              name="due_date"
-              value={formData.due_date as string}
-              onChange={handleChange}
-              disabled={isLoading}
-            />
-          </div>
+          <Label htmlFor="due_date">{t("tasks.form.dueDateLabel")}</Label>
+          <Input
+            type="date"
+            id="due_date"
+            name="due_date"
+            value={formData.due_date as string}
+            onChange={handleChange}
+            disabled={isLoading}
+          />
+        </div>
 
         {isEditing && user?.role !== UserRole.MANAGER && (
           <div className="flex items-center gap-2">

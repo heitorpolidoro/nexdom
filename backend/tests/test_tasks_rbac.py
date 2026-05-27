@@ -12,6 +12,7 @@ from sqlmodel import Session
 def test_manager_role_value_exists():
     """MANAGER must exist as a valid UserRole value."""
     from app.models.enums import UserRole
+
     assert UserRole.MANAGER == "MANAGER"
 
 
@@ -101,6 +102,7 @@ def test_assert_can_edit_task_allows_admin(session: Session, test_data):
     """ADMINISTRATOR can always edit any task, even one assigned to someone else."""
     from app.api.deps import assert_can_edit_task
     from app.models.task import Task
+
     admin = test_data["admin"]
     task = Task(
         title="T",
@@ -117,11 +119,13 @@ def test_assert_can_edit_task_allows_admin(session: Session, test_data):
 def test_assert_can_edit_task_manager_unassigned(session: Session, test_data):
     """MANAGER can edit tasks with no assignee."""
     import uuid as _uuid
+
     from app.api.deps import assert_can_edit_task
     from app.core.security import get_password_hash
     from app.models.enums import UserRole
     from app.models.task import Task
     from app.models.user import User
+
     manager = User(
         id=_uuid.uuid4(),
         username="mgr_tmp",
@@ -146,6 +150,7 @@ def test_assert_can_edit_task_manager_unassigned(session: Session, test_data):
 def test_assert_can_edit_task_manager_other_user_raises(session: Session, test_data):
     """MANAGER cannot edit tasks assigned to someone else."""
     import uuid as _uuid
+
     import pytest
     from app.api.deps import assert_can_edit_task
     from app.core.exceptions import ForbiddenError
@@ -153,6 +158,7 @@ def test_assert_can_edit_task_manager_other_user_raises(session: Session, test_d
     from app.models.enums import UserRole
     from app.models.task import Task
     from app.models.user import User
+
     manager = User(
         id=_uuid.uuid4(),
         username="mgr_tmp2",
@@ -179,7 +185,9 @@ def test_assert_can_edit_task_manager_other_user_raises(session: Session, test_d
 def manager_user_fixture(session: Session):
     """Create and persist a MANAGER user for RBAC tests."""
     import uuid as _uuid
+
     from app.core.security import get_password_hash
+
     manager = User(
         id=_uuid.uuid4(),
         username="manager_rbac",
@@ -193,7 +201,9 @@ def manager_user_fixture(session: Session):
     return manager
 
 
-def test_manager_can_create_task(client: TestClient, session: Session, test_data, manager_user):
+def test_manager_can_create_task(
+    client: TestClient, session: Session, test_data, manager_user
+):
     """MANAGER can create tasks."""
     token = get_token(client, "manager_rbac", "pass")
     response = client.post(
@@ -326,6 +336,7 @@ def test_manager_cannot_delete_task(
 def test_manager_visible_field_exists_on_task():
     """Task model must have a manager_visible boolean field defaulting to False."""
     from app.models.task import Task
+
     task = Task(title="t", created_by_id=__import__("uuid").uuid4())
     assert task.manager_visible is False
 
@@ -333,12 +344,14 @@ def test_manager_visible_field_exists_on_task():
 def test_task_read_schema_includes_manager_visible():
     """TaskRead schema must expose manager_visible."""
     from app.schemas.task import TaskRead
+
     assert "manager_visible" in TaskRead.model_fields
 
 
 def test_task_update_schema_includes_manager_visible():
     """TaskUpdate schema must accept manager_visible."""
     from app.schemas.task import TaskUpdate
+
     update = TaskUpdate(manager_visible=True)
     assert update.manager_visible is True
 
@@ -351,7 +364,10 @@ def test_manager_create_task_sets_manager_visible_true(
     response = client.post(
         "/api/v1/tasks/",
         headers={"Authorization": f"Bearer {token}"},
-        json={"title": "Manager Visible Task", "category_id": str(test_data["category"].id)},
+        json={
+            "title": "Manager Visible Task",
+            "category_id": str(test_data["category"].id),
+        },
     )
     assert response.status_code == 200
     assert response.json()["manager_visible"] is True
@@ -363,7 +379,10 @@ def test_admin_create_task_sets_manager_visible_false(client: TestClient, test_d
     response = client.post(
         "/api/v1/tasks/",
         headers={"Authorization": f"Bearer {token}"},
-        json={"title": "Admin Hidden Task", "category_id": str(test_data["category"].id)},
+        json={
+            "title": "Admin Hidden Task",
+            "category_id": str(test_data["category"].id),
+        },
     )
     assert response.status_code == 200
     assert response.json()["manager_visible"] is False
@@ -375,7 +394,10 @@ def test_director_create_task_sets_manager_visible_false(client: TestClient, tes
     response = client.post(
         "/api/v1/tasks/",
         headers={"Authorization": f"Bearer {token}"},
-        json={"title": "Director Hidden Task", "category_id": str(test_data["category"].id)},
+        json={
+            "title": "Director Hidden Task",
+            "category_id": str(test_data["category"].id),
+        },
     )
     assert response.status_code == 200
     assert response.json()["manager_visible"] is False
