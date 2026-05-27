@@ -85,6 +85,7 @@ export interface TaskCreate extends Omit<
 export interface TaskUpdate extends Partial<TaskBase> {
   status?: TaskStatus;
   priority?: TaskPriority;
+  manager_visible?: boolean;
 }
 
 /**
@@ -107,6 +108,8 @@ export interface TaskRead extends TaskBase {
   category_name?: string | null;
   /** The hex color of the category. */
   category_color?: string | null;
+  /** Whether this task is visible to managers. */
+  manager_visible: boolean;
 }
 
 /**

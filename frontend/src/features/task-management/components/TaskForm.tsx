@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskPriority, TaskStatus } from "../types";
 import type { TaskRead, TaskCreate, TaskUpdate } from "../types";
+import { useAuth, UserRole } from "../../user-administration/context/AuthContext";
 import { useCreateTask, useUpdateTask } from "../hooks/useTasks";
 import { useCategories } from "../hooks/useCategories";
 import { useAssignableUsers } from "../../../hooks/useUsers";
@@ -21,6 +22,7 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const isEditing = !!task;
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
@@ -39,6 +41,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
     due_date: "",
     status: TaskStatus.PENDING,
     category_id: "",
+    manager_visible: false,
   };
 
   const transforms: Record<string, (value: unknown) => unknown> = {
@@ -50,6 +53,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
       v ? new Date(v as string).toISOString().split("T")[0] : "",
     status: (v) => v,
     category_id: (v) => v || "",
+    manager_visible: (v) => Boolean(v),
   };
 
   const getInitialState = () => {
@@ -111,6 +115,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
       const updatePayload: TaskUpdate = {
         ...commonData,
         status: formData.status as TaskStatus,
+        manager_visible: formData.manager_visible as boolean,
       };
       updateTaskMutation.mutate(
         { id: task.id, data: updatePayload },
@@ -266,6 +271,27 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
               disabled={isLoading}
             />
           </div>
+
+        {isEditing && user?.role !== UserRole.MANAGER && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="manager_visible"
+              checked={Boolean(formData.manager_visible)}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  manager_visible: e.target.checked,
+                }))
+              }
+              disabled={isLoading}
+              className="h-4 w-4 rounded border-input"
+            />
+            <Label htmlFor="manager_visible">
+              {t("tasks.form.managerVisible")}
+            </Label>
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-2 border-t">
           <Button
