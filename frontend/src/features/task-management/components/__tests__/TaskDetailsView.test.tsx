@@ -289,9 +289,9 @@ describe("TaskDetailsView", () => {
       />,
     );
 
-    expect(
-      screen.getByRole("combobox", { name: "assigned_to" }),
-    ).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: "assigned_to" })).toHaveValue(
+      "",
+    );
     expect(screen.getAllByText("Não definido").length).toBeGreaterThan(0);
   });
 

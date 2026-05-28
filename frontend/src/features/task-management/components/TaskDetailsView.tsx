@@ -205,9 +205,13 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
               >
                 {(() => {
                   const active = categories?.filter((c) => c.is_active) ?? [];
-                  const current = categories?.find((c) => c.id === task.category_id);
+                  const current = categories?.find(
+                    (c) => c.id === task.category_id,
+                  );
                   const options =
-                    current && !current.is_active ? [current, ...active] : active;
+                    current && !current.is_active
+                      ? [current, ...active]
+                      : active;
                   return options.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
