@@ -3,7 +3,8 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import TaskDetailsView from "../TaskDetailsView";
 import { TaskPriority, TaskStatus } from "../../types";
 import { useUpdateTask, useTaskHistory } from "../../hooks/useTasks";
-import { useUsers } from "../../../../hooks/useUsers";
+import { useAssignableUsers } from "../../../../hooks/useUsers";
+import { useCategories } from "../../hooks/useCategories";
 import { useTranslation } from "react-i18next";
 
 // Mock the hooks
@@ -17,6 +18,14 @@ vi.mock("../../hooks/useTasks", () => ({
 
 vi.mock("../../../../hooks/useUsers", () => ({
   useUsers: vi.fn(),
+  useAssignableUsers: vi.fn(),
+}));
+
+vi.mock("../../hooks/useCategories", () => ({
+  useCategories: vi.fn(),
+  useCreateCategory: vi.fn(),
+  useUpdateCategory: vi.fn(),
+  useDeleteCategory: vi.fn(),
 }));
 
 vi.mock(
@@ -47,7 +56,7 @@ describe("TaskDetailsView", () => {
     priority: TaskPriority.MEDIUM,
     status: TaskStatus.PENDING,
     assigned_to_id: "user1",
-    assigned_to_name: "user1",
+    assigned_to_name: "Alice Smith",
     created_by_id: "admin",
     created_by_name: "admin",
     due_date: "2023-12-31T23:59:59Z",
@@ -58,6 +67,30 @@ describe("TaskDetailsView", () => {
     category_color: "#808080",
     manager_visible: false,
   };
+
+  const mockAssignableUsers = [
+    {
+      id: "user1",
+      full_name: "Alice Smith",
+      username: "alice",
+      role: "DIRECTOR",
+      is_active: true,
+      type: { id: "t1", name: "Analista" },
+    },
+    {
+      id: "user2",
+      full_name: "Bob Jones",
+      username: "bob",
+      role: "DIRECTOR",
+      is_active: true,
+      type: { id: "t1", name: "Analista" },
+    },
+  ];
+
+  const mockCategories = [
+    { id: "cat-1", name: "General", color: "#808080", is_active: true },
+    { id: "cat-2", name: "Feature", color: "#ff0000", is_active: true },
+  ];
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -73,11 +106,13 @@ describe("TaskDetailsView", () => {
       error: null,
     } as any); // skipcq: JS-0323
 
-    vi.mocked(useUsers).mockReturnValue({
-      data: [
-        { id: "user1", full_name: "user1", username: "user1" },
-        { id: "admin", full_name: "admin", username: "admin" },
-      ],
+    vi.mocked(useAssignableUsers).mockReturnValue({
+      data: mockAssignableUsers,
+      isLoading: false,
+    } as any); // skipcq: JS-0323
+
+    vi.mocked(useCategories).mockReturnValue({
+      data: mockCategories,
       isLoading: false,
     } as any); // skipcq: JS-0323
   });
@@ -94,10 +129,13 @@ describe("TaskDetailsView", () => {
     expect(screen.getByText("Test Task")).toBeInTheDocument();
     expect(screen.getByText("Test Description")).toBeInTheDocument();
     expect(screen.getAllByText("Pendente").length).toBeGreaterThan(0);
-    expect(screen.getByText("Média")).toBeInTheDocument();
-    expect(screen.getByText("user1")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "priority" })).toHaveValue(
+      TaskPriority.MEDIUM,
+    );
+    expect(screen.getByRole("combobox", { name: "assigned_to" })).toHaveValue(
+      "user1",
+    );
     expect(screen.getByText("admin")).toBeInTheDocument();
-    // Check if dates are formatted (checking for year 2023)
     const dateElements = screen.getAllByText(/2023/);
     expect(dateElements.length).toBeGreaterThan(0);
   });
@@ -139,7 +177,7 @@ describe("TaskDetailsView", () => {
       />,
     );
 
-    const statusSelect = screen.getByRole("combobox");
+    const statusSelect = screen.getByRole("combobox", { name: "status" });
     fireEvent.change(statusSelect, {
       target: { value: TaskStatus.IN_PROGRESS },
     });
@@ -152,7 +190,91 @@ describe("TaskDetailsView", () => {
     );
   });
 
-  it("renders 'Não atribuído' and 'Não definido' when metadata is missing", () => {
+  it("triggers updateTask mutation when priority select is changed", () => {
+    render(
+      <TaskDetailsView
+        task={mockTask as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    const prioritySelect = screen.getByRole("combobox", { name: "priority" });
+    fireEvent.change(prioritySelect, { target: { value: TaskPriority.HIGH } });
+
+    expect(mockUpdateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "1",
+        data: { priority: TaskPriority.HIGH },
+      }),
+    );
+  });
+
+  it("triggers updateTask mutation when assigned_to select is changed", () => {
+    render(
+      <TaskDetailsView
+        task={mockTask as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    const assignedToSelect = screen.getByRole("combobox", {
+      name: "assigned_to",
+    });
+    fireEvent.change(assignedToSelect, { target: { value: "user2" } });
+
+    expect(mockUpdateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "1",
+        data: { assigned_to_id: "user2" },
+      }),
+    );
+  });
+
+  it("triggers updateTask with null when assigned_to is cleared", () => {
+    render(
+      <TaskDetailsView
+        task={mockTask as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    const assignedToSelect = screen.getByRole("combobox", {
+      name: "assigned_to",
+    });
+    fireEvent.change(assignedToSelect, { target: { value: "" } });
+
+    expect(mockUpdateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "1",
+        data: { assigned_to_id: null },
+      }),
+    );
+  });
+
+  it("triggers updateTask mutation when category select is changed", () => {
+    render(
+      <TaskDetailsView
+        task={mockTask as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    const categorySelect = screen.getByRole("combobox", { name: "category" });
+    fireEvent.change(categorySelect, { target: { value: "cat-2" } });
+
+    expect(mockUpdateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "1",
+        data: { category_id: "cat-2" },
+      }),
+    );
+  });
+
+  it("renders 'Não atribuído' option when assigned_to_id is null", () => {
     const incompleteTask = {
       ...mockTask,
       assigned_to_id: null,
@@ -168,11 +290,13 @@ describe("TaskDetailsView", () => {
       />,
     );
 
-    expect(screen.getByText("Não atribuído")).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "assigned_to" }),
+    ).toHaveValue("");
     expect(screen.getAllByText("Não definido").length).toBeGreaterThan(0);
   });
 
-  it("applies correct status and priority classes", () => {
+  it("applies correct status classes", () => {
     const statuses = Object.values(TaskStatus);
 
     statuses.forEach((status) => {
@@ -183,7 +307,6 @@ describe("TaskDetailsView", () => {
           onClose={mockOnClose}
         />,
       );
-      // Mapping translation for status badge
       const expectedText =
         status === TaskStatus.PENDING
           ? "Pendente"
@@ -197,7 +320,7 @@ describe("TaskDetailsView", () => {
 
       const badge = screen.getAllByText(expectedText)[0];
       expect(badge).toBeInTheDocument();
-      rerender(<></>); // force cleanup for next loop
+      rerender(<></>);
     });
   });
 
@@ -225,7 +348,7 @@ describe("TaskDetailsView", () => {
     ).toBeInTheDocument();
   });
 
-  it("disables status select when updateTaskMutation.isPending is true", () => {
+  it("disables all selects when updateTaskMutation.isPending is true", () => {
     vi.mocked(useUpdateTask).mockReturnValue({
       mutate: mockUpdateMutate,
       isPending: true,
@@ -239,8 +362,12 @@ describe("TaskDetailsView", () => {
       />,
     );
 
-    const statusSelect = screen.getByRole("combobox");
-    expect(statusSelect).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "status" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "priority" })).toBeDisabled();
+    expect(
+      screen.getByRole("combobox", { name: "assigned_to" }),
+    ).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "category" })).toBeDisabled();
   });
 
   it("formatDate handles all falsy values", () => {
@@ -272,11 +399,10 @@ describe("TaskDetailsView", () => {
     expect(screen.getAllByText("Não definido").length).toBeGreaterThan(0);
   });
 
-  it("handles unknown status and priority with default variants", () => {
+  it("handles unknown status and renders it in the status select", () => {
     const strangeTask = {
       ...mockTask,
       status: "UNKNOWN_STATUS",
-      priority: "UNKNOWN_PRIORITY",
     };
 
     render(
@@ -287,9 +413,8 @@ describe("TaskDetailsView", () => {
       />,
     );
 
-    // Should render with the raw string because of translation fallback or direct map
+    // Unknown statuses are appended to the status select options
     expect(screen.getByText("UNKNOWN_STATUS")).toBeInTheDocument();
-    expect(screen.getByText("UNKNOWN_PRIORITY")).toBeInTheDocument();
   });
 
   it("formats dates in English locale when language is not pt", () => {
@@ -306,71 +431,49 @@ describe("TaskDetailsView", () => {
       />,
     );
 
-    // In en-US locale, "2023-12-31T23:59:59Z" renders with a 4-digit year
     const dateEls = screen.getAllByText(/2023/);
     expect(dateEls.length).toBeGreaterThan(0);
   });
 
-  it("renders category badge with correct style when color is present or missing", () => {
-    const taskWithColor = {
-      ...mockTask,
-      category_name: "Feature",
-      category_color: "#ff0000",
-      manager_visible: false,
-    };
-
-    const { rerender } = render(
+  it("renders color dot using task.category_color and selects current category", () => {
+    render(
       <TaskDetailsView
-        task={taskWithColor as any} // skipcq: JS-0323
+        task={mockTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
     );
 
-    const outerSpan = screen.getByText("Feature");
-    const colorDot = outerSpan.querySelector("span");
+    expect(screen.getByRole("combobox", { name: "category" })).toHaveValue(
+      "cat-1",
+    );
+    const colorDot = document.querySelector("[style*='#808080']");
     expect(colorDot).toBeInTheDocument();
-    expect(colorDot).toHaveStyle({ backgroundColor: "#ff0000" });
-
-    const taskWithoutColor = {
-      ...mockTask,
-      category_name: "Feature",
-      category_color: null,
-      manager_visible: false,
-    };
-
-    rerender(
-      <TaskDetailsView
-        task={taskWithoutColor as any} // skipcq: JS-0323
-        onEdit={mockOnEdit}
-        onClose={mockOnClose}
-      />,
-    );
-
-    const outerSpan2 = screen.getByText("Feature");
-    const colorDot2 = outerSpan2.querySelector("span");
-    expect(colorDot2).toBeInTheDocument();
-    expect(colorDot2).toHaveStyle({ backgroundColor: "" });
   });
 
-  it("renders 'Sem categoria' when category_name is missing", () => {
-    const taskWithoutCategory = {
-      ...mockTask,
-      category_name: null,
-      category_color: null,
-      manager_visible: false,
-    };
+  it("renders only active categories in the category select", () => {
+    vi.mocked(useCategories).mockReturnValue({
+      data: [
+        { id: "cat-1", name: "General", color: "#808080", is_active: true },
+        {
+          id: "cat-archived",
+          name: "Archived",
+          color: "#ccc",
+          is_active: false,
+        },
+      ],
+      isLoading: false,
+    } as any); // skipcq: JS-0323
 
     render(
       <TaskDetailsView
-        task={taskWithoutCategory as any} // skipcq: JS-0323
+        task={mockTask as any} // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
     );
 
-    expect(
-      screen.getByText(/Sem categoria|tasks.details.noCategory/),
-    ).toBeInTheDocument();
+    expect(screen.getByText("General")).toBeInTheDocument();
+    expect(screen.queryByText("Archived")).not.toBeInTheDocument();
   });
 });
