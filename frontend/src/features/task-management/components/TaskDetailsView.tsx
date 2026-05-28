@@ -10,6 +10,15 @@ import { Button } from "../../../components/ui/button";
 import { cn } from "../../../lib/utils";
 import { getStatusLabel, getPriorityLabel } from "../utils/taskUtils";
 
+const PRIORITY_OPTIONS: TaskPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+
+const inlineSelectClassName = cn(
+  "appearance-none px-2 py-0.5 rounded text-xs font-medium",
+  "border border-border/40 bg-background text-foreground",
+  "cursor-pointer focus:ring-2 focus:ring-ring outline-none",
+  "disabled:opacity-50 disabled:cursor-not-allowed",
+);
+
 interface TaskDetailsViewProps {
   task: TaskRead;
   onEdit: () => void;
@@ -37,7 +46,7 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
   const handleAssignedToChange = (userId: string) => {
     updateTaskMutation.mutate({
       id: task.id,
-      data: { assigned_to_id: userId || null },
+      data: { assigned_to_id: userId === "" ? null : userId },
     });
   };
 
@@ -65,15 +74,6 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
   const displayStatuses = statuses.includes(task.status)
     ? statuses
     : [task.status, ...statuses];
-
-  const priorities: TaskPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
-
-  const inlineSelectClassName = cn(
-    "appearance-none px-2 py-0.5 rounded text-xs font-medium",
-    "border border-border/40 bg-background text-foreground",
-    "cursor-pointer focus:ring-2 focus:ring-ring outline-none",
-    "disabled:opacity-50 disabled:cursor-not-allowed",
-  );
 
   return (
     <div className="p-6">
@@ -132,7 +132,7 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
             disabled={updateTaskMutation.isPending}
             className={inlineSelectClassName}
           >
-            {priorities.map((p) => (
+            {PRIORITY_OPTIONS.map((p) => (
               <option key={p} value={p}>
                 {getPriorityLabel(p, t)}
               </option>
@@ -203,13 +203,17 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
                 disabled={updateTaskMutation.isPending}
                 className={inlineSelectClassName}
               >
-                {categories
-                  ?.filter((c) => c.is_active)
-                  .map((c) => (
+                {(() => {
+                  const active = categories?.filter((c) => c.is_active) ?? [];
+                  const current = categories?.find((c) => c.id === task.category_id);
+                  const options =
+                    current && !current.is_active ? [current, ...active] : active;
+                  return options.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>
-                  ))}
+                  ));
+                })()}
               </select>
             </div>
           </div>
