@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  VERCEL_ORG_ID: team_urhDhFHCn4JWJP0jVyRhIhir
+
+jobs:
+  deploy-front:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_PROJECT_ID: prj_6CqtOpbpsjKPBn6wJc8mQSOLbeD5
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - run: npm install -g vercel@latest
+
+      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: frontend
+
+      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: frontend
+
+      - run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: frontend
+
+  deploy-back:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_PROJECT_ID: prj_gnMDS9HdIb6DbpHfHbrfvWbZ0Plm
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - run: npm install -g vercel@latest
+
+      - run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: backend
+
+      - run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: backend
+
+      - run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: backend
+
+  rollback:
+    name: Rollback on partial failure
+    runs-on: ubuntu-latest
+    needs: [deploy-front, deploy-back]
+    if: |
+      always() && (
+        (needs.deploy-front.result == 'success' && needs.deploy-back.result == 'failure') ||
+        (needs.deploy-front.result == 'failure' && needs.deploy-back.result == 'success')
+      )
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - run: npm install -g vercel@latest
+
+      - name: Rollback frontend
+        if: needs.deploy-front.result == 'success'
+        env:
+          VERCEL_PROJECT_ID: prj_6CqtOpbpsjKPBn6wJc8mQSOLbeD5
+        run: vercel rollback --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Rollback backend
+        if: needs.deploy-back.result == 'success'
+        env:
+          VERCEL_PROJECT_ID: prj_gnMDS9HdIb6DbpHfHbrfvWbZ0Plm
+        run: vercel rollback --yes --token=${{ secrets.VERCEL_TOKEN }}
