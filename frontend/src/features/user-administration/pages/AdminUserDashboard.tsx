@@ -348,6 +348,11 @@ const AdminUserDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Version footer */}
+      <p className="mt-6 text-xs text-muted-foreground text-right">
+        {import.meta.env.VITE_APP_VERSION ?? "dev"}
+      </p>
+
       {/* Edit User Modal */}
       {editingUser && (
         <div

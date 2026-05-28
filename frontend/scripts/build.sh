@@ -12,4 +12,8 @@ if [ "$VERCEL_ENV" = "preview" ] && [ -n "$VERCEL_GIT_COMMIT_REF" ]; then
   echo "Preview build pointing to: $VITE_API_URL"
 fi
 
+# Inject the current git tag (or branch/commit ref) as the app version
+export VITE_APP_VERSION="${VERCEL_GIT_COMMIT_REF:-dev}"
+echo "Building version: $VITE_APP_VERSION"
+
 npm run build
