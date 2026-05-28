@@ -44,8 +44,20 @@ describe("useAssignableUsers", () => {
 
   it("filters out ADMINISTRATOR users", async () => {
     const mockUsers = [
-      { id: "1", username: "user1", role: "DIRECTOR", is_active: true, type: mockType },
-      { id: "2", username: "admin", role: "ADMINISTRATOR", is_active: true, type: mockType },
+      {
+        id: "1",
+        username: "user1",
+        role: "DIRECTOR",
+        is_active: true,
+        type: mockType,
+      },
+      {
+        id: "2",
+        username: "admin",
+        role: "ADMINISTRATOR",
+        is_active: true,
+        type: mockType,
+      },
     ];
     vi.mocked(apiClient.get).mockResolvedValueOnce({ data: mockUsers });
 
@@ -56,14 +68,32 @@ describe("useAssignableUsers", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data).toEqual([
-      { id: "1", username: "user1", role: "DIRECTOR", is_active: true, type: mockType },
+      {
+        id: "1",
+        username: "user1",
+        role: "DIRECTOR",
+        is_active: true,
+        type: mockType,
+      },
     ]);
   });
 
   it("filters out users without a type", async () => {
     const mockUsers = [
-      { id: "1", username: "with-type", role: "DIRECTOR", is_active: true, type: mockType },
-      { id: "2", username: "no-type", role: "DIRECTOR", is_active: true, type: null },
+      {
+        id: "1",
+        username: "with-type",
+        role: "DIRECTOR",
+        is_active: true,
+        type: mockType,
+      },
+      {
+        id: "2",
+        username: "no-type",
+        role: "DIRECTOR",
+        is_active: true,
+        type: null,
+      },
       { id: "3", username: "no-type-undef", role: "MANAGER", is_active: true },
     ];
     vi.mocked(apiClient.get).mockResolvedValueOnce({ data: mockUsers });
@@ -75,7 +105,13 @@ describe("useAssignableUsers", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data).toEqual([
-      { id: "1", username: "with-type", role: "DIRECTOR", is_active: true, type: mockType },
+      {
+        id: "1",
+        username: "with-type",
+        role: "DIRECTOR",
+        is_active: true,
+        type: mockType,
+      },
     ]);
   });
 });
