@@ -490,7 +490,16 @@ describe("TaskDetailsView", () => {
 
   it("falls back to username when user has no full_name", () => {
     vi.mocked(useAssignableUsers).mockReturnValue({
-      data: [{ id: "user3", full_name: "", username: "charlie", role: "DIRECTOR", is_active: true, type: { id: "t1", name: "Analista" } }],
+      data: [
+        {
+          id: "user3",
+          full_name: "",
+          username: "charlie",
+          role: "DIRECTOR",
+          is_active: true,
+          type: { id: "t1", name: "Analista" },
+        },
+      ],
       isLoading: false,
     } as any); // skipcq: JS-0323
 
@@ -508,7 +517,12 @@ describe("TaskDetailsView", () => {
   it("includes inactive current category as the first option when task category is inactive", () => {
     vi.mocked(useCategories).mockReturnValue({
       data: [
-        { id: "cat-active", name: "Active Cat", color: "#00ff00", is_active: true },
+        {
+          id: "cat-active",
+          name: "Active Cat",
+          color: "#00ff00",
+          is_active: true,
+        },
         { id: "cat-old", name: "Old Cat", color: "#cccccc", is_active: false },
       ],
       isLoading: false,
@@ -516,15 +530,25 @@ describe("TaskDetailsView", () => {
 
     render(
       <TaskDetailsView
-        task={{ ...mockTask, category_id: "cat-old", category_color: "#cccccc" } as any} // skipcq: JS-0323
+        task={
+          {
+            ...mockTask,
+            category_id: "cat-old",
+            category_color: "#cccccc",
+          } as any
+        } // skipcq: JS-0323
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
     );
 
     expect(screen.getByRole("option", { name: "Old Cat" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Active Cat" })).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "category" })).toHaveValue("cat-old");
+    expect(
+      screen.getByRole("option", { name: "Active Cat" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "category" })).toHaveValue(
+      "cat-old",
+    );
   });
 
   it("renders color dot with no background color when category_color is null", () => {
