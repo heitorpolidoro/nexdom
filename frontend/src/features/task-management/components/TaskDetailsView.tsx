@@ -39,10 +39,12 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
     updateTaskMutation.mutate({ id: task.id, data: { status: newStatus } });
   };
 
+  /** Updates the task priority when the user selects a new value. */
   const handlePriorityChange = (newPriority: TaskPriority) => {
     updateTaskMutation.mutate({ id: task.id, data: { priority: newPriority } });
   };
 
+  /** Updates the assignee, sending null when the empty option is selected. */
   const handleAssignedToChange = (userId: string) => {
     updateTaskMutation.mutate({
       id: task.id,
@@ -50,6 +52,7 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
     });
   };
 
+  /** Updates the task category when the user selects a new value. */
   const handleCategoryChange = (categoryId: string) => {
     updateTaskMutation.mutate({
       id: task.id,

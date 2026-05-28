@@ -475,4 +475,87 @@ describe("TaskDetailsView", () => {
     expect(screen.getByText("General")).toBeInTheDocument();
     expect(screen.queryByText("Archived")).not.toBeInTheDocument();
   });
+
+  it("falls back to created_by_id when created_by_name is null", () => {
+    render(
+      <TaskDetailsView
+        task={{ ...mockTask, created_by_name: null } as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    expect(screen.getByText("admin")).toBeInTheDocument();
+  });
+
+  it("falls back to username when user has no full_name", () => {
+    vi.mocked(useAssignableUsers).mockReturnValue({
+      data: [{ id: "user3", full_name: "", username: "charlie", role: "DIRECTOR", is_active: true, type: { id: "t1", name: "Analista" } }],
+      isLoading: false,
+    } as any); // skipcq: JS-0323
+
+    render(
+      <TaskDetailsView
+        task={{ ...mockTask, assigned_to_id: "user3" } as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    expect(screen.getByRole("option", { name: "charlie" })).toBeInTheDocument();
+  });
+
+  it("includes inactive current category as the first option when task category is inactive", () => {
+    vi.mocked(useCategories).mockReturnValue({
+      data: [
+        { id: "cat-active", name: "Active Cat", color: "#00ff00", is_active: true },
+        { id: "cat-old", name: "Old Cat", color: "#cccccc", is_active: false },
+      ],
+      isLoading: false,
+    } as any); // skipcq: JS-0323
+
+    render(
+      <TaskDetailsView
+        task={{ ...mockTask, category_id: "cat-old", category_color: "#cccccc" } as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    expect(screen.getByRole("option", { name: "Old Cat" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Active Cat" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "category" })).toHaveValue("cat-old");
+  });
+
+  it("renders color dot with no background color when category_color is null", () => {
+    render(
+      <TaskDetailsView
+        task={{ ...mockTask, category_color: null } as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    const colorDot = screen.getByTestId("category-color-dot");
+    expect(colorDot).toHaveStyle({ backgroundColor: "" });
+  });
+
+  it("renders empty category select when categories is undefined", () => {
+    vi.mocked(useCategories).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+    } as any); // skipcq: JS-0323
+
+    render(
+      <TaskDetailsView
+        task={mockTask as any} // skipcq: JS-0323
+        onEdit={mockOnEdit}
+        onClose={mockOnClose}
+      />,
+    );
+
+    const categorySelect = screen.getByRole("combobox", { name: "category" });
+    expect(categorySelect).toBeInTheDocument();
+    expect(categorySelect.querySelectorAll("option")).toHaveLength(0);
+  });
 });
