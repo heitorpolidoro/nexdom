@@ -1,17 +1,23 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import type { TaskRead, TaskStatus } from "../types";
+import type { TaskPriority, TaskRead, TaskStatus } from "../types";
 import { useUpdateTask } from "../hooks/useTasks";
+import { useCategories } from "../hooks/useCategories";
+import { useAssignableUsers } from "../../../hooks/useUsers";
 import AuditTimeline from "./AuditTimeline";
 import TaskComments from "./TaskComments";
-import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { cn } from "../../../lib/utils";
-import {
-  getStatusLabel,
-  getPriorityLabel,
-  priorityVariant,
-} from "../utils/taskUtils";
+import { getStatusLabel, getPriorityLabel } from "../utils/taskUtils";
+
+const PRIORITY_OPTIONS: TaskPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+
+const inlineSelectClassName = cn(
+  "appearance-none px-2 py-0.5 rounded text-xs font-medium",
+  "border border-border/40 bg-background text-foreground",
+  "cursor-pointer focus:ring-2 focus:ring-ring outline-none",
+  "disabled:opacity-50 disabled:cursor-not-allowed",
+);
 
 interface TaskDetailsViewProps {
   task: TaskRead;
@@ -26,11 +32,36 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const updateTaskMutation = useUpdateTask();
+  const { data: assignableUsers } = useAssignableUsers();
+  const { data: categories } = useCategories();
 
+  /** Updates the task status when the user selects a new value. */
   const handleStatusChange = (newStatus: TaskStatus) => {
     updateTaskMutation.mutate({ id: task.id, data: { status: newStatus } });
   };
 
+  /** Updates the task priority when the user selects a new value. */
+  const handlePriorityChange = (newPriority: TaskPriority) => {
+    updateTaskMutation.mutate({ id: task.id, data: { priority: newPriority } });
+  };
+
+  /** Updates the assignee, sending null when the empty option is selected. */
+  const handleAssignedToChange = (userId: string) => {
+    updateTaskMutation.mutate({
+      id: task.id,
+      data: { assigned_to_id: userId === "" ? null : userId },
+    });
+  };
+
+  /** Updates the task category when the user selects a new value. */
+  const handleCategoryChange = (categoryId: string) => {
+    updateTaskMutation.mutate({
+      id: task.id,
+      data: { category_id: categoryId },
+    });
+  };
+
+  /** Formats a date value for display using the current locale. */
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return t("tasks.details.notSet");
     return new Date(date).toLocaleString(
@@ -49,6 +80,13 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
     ? statuses
     : [task.status, ...statuses];
 
+  const activeCategories = categories?.filter((c) => c.is_active) ?? [];
+  const currentCategory = categories?.find((c) => c.id === task.category_id);
+  const categoryOptions =
+    currentCategory && !currentCategory.is_active
+      ? [currentCategory, ...activeCategories]
+      : activeCategories;
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -59,6 +97,7 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
           </h2>
           <div className="relative group shrink-0">
             <select
+              aria-label="status"
               value={task.status}
               onChange={(e) => handleStatusChange(e.target.value as TaskStatus)}
               disabled={updateTaskMutation.isPending}
@@ -93,10 +132,24 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
             </div>
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <Badge variant={priorityVariant(task.priority)}>
-            {getPriorityLabel(task.priority, t)}
-          </Badge>
+
+        {/* Priority select — inline, replacing the static Badge */}
+        <div className="flex gap-2 flex-wrap items-center">
+          <select
+            aria-label="priority"
+            value={task.priority}
+            onChange={(e) =>
+              handlePriorityChange(e.target.value as TaskPriority)
+            }
+            disabled={updateTaskMutation.isPending}
+            className={inlineSelectClassName}
+          >
+            {PRIORITY_OPTIONS.map((p) => (
+              <option key={p} value={p}>
+                {getPriorityLabel(p, t)}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -113,55 +166,93 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
       {/* Metadata grid */}
       <section className="mb-4">
         <div className="grid grid-cols-2 gap-3">
-          {(
-            [
-              {
-                label: t("tasks.details.assignedTo"),
-                value: task.assigned_to_name || t("tasks.details.unassigned"),
-              },
-              {
-                label: t("tasks.details.createdBy"),
-                value: task.created_by_name || task.created_by_id,
-              },
-              {
-                label: t("tasks.details.category"),
-                value: task.category_name ? (
-                  <span className="flex items-center gap-1.5">
-                    <span
-                      className="inline-block size-2.5 rounded-full shrink-0"
-                      style={{
-                        backgroundColor: task.category_color ?? undefined,
-                      }}
-                    />
-                    {task.category_name}
-                  </span>
-                ) : (
-                  t("tasks.details.noCategory")
-                ),
-              },
-              {
-                label: t("tasks.details.dueDate"),
-                value: formatDate(task.due_date),
-              },
-              {
-                label: t("tasks.details.createdAt"),
-                value: formatDate(task.created_at),
-              },
-              {
-                label: t("tasks.details.updatedAt"),
-                value: formatDate(task.updated_at),
-              },
-            ] as { label: string; value: React.ReactNode }[]
-          ).map(({ label, value }) => (
-            <div key={label} className="flex flex-col">
-              <span className="text-xs text-muted-foreground mb-0.5">
-                {label}
-              </span>
-              <span className="text-sm font-medium text-foreground">
-                {value}
-              </span>
+          {/* Assigned To — editable */}
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground mb-0.5">
+              {t("tasks.details.assignedTo")}
+            </span>
+            <select
+              aria-label="assigned_to"
+              value={task.assigned_to_id ?? ""}
+              onChange={(e) => handleAssignedToChange(e.target.value)}
+              disabled={updateTaskMutation.isPending}
+              className={inlineSelectClassName}
+            >
+              <option value="">{t("tasks.details.unassigned")}</option>
+              {assignableUsers?.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.full_name || u.username}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Created By — static */}
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground mb-0.5">
+              {t("tasks.details.createdBy")}
+            </span>
+            <span className="text-sm font-medium text-foreground">
+              {task.created_by_name || task.created_by_id}
+            </span>
+          </div>
+
+          {/* Category — editable, with color dot */}
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground mb-0.5">
+              {t("tasks.details.category")}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span
+                data-testid="category-color-dot"
+                className="inline-block size-2.5 rounded-full shrink-0"
+                style={{ backgroundColor: task.category_color ?? undefined }}
+              />
+              <select
+                aria-label="category"
+                value={task.category_id}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                disabled={updateTaskMutation.isPending}
+                className={inlineSelectClassName}
+              >
+                {categoryOptions.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
+          </div>
+
+          {/* Due Date — static */}
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground mb-0.5">
+              {t("tasks.details.dueDate")}
+            </span>
+            <span className="text-sm font-medium text-foreground">
+              {formatDate(task.due_date)}
+            </span>
+          </div>
+
+          {/* Created At — static */}
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground mb-0.5">
+              {t("tasks.details.createdAt")}
+            </span>
+            <span className="text-sm font-medium text-foreground">
+              {formatDate(task.created_at)}
+            </span>
+          </div>
+
+          {/* Updated At — static */}
+          <div className="flex flex-col">
+            <span className="text-xs text-muted-foreground mb-0.5">
+              {t("tasks.details.updatedAt")}
+            </span>
+            <span className="text-sm font-medium text-foreground">
+              {formatDate(task.updated_at)}
+            </span>
+          </div>
         </div>
       </section>
 
