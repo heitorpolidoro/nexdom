@@ -80,6 +80,13 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
     ? statuses
     : [task.status, ...statuses];
 
+  const activeCategories = categories?.filter((c) => c.is_active) ?? [];
+  const currentCategory = categories?.find((c) => c.id === task.category_id);
+  const categoryOptions =
+    currentCategory && !currentCategory.is_active
+      ? [currentCategory, ...activeCategories]
+      : activeCategories;
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -208,21 +215,11 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
                 disabled={updateTaskMutation.isPending}
                 className={inlineSelectClassName}
               >
-                {(() => {
-                  const active = categories?.filter((c) => c.is_active) ?? [];
-                  const current = categories?.find(
-                    (c) => c.id === task.category_id,
-                  );
-                  const options =
-                    current && !current.is_active
-                      ? [current, ...active]
-                      : active;
-                  return options.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ));
-                })()}
+                {categoryOptions.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

@@ -12,7 +12,7 @@ enabled = true
   [analyzers.meta]
     environment = ["browser", "node"]
     plugins = ["react"]
-    skip_doc_coverage = ["arrow-function"]
+    skip_doc_coverage = ["arrow-function", "arrow-function-expression"]
 
 [[analyzers]]
 name = "secrets"
