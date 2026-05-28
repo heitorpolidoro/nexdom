@@ -535,8 +535,8 @@ describe("TaskDetailsView", () => {
             ...mockTask,
             category_id: "cat-old",
             category_color: "#cccccc",
-          } as any
-        } // skipcq: JS-0323
+          } as any // skipcq: JS-0323
+        }
         onEdit={mockOnEdit}
         onClose={mockOnClose}
       />,
