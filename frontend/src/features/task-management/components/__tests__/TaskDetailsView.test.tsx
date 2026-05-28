@@ -17,7 +17,6 @@ vi.mock("../../hooks/useTasks", () => ({
 }));
 
 vi.mock("../../../../hooks/useUsers", () => ({
-  useUsers: vi.fn(),
   useAssignableUsers: vi.fn(),
 }));
 
@@ -447,8 +446,8 @@ describe("TaskDetailsView", () => {
     expect(screen.getByRole("combobox", { name: "category" })).toHaveValue(
       "cat-1",
     );
-    const colorDot = document.querySelector("[style*='#808080']");
-    expect(colorDot).toBeInTheDocument();
+    const colorDot = screen.getByTestId("category-color-dot");
+    expect(colorDot).toHaveStyle({ backgroundColor: "#808080" });
   });
 
   it("renders only active categories in the category select", () => {
