@@ -35,6 +35,7 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
   const { data: assignableUsers } = useAssignableUsers();
   const { data: categories } = useCategories();
 
+  /** Updates the task status when the user selects a new value. */
   const handleStatusChange = (newStatus: TaskStatus) => {
     updateTaskMutation.mutate({ id: task.id, data: { status: newStatus } });
   };
@@ -60,6 +61,7 @@ const TaskDetailsView: React.FC<TaskDetailsViewProps> = ({
     });
   };
 
+  /** Formats a date value for display using the current locale. */
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return t("tasks.details.notSet");
     return new Date(date).toLocaleString(
