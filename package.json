@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "preview:front": "vercel link --scope heitor-polidoros-projects --project sigecon-front --yes && vercel deploy",
-    "preview:back": "vercel link --scope heitor-polidoros-projects --project sigecon-back --yes && vercel deploy"
+    "preview:front": "vercel link --scope heitor-polidoros-projects --project nexdom-front --yes && vercel deploy",
+    "preview:back": "vercel link --scope heitor-polidoros-projects --project nexdom-back --yes && vercel deploy"
   },
   "dependencies": {
     "vercel": "^53.4.0"

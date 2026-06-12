@@ -8,7 +8,7 @@ client = TestClient(app)
 def test_read_root():
     response = client.get("/")
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"message": "Welcome to SIGECON API"}
+    assert response.json() == {"message": "Welcome to NEXDOM API"}
 
 
 def test_health_check():

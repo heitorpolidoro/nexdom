@@ -46,7 +46,7 @@ describe("Navbar", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Sigecon")).toBeDefined();
+    expect(screen.getByText("Nexdom")).toBeDefined();
     expect(screen.getByText("Tarefas")).toBeDefined();
     expect(screen.getByText("Sair")).toBeDefined();
     expect(screen.getByText(/Test User/)).toBeDefined();

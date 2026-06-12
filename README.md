@@ -1,41 +1,41 @@
-# SIGECON - Sistema de Gestão de Controle de Tarefas
+# NEXDOM - Sistema de Gestão de Controle de Tarefas
 
 <div>
 <!-- GitHub CI & Sponsors -->
-<a href="https://github.com/heitorpolidoro/sigecon/actions/workflows/ci.yml"><img src="https://github.com/heitorpolidoro/sigecon/actions/workflows/ci.yml/badge.svg" alt="CI Status"></a>
+<a href="https://github.com/heitorpolidoro/nexdom/actions/workflows/ci.yml"><img src="https://github.com/heitorpolidoro/nexdom/actions/workflows/ci.yml/badge.svg" alt="CI Status"></a>
 <a href="https://github.com/sponsors/heitorpolidoro"><img src="https://img.shields.io/github/sponsors/heitorpolidoro?color=ea4aaa" alt="GitHub Sponsors"></a>
 <br>
 
 <!-- GitHub Stats -->
 
-<a href="https://github.com/heitorpolidoro/sigecon/releases/latest"><img src="https://img.shields.io/github/v/release/heitorpolidoro/sigecon?label=Latest%20Version" alt="Latest Version"></a>
-<img src="https://img.shields.io/github/release-date/heitorpolidoro/sigecon" alt="GitHub Release Date">
-<img src="https://img.shields.io/github/commits-since/heitorpolidoro/sigecon/latest" alt="GitHub commits since latest release">
-<img src="https://img.shields.io/github/last-commit/heitorpolidoro/sigecon" alt="GitHub last commit">
+<a href="https://github.com/heitorpolidoro/nexdom/releases/latest"><img src="https://img.shields.io/github/v/release/heitorpolidoro/nexdom?label=Latest%20Version" alt="Latest Version"></a>
+<img src="https://img.shields.io/github/release-date/heitorpolidoro/nexdom" alt="GitHub Release Date">
+<img src="https://img.shields.io/github/commits-since/heitorpolidoro/nexdom/latest" alt="GitHub commits since latest release">
+<img src="https://img.shields.io/github/last-commit/heitorpolidoro/nexdom" alt="GitHub last commit">
 <br>
 
 <!-- GitHub Activity -->
 
-<a href="https://github.com/heitorpolidoro/sigecon/issues"><img src="https://img.shields.io/github/issues/heitorpolidoro/sigecon" alt="GitHub issues"></a>
-<a href="https://github.com/heitorpolidoro/sigecon/pulls"><img src="https://img.shields.io/github/issues-pr/heitorpolidoro/sigecon" alt="GitHub pull requests"></a>
+<a href="https://github.com/heitorpolidoro/nexdom/issues"><img src="https://img.shields.io/github/issues/heitorpolidoro/nexdom" alt="GitHub issues"></a>
+<a href="https://github.com/heitorpolidoro/nexdom/pulls"><img src="https://img.shields.io/github/issues-pr/heitorpolidoro/nexdom" alt="GitHub pull requests"></a>
 <br>
 
 <!-- DeepSource -->
 
-<a href="https://app.deepsource.com/gh/heitorpolidoro/sigecon/" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://app.deepsource.com/gh/heitorpolidoro/sigecon.svg/?label=active+issues&show_trend=true"/></a>
-<a href="https://app.deepsource.io/gh/heitorpolidoro/sigecon/"><img src="https://app.deepsource.com/gh/heitorpolidoro/sigecon.svg/?label=coverage" alt="DeepSource Coverage"></a>
+<a href="https://app.deepsource.com/gh/heitorpolidoro/nexdom/" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://app.deepsource.com/gh/heitorpolidoro/nexdom.svg/?label=active+issues&show_trend=true"/></a>
+<a href="https://app.deepsource.io/gh/heitorpolidoro/nexdom/"><img src="https://app.deepsource.com/gh/heitorpolidoro/nexdom.svg/?label=coverage" alt="DeepSource Coverage"></a>
 <br>
 
 <!-- SonarCloud -->
 
-<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_sigecon"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_sigecon&metric=alert_status" alt="SonarCloud Quality Gate"></a>
-<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_sigecon"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_sigecon&metric=coverage" alt="SonarCloud Coverage"></a>
-<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_sigecon"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_sigecon&metric=security_rating" alt="SonarCloud Security Rating"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_nexdom"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_nexdom&metric=alert_status" alt="SonarCloud Quality Gate"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_nexdom"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_nexdom&metric=coverage" alt="SonarCloud Coverage"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_nexdom"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_nexdom&metric=security_rating" alt="SonarCloud Security Rating"></a>
 <br>
-<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_sigecon"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_sigecon&metric=bugs" alt="SonarCloud Bugs"></a>
-<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_sigecon"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_sigecon&metric=vulnerabilities" alt="SonarCloud Vulnerabilities"></a>
-<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_sigecon"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_sigecon&metric=code_smells" alt="SonarCloud Code Smells"></a>
-<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_sigecon"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_sigecon&metric=sqale_rating" alt="SonarCloud Maintainability"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_nexdom"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_nexdom&metric=bugs" alt="SonarCloud Bugs"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_nexdom"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_nexdom&metric=vulnerabilities" alt="SonarCloud Vulnerabilities"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_nexdom"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_nexdom&metric=code_smells" alt="SonarCloud Code Smells"></a>
+<a href="https://sonarcloud.io/summary/new_code?id=heitorpolidoro_nexdom"><img src="https://sonarcloud.io/api/project_badges/measure?project=heitorpolidoro_nexdom&metric=sqale_rating" alt="SonarCloud Maintainability"></a>
 
 </div>
 

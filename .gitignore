@@ -111,6 +111,7 @@ test-results.xml
 # =========================
 .claude/
 .gemini/
+.superpowers/
 .github/commands/gemini-*.toml
 .github/workflows/gemini-*.yml
 gha-creds-*.json

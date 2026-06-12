@@ -16,7 +16,7 @@ def _clean_db_url(url: str) -> str:
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "SIGECON"
+    PROJECT_NAME: str = "NEXDOM"
     ENVIRONMENT: str = "production"
 
     # Database
@@ -40,8 +40,8 @@ class Settings(BaseSettings):
 
     # CORS
     BACKEND_CORS_ORIGINS: list[str] = [
-        "https://sigecon.vercel.app",
-        "https://sigecon-front.vercel.app",
+        "https://nexdom.vercel.app",
+        "https://nexdom-front.vercel.app",
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:5173",

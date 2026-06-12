@@ -1,4 +1,4 @@
-# 🗺️ Meridian Project Standards — sigecon
+# 🗺️ Meridian Project Standards — Nexdom
 
 > Last initialized: 2026-05-08
 
@@ -6,7 +6,7 @@
 
 ## 🎯 Project Overview
 
-**sigecon** is a full-stack task management system with role-based access control (RBAC), audit trails, and i18n support. The UI is in Portuguese (pt-BR primary, en fallback).
+**nexdom** is a full-stack task management system with role-based access control (RBAC), audit trails, and i18n support. The UI is in Portuguese (pt-BR primary, en fallback).
 
 | Layer | Technology |
 |-------|------------|
@@ -59,7 +59,7 @@ docker-compose logs -f backend     # Stream backend logs
 ## 🏗️ Structure & Navigation
 
 ```
-sigecon/
+nexdom/
 ├── backend/
 │   ├── app/
 │   │   ├── api/v1/endpoints/   # Route handlers (auth, tasks, users)
