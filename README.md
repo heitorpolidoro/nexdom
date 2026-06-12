@@ -1,4 +1,4 @@
-# NEXDOM - Sistema de Gestão de Controle de Tarefas
+# NEXDOM — Sistema de Gestão de Condomínios e Associações
 
 <div>
 <!-- GitHub CI & Sponsors -->
@@ -39,59 +39,82 @@
 
 </div>
 
-Este projeto é uma aplicação web desenvolvida para gerenciar tarefas, permitindo a criação, atribuição, acompanhamento de status e auditoria de alterações.
+O **Nexdom** é uma plataforma web para gestão de condomínios e associações. O módulo atual cobre a gestão de tarefas da administração: criação, atribuição, acompanhamento de status, comentários e auditoria completa de alterações, com controle de acesso por papéis.
 
-## Tecnologias Utilizadas
+- **Frontend (produção):** https://nexdom-front.vercel.app
+- **Backend (produção):** https://nexdom-back.vercel.app
+
+## Funcionalidades
+
+- **Gestão de tarefas** com categorias, prioridades, status e atribuição a usuários
+- **Controle de acesso (RBAC)** com três papéis: Administrador, Diretor e Gerente
+- **Auditoria** — todo histórico de alterações de uma tarefa é registrado e exibido na linha do tempo
+- **Comentários** por tarefa
+- **Internacionalização** (pt-BR e en) via i18next
+
+## Tecnologias
 
 ### Backend
 
-- **Linguagem:** Python 3.14
+- **Linguagem:** Python 3.13
 - **Framework:** FastAPI
-- **ORM:** SQLModel (com SQLAlchemy)
-- **Banco de Dados:** PostgreSQL
+- **ORM:** SQLModel (SQLAlchemy) com migrações via Alembic
+- **Banco de Dados:** PostgreSQL 16
+- **Autenticação:** JWT (PyJWT) + bcrypt, rate limiting com slowapi
 - **Gerenciador de Pacotes:** uv
-- **Containerização:** Docker
 
 ### Frontend
 
-- **Framework:** React (TypeScript)
+- **Framework:** React 19 (TypeScript)
 - **Build Tool:** Vite
-- **Estilização:** CSS Modules
+- **Estilização:** Tailwind CSS + Radix UI
+- **Estado de servidor:** TanStack Query
 
-## Estrutura do Projeto
+## Execução local
 
-O projeto segue uma estrutura modular com separação clara entre frontend e backend, utilizando Docker Compose para orquestração.
-
-## Configurações do Ambiente
-
-As configurações do ambiente (banco de dados, chaves secretas, etc.) devem ser definidas no arquivo `.env`.
-
-## Execução
-
-### Backend
-
-Para rodar o backend, utilize o Docker Compose:
+### Docker Compose (tudo junto)
 
 ```bash
-docker-compose up --build backend
+docker compose up --build
+# backend  → http://localhost:8001
+# frontend → http://localhost:3001
+# postgres → localhost:5436
 ```
 
-### Frontend
-
-Para rodar o frontend:
+### Manual
 
 ```bash
-docker-compose up frontend
+# Backend
+cd backend
+uv sync --all-groups
+uv run uvicorn app.main:app --reload --port 8001
+
+# Frontend
+cd frontend
+npm install
+npm run dev   # http://localhost:3000
 ```
+
+As configurações de ambiente (banco de dados, chaves secretas, etc.) ficam em `backend/.env` e `frontend/.env.local` — veja o `CLAUDE.md` para os valores de desenvolvimento.
+
+## Testes
+
+```bash
+# Backend (cobertura mínima: 90%)
+cd backend && uv run pytest --cov=app tests/
+
+# Frontend (cobertura mínima: 75%)
+cd frontend && npm run test:coverage
+```
+
+## Deploy
+
+O deploy é feito na **Vercel** (projetos `nexdom-front` e `nexdom-back`). Todo merge na branch `master` dispara automaticamente o deploy de produção dos dois projetos via integração Git. As migrações de banco rodam no GitHub Actions (`migrate.yml`) a cada push na `master`.
 
 ## Contribuição e Fluxo de Trabalho
 
-Este projeto segue um fluxo de trabalho com Git, branch de features (`feat/`), commits descritivos e Pull Requests para revisão e merge na branch principal (`master`).
+Branches de feature (`feat/`), commits descritivos e Pull Requests para a branch principal (`master`). O CI (GitHub Actions) roda testes de backend e frontend com gates de cobertura, além de análise no SonarCloud e DeepSource — um PR só pode ser mergeado com todos os checks verdes.
 
 ## Segurança
 
-O projeto implementa autenticação via JWT e controle de acesso baseado em roles (RBAC) para Diretores e Funcionários. Credenciais sensíveis devem ser gerenciadas via variáveis de ambiente e arquivo `.env`.
-
-## Quality Assurance
-
-O projeto conta com testes unitários e de integração para o backend, e está configurado para suportar testes frontend e E2E. Workflows de CI/GitHub Actions estão preparados para validação automática.
+Autenticação via JWT (HS256) e controle de acesso baseado em papéis (RBAC) — Administrador, Diretor e Gerente, com permissões distintas para tarefas e categorias. Credenciais sensíveis são gerenciadas via variáveis de ambiente.
