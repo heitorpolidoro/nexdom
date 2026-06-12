@@ -60,7 +60,8 @@
   "roles": {
     "ADMINISTRATOR": "Administrador",
     "DIRECTOR": "Diretor",
-    "MANAGER": "Gerente"
+    "MANAGER": "Gerente",
+    "GUEST": "Convidado"
   },
   "admin": {
     "title": "Gerenciamento de Usuários",
@@ -208,6 +209,7 @@
   "roles": {
     "ADMINISTRATOR": "Administrador",
     "DIRECTOR": "Diretor",
-    "MANAGER": "Gerente"
+    "MANAGER": "Gerente",
+    "GUEST": "Convidado"
   }
 }
