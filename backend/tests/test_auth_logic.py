@@ -1,6 +1,6 @@
 import uuid
 
-from jose import jwt
+import jwt
 
 from app.core import security
 from app.core.config import settings

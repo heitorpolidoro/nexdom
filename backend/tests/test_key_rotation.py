@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
+import jwt
 from fastapi.testclient import TestClient
-from jose import jwt
 
 from app.core.config import settings
 

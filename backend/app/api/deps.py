@@ -5,17 +5,18 @@ Authentication and authorization dependencies for the API.
 import uuid
 from typing import Annotated
 
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import ValidationError
+from sqlmodel import Session
+
 from app.core.config import settings
 from app.core.exceptions import ForbiddenError
 from app.db import get_session
 from app.models.enums import UserRole
 from app.models.task import Task
 from app.models.user import User
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
-from pydantic import ValidationError
-from sqlmodel import Session
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -44,7 +45,7 @@ def get_current_user(
         try:
             payload = jwt.decode(token, key, algorithms=[settings.ALGORITHM])
             break
-        except (JWTError, ValidationError):
+        except (jwt.PyJWTError, ValidationError):
             continue
 
     credentials_exception = HTTPException(
