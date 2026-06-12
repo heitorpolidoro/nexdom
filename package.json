@@ -1,9 +1,6 @@
 {
   "scripts": {
-    "preview:front": "vercel link --scope heitor-polidoros-projects --project nexdom-front --yes && vercel deploy",
-    "preview:back": "vercel link --scope heitor-polidoros-projects --project nexdom-back --yes && vercel deploy"
-  },
-  "dependencies": {
-    "vercel": "^53.4.0"
+    "preview:front": "npx vercel@latest link --scope heitor-polidoros-projects --project nexdom-front --yes && npx vercel@latest deploy",
+    "preview:back": "npx vercel@latest link --scope heitor-polidoros-projects --project nexdom-back --yes && npx vercel@latest deploy"
   }
 }
