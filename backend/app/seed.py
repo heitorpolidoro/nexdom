@@ -8,6 +8,7 @@ from app.models.category import Category
 from app.models.enums import TaskPriority, TaskStatus, UserRole
 from app.models.task import Task
 from app.models.user import User
+from app.models.user_type import UserType
 from sqlalchemy import text
 from sqlmodel import Session, create_engine
 
@@ -21,6 +22,7 @@ def seed_db() -> None:
         session.execute(text("TRUNCATE TABLE task CASCADE;"))
         session.execute(text('TRUNCATE TABLE "user" CASCADE;'))
         session.execute(text("TRUNCATE TABLE category CASCADE;"))
+        session.execute(text("TRUNCATE TABLE user_type CASCADE;"))
         session.commit()
 
         # 2. Categorias
@@ -43,11 +45,31 @@ def seed_db() -> None:
             session.refresh(cat)
         print(f"✅ {len(categories)} categorias criadas.")
 
-        # 3. Usuários
+        # 3. Tipos de Usuário
+        user_types_data = [
+            "Diretor Comercial",
+            "Diretor Financeiro",
+            "Gerente Operacional",
+            "Coordenador",
+            "Analista",
+        ]
+
+        user_types: dict[str, UserType] = {}
+        for type_name in user_types_data:
+            ut = UserType(name=type_name)
+            session.add(ut)
+            user_types[type_name] = ut
+
+        session.commit()
+        for ut in user_types.values():
+            session.refresh(ut)
+        print(f"✅ {len(user_types)} tipos de usuário criados.")
+
+        # 4. Usuários
         admin = User(
             id=uuid.UUID("00000000-0000-0000-0000-000000000000"),
             username="admin",
-            email="admin@sigecon.com",
+            email="admin@nexdom.com",
             hashed_password=get_password_hash("test_admin_password"),
             full_name="Administrador do Sistema",
             role=UserRole.ADMINISTRATOR,
@@ -59,13 +81,13 @@ def seed_db() -> None:
             {
                 "id": uuid.UUID("11111111-1111-1111-1111-111111111111"),
                 "username": "diretor1",
-                "email": "diretor1@sigecon.com",
+                "email": "diretor1@nexdom.com",
                 "full_name": "Diretor Comercial",
             },
             {
                 "id": uuid.UUID("22222222-2222-2222-2222-222222222222"),
                 "username": "diretor2",
-                "email": "diretor2@sigecon.com",
+                "email": "diretor2@nexdom.com",
                 "full_name": "Diretor Financeiro",
             },
         ]
@@ -80,6 +102,7 @@ def seed_db() -> None:
                 full_name=d_data["full_name"],
                 role=UserRole.DIRECTOR,
                 is_active=True,
+                type_id=user_types[d_data["full_name"]].id,
             )
             session.add(user)
             diretores.append(user)
@@ -87,17 +110,18 @@ def seed_db() -> None:
         manager = User(
             id=uuid.UUID("33333333-3333-3333-3333-333333333333"),
             username="gerente1",
-            email="gerente1@sigecon.com",
+            email="gerente1@nexdom.com",
             hashed_password=get_password_hash("test_user_password"),
             full_name="Gerente Operacional",
             role=UserRole.MANAGER,
+            type_id=user_types["Gerente Operacional"].id,
             is_active=True,
         )
         session.add(manager)
         session.commit()
         print(f"✅ {1 + len(diretores) + 1} usuários criados.")
 
-        # 4. Tarefas
+        # 5. Tarefas
         now = datetime.now()
         tasks_data = [
             {
@@ -120,7 +144,7 @@ def seed_db() -> None:
             },
             {
                 "title": "Treinamento de Equipe",
-                "description": "Treinar novos funcionários no uso do SIGECON.",
+                "description": "Treinar novos funcionários no uso do Nexdom.",
                 "status": TaskStatus.COMPLETED,
                 "priority": TaskPriority.LOW,
                 "assigned_to_id": diretores[0].id,
